@@ -1,0 +1,12 @@
+/CaRMSLibrary/build/
+/build/
+/CarRentalManagementSystem-ejb/build/
+/CaRMSLibrary/dist/
+/CaRMSManagementClient/build/
+/CaRMSManagementClient/dist/
+/CaRMSReservationClient/build/
+/CaRMSReservationClient/dist/
+/dist/
+/HolidayReservationClient/build/
+/HolidayReservationClient/dist/
+/CarRentalManagementSystem-ejb/dist/
