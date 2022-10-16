@@ -11,6 +11,7 @@ import ejb.session.stateless.ModelSessionBeanRemote;
 import entity.Car;
 import entity.Model;
 import java.util.List;
+import java.util.Scanner;
 import javax.ejb.EJB;
 
 /**
@@ -36,13 +37,11 @@ public class Main {
         
         for(Car car : listOfCars) {
             System.out.println("Car number plate is: " + car.getLicensePlateNum());
-            System.out.println("Car model is: " + car.getModel());
-            System.out.println("Car is currently: " + car.getStatus());
-            
+            System.out.println("Car model is: " + car.getModel().getMakeName() + " " + car.getModel().getModelName());
         }
-        
+        System.out.println("All Available models are:");
         for(Model model: listOfModels) {
-            System.out.println("Model is: " + model.getMakeName() + model.getModelName());
+            System.out.println(model.getMakeName() + " " + model.getModelName());
         }
         
     }
