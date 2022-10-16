@@ -5,6 +5,8 @@
  */
 package ejb.session.stateless;
 
+import entity.Car;
+import java.util.List;
 import javax.ejb.Local;
 
 /**
@@ -13,5 +15,7 @@ import javax.ejb.Local;
  */
 @Local
 public interface CarSessionBeanLocal {
-    
+     public String createNewCar(Car car);
+     
+     public List<Car> viewAllCars();
 }

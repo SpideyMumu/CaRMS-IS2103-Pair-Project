@@ -5,7 +5,7 @@
  */
 package ejb.session.stateless;
 
-import entity.Car;
+import entity.Model;
 import java.util.List;
 import javax.ejb.Remote;
 
@@ -14,10 +14,10 @@ import javax.ejb.Remote;
  * @author muhdm
  */
 @Remote
-public interface CarSessionBeanRemote {
+public interface ModelSessionBeanRemote {
 
-    public String createNewCar(Car car);
+    public Long createNewModel(Model model);
 
-    public List<Car> viewAllCars();
+    public List<Model> viewAllModels();
     
 }

@@ -8,6 +8,7 @@ package entity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -26,19 +27,25 @@ public class Model implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column (length = 255, nullable = false, unique = true)
+    @Column (nullable = false)
     private Long modelId;
     @Column (length = 255, nullable = false)
     private String makeName;
     @Column (length = 255, nullable = false, unique = true)
     private String modelName;
     
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn (nullable = false)
     private List<Car> listOfCars;
 
     public Model() {
         this.listOfCars = new ArrayList<Car>();
+    }
+    
+    public Model(String make, String model) {
+        this.listOfCars = new ArrayList<Car>();
+        this.makeName = make;
+        this.modelName = model;
     }
     
     public List<Car> getListOfCars() {

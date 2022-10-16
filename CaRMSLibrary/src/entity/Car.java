@@ -23,24 +23,35 @@ public class Car implements Serializable {
 
     //private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column (nullable = false, unique = true)
+    @Column (nullable = false)
     private String licensePlateNum;
     
     @ManyToOne (optional = false)
     @JoinColumn (nullable = false)
-    @Column (nullable = false)
     private Model model;
     
     @Column (nullable = false)
     private String color;
+    private static String DEFAULT_COLOR = "Black";
     
     @Column (nullable = false)
-    private String status;    
+    private String status;  
+    private static String DEFAULT_STATUS = "Available";
     //    private Outlet outlet;
     //    private CarCategory carCategory;
-    
 
+    public Car() {
+    }
+
+    
+    public Car(String licensePlateNum) {
+        this.licensePlateNum = licensePlateNum;
+        this.status = DEFAULT_STATUS;
+        this.color = DEFAULT_COLOR;
+    }
+    
+    
+    
     public Model getModel() {
         return model;
     }

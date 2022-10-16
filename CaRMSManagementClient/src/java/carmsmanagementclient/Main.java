@@ -5,17 +5,46 @@
  */
 package carmsmanagementclient;
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
+import ejb.session.stateless.CarSessionBeanRemote;
+import ejb.session.stateless.ModelSessionBeanRemote;
+import entity.Car;
+import entity.Model;
+import java.util.List;
+import javax.ejb.EJB;
+
 /**
  *
  * @author muhdm
  */
 public class Main {
 
+    @EJB
+    private static ModelSessionBeanRemote modelSessionBean;
+
+    @EJB
+    private static CarSessionBeanRemote carSessionBean;
+    
+
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        List<Car> listOfCars = carSessionBean.viewAllCars();
+        List<Model> listOfModels = modelSessionBean.viewAllModels();
+        
+        for(Car car : listOfCars) {
+            System.out.println("Car number plate is: " + car.getLicensePlateNum());
+            System.out.println("Car model is: " + car.getModel());
+            System.out.println("Car is currently: " + car.getStatus());
+            
+        }
+        
+        for(Model model: listOfModels) {
+            System.out.println("Model is: " + model.getMakeName() + model.getModelName());
+        }
+        
     }
     
 }
