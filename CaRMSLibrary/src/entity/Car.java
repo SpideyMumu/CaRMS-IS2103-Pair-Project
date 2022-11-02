@@ -39,16 +39,16 @@ public class Car implements Serializable {
     private CarStatus status;
     
     // Have to make all relationships mandatory
-    @ManyToOne
-    @JoinColumn (name = "outletId")
+    @ManyToOne (optional = false)
+    @JoinColumn (name = "outletId", nullable = false)
     private Outlet outlet;
     
-    @ManyToOne
-    @JoinColumn (name = "modelId")
+    @ManyToOne(optional = false)
+    @JoinColumn (name = "modelId", nullable = false)
     private Model model;
     
-    @ManyToOne
-    @JoinColumn (name = "categoryId")
+    @ManyToOne (optional = false)
+    @JoinColumn (name = "categoryId", nullable = false)
     private CarCategory carCategory;
     
     

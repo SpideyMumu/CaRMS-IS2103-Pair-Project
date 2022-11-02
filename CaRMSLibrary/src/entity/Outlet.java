@@ -46,6 +46,14 @@ public class Outlet implements Serializable {
         this.employees = new ArrayList<Employee>();
     }
 
+    public List<Employee> getEmployees() {
+        return employees;
+    }
+
+    public void setEmployees(List<Employee> employees) {
+        this.employees = employees;
+    }
+
     public String getAddress() {
         return address;
     }
