@@ -10,6 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 /**
  *
@@ -20,9 +22,50 @@ public class TransitDriverDispatch implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long transitId;
+    
+    @ManyToOne
+    @JoinColumn (name = "originOutletId")
+    private Outlet originOutlet;
+    
+    @ManyToOne
+    @JoinColumn (name = "returnnOutletId")
+    private Outlet returnOutlet;
+    
+    @ManyToOne
+    @JoinColumn (name = "driverEmployeeId")
+    private Employee driver;
 
+    
+    
+    
+    public Outlet getOriginOutlet() {
+        return originOutlet;
+    }
+
+    public void setOriginOutlet(Outlet originOutlet) {
+        this.originOutlet = originOutlet;
+    }
+
+    public Outlet getReturnOutlet() {
+        return returnOutlet;
+    }
+
+    public void setReturnOutlet(Outlet returnOutlet) {
+        this.returnOutlet = returnOutlet;
+    }
+
+    public Employee getDriver() {
+        return driver;
+    }
+
+    public void setDriver(Employee driver) {
+        this.driver = driver;
+    }
+    
+    
+    
     public Long getTransitId() {
         return transitId;
     }
