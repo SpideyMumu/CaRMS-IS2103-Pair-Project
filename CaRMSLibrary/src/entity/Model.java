@@ -6,10 +6,14 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 /**
  *
@@ -20,8 +24,45 @@ public class Model implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long modelId;
+    
+    @Column (nullable = false)
+    private String modelName;
+    
+    @Column (nullable = false)
+    private String makeName;
+    
+    @OneToMany (mappedBy = "model")
+    private List<Car> cars;
+
+    public Model() {
+        this.cars = new ArrayList<Car>();
+    }
+
+    public String getModelName() {
+        return modelName;
+    }
+
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
+    }
+
+    public String getMakeName() {
+        return makeName;
+    }
+
+    public void setMakeName(String makeName) {
+        this.makeName = makeName;
+    }
+
+    public List<Car> getCars() {
+        return cars;
+    }
+
+    public void setCars(List<Car> cars) {
+        this.cars = cars;
+    }
 
     public Long getModelId() {
         return modelId;

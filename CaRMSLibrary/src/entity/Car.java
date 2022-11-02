@@ -8,9 +8,13 @@ package entity;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import util.enumeration.CarStatus;
 
 /**
@@ -22,20 +26,29 @@ public class Car implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long carId;
     
     @Column (unique = true, nullable = false)
     private String licensePlateNum;
     
+    @Column (nullable = false)
     private String color;
-
+    
+    @Enumerated (EnumType.STRING)
     private CarStatus status;
     
+    // Have to make all relationships mandatory
+    @ManyToOne
+    @JoinColumn (name = "outletId")
     private Outlet outlet;
     
+    @ManyToOne
+    @JoinColumn (name = "modelId")
     private Model model;
     
+    @ManyToOne
+    @JoinColumn (name = "categoryId")
     private CarCategory carCategory;
     
     
