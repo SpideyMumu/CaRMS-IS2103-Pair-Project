@@ -39,17 +39,19 @@ public class Car implements Serializable {
     private CarStatus status;
     
     // Have to make all relationships mandatory
-    @ManyToOne (optional = false)
-    @JoinColumn (name = "outletId", nullable = false)
+    @ManyToOne //(optional = false)
+    @JoinColumn (name = "outletId") //, nullable = false)
     private Outlet outlet;
     
-    @ManyToOne(optional = false)
-    @JoinColumn (name = "modelId", nullable = false)
+    @ManyToOne //(optional = false)
+    @JoinColumn (name = "modelId") //, nullable = false)
     private Model model;
     
+    /*
     @ManyToOne (optional = false)
     @JoinColumn (name = "categoryId", nullable = false)
     private CarCategory carCategory;
+    */
     
     
     public Car() {
@@ -79,13 +81,13 @@ public class Car implements Serializable {
         this.model = model;
     }
 
-    public CarCategory getCarCategory() {
-        return carCategory;
-    }
-
-    public void setCarCategory(CarCategory carCategory) {
-        this.carCategory = carCategory;
-    }
+//    public CarCategory getCarCategory() {
+//        return carCategory;
+//    }
+//
+//    public void setCarCategory(CarCategory carCategory) {
+//        this.carCategory = carCategory;
+//    }
     
     public String getLicensePlateNum() {
         return licensePlateNum;

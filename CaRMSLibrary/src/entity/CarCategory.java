@@ -31,10 +31,10 @@ public class CarCategory implements Serializable {
     private String categoryName;
     
     @OneToMany (mappedBy = "carCategory")
-    private List<Car> cars;
+    private List<Model> models;
 
     public CarCategory() {
-        this.cars = new ArrayList<Car>();
+        this.models = new ArrayList<Model>();
     }
 
     public String getCategoryName() {
@@ -45,12 +45,12 @@ public class CarCategory implements Serializable {
         this.categoryName = categoryName;
     }
 
-    public List<Car> getCars() {
-        return cars;
+    public List<Model> getModels() {
+        return models;
     }
 
-    public void setCars(List<Car> cars) {
-        this.cars = cars;
+    public void setModels(List<Model> models) {
+        this.models = models;
     }
 
     public Long getCategoryId() {
