@@ -27,7 +27,7 @@ public class RentalRate implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long rentalRateId;
     @Column(nullable = false, length = 22)
     private String rentalRateName;
