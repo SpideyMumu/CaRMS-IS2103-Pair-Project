@@ -6,6 +6,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -53,6 +54,8 @@ public class Car implements Serializable {
     private CarCategory carCategory;
     */
     
+    private List<Reservation> reservations;
+    
     
     public Car() {
     }
@@ -88,6 +91,16 @@ public class Car implements Serializable {
 //    public void setCarCategory(CarCategory carCategory) {
 //        this.carCategory = carCategory;
 //    }
+    
+
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
+    }
+
     
     public String getLicensePlateNum() {
         return licensePlateNum;
