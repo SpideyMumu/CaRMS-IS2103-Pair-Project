@@ -5,7 +5,10 @@
  */
 package ejb.session.stateless;
 
+import entity.Outlet;
 import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 /**
  *
@@ -14,6 +17,30 @@ import javax.ejb.Stateless;
 @Stateless
 public class OutletSessionBean implements OutletSessionBeanRemote, OutletSessionBeanLocal {
 
-    // Add business logic below. (Right-click in editor and choose
-    // "Insert Code > Add Business Method")
+    @PersistenceContext(unitName = "CaRMS-ejbPU")
+    private EntityManager em;
+    
+    @Override
+    public Long createNewOutlet(Outlet newOutlet) {
+        em.persist(newOutlet);
+        em.flush();
+        return newOutlet.getOutletId();
+    }
+
+    @Override
+    public Outlet retrieveOutletById(Long outletId) {
+        return em.find(Outlet.class, outletId);
+    }
+    
+    @Override
+    public void updateOutlet(Outlet outlet) {
+        em.merge(outlet);
+    }
+
+    @Override
+    public void deleteOutlet(Long outletId) //throws StaffNotFoundException
+    {
+        Outlet outletToRemove = retrieveOutletById(outletId);
+        em.remove(outletToRemove);
+    }
 }
