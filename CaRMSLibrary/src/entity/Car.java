@@ -8,9 +8,13 @@ package entity;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import util.enumeration.CarStatus;
 
 /**
@@ -22,21 +26,32 @@ public class Car implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long carId;
     
     @Column (unique = true, nullable = false)
     private String licensePlateNum;
     
+    @Column (nullable = false)
     private String color;
-
+    
+    @Enumerated (EnumType.STRING)
     private CarStatus status;
     
+    // Have to make all relationships mandatory
+    @ManyToOne //(optional = false)
+    @JoinColumn (name = "outletId") //, nullable = false)
     private Outlet outlet;
     
+    @ManyToOne //(optional = false)
+    @JoinColumn (name = "modelId") //, nullable = false)
     private Model model;
     
+    /*
+    @ManyToOne (optional = false)
+    @JoinColumn (name = "categoryId", nullable = false)
     private CarCategory carCategory;
+    */
     
     
     public Car() {
@@ -66,13 +81,13 @@ public class Car implements Serializable {
         this.model = model;
     }
 
-    public CarCategory getCarCategory() {
-        return carCategory;
-    }
-
-    public void setCarCategory(CarCategory carCategory) {
-        this.carCategory = carCategory;
-    }
+//    public CarCategory getCarCategory() {
+//        return carCategory;
+//    }
+//
+//    public void setCarCategory(CarCategory carCategory) {
+//        this.carCategory = carCategory;
+//    }
     
     public String getLicensePlateNum() {
         return licensePlateNum;
