@@ -57,7 +57,7 @@ public class Reservation implements Serializable {
     
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
-    private Customer customer;
+    private CarRentalCustomer carRentalCustomer;
 
     public Long getReservationId() {
         return reservationId;
@@ -68,11 +68,11 @@ public class Reservation implements Serializable {
     }
     
     public Customer getCustomer() {
-        return customer;
+        return carRentalCustomer;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setCustomer(CarRentalCustomer carRentalCustomer) {
+        this.carRentalCustomer = carRentalCustomer;
     }
 
 

@@ -6,10 +6,13 @@
 package entity;
 
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
@@ -18,16 +21,19 @@ import javax.persistence.ManyToOne;
  * @author kathleen
  */
 @Entity
+@Inheritance(strategy= InheritanceType.JOINED)
 public class Customer implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long customerId;
+    protected Long customerId;
+    
+    @Column(nullable = false, unique = true, length = 8)
+    protected String mobileNumber;
     
     @ManyToOne(optional = false)
-    @JoinColumn(nullable = false)
-    private Partner partner;
+    protected Partner partner;
 
     public Long getCustomerId() {
         return customerId;

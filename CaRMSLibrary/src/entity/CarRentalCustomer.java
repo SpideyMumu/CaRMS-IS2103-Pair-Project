@@ -6,6 +6,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,29 +20,28 @@ import javax.persistence.OneToMany;
  * @author kathleen
  */
 @Entity
-public class CarRentalCustomer implements Serializable {
+public class CarRentalCustomer extends Customer implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long carRentalCustomerId;
-    @Column(nullable = false, unique = true, length = 8)
-    private String mobileNumber;
+    private static final long serialVersionUID = 1L;    
+    
     @Column(nullable = false, length = 10)
     private String password;
     
-    @OneToMany
+    @OneToMany(mappedBy="carRentalCustomer")
     private List<Reservation> reservations;
-    
-    
-    public Long getCarRentalCustomerId() {
-        return carRentalCustomerId;
+
+    public CarRentalCustomer() {
+        
+        super();
+        this.reservations = new ArrayList<Reservation>();
     }
 
-    public void setCarRentalCustomerId(Long carRentalCustomerId) {
-        this.carRentalCustomerId = carRentalCustomerId;
+    public CarRentalCustomer(String password, List<Reservation> reservations) {
+        this();
+        this.password = password;
+        this.reservations = reservations;
     }
-
+    
     public String getPassword() {
         return password;
     }
@@ -50,18 +50,10 @@ public class CarRentalCustomer implements Serializable {
         this.password = password;
     }
 
-    public String getMobileNumber() {
-        return mobileNumber;
-    }
-
-    public void setMobileNumber(String mobileNumber) {
-        this.mobileNumber = mobileNumber;
-    }
-
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (carRentalCustomerId != null ? carRentalCustomerId.hashCode() : 0);
+        hash += (customerId != null ? customerId.hashCode() : 0);
         return hash;
     }
 
@@ -72,7 +64,7 @@ public class CarRentalCustomer implements Serializable {
             return false;
         }
         CarRentalCustomer other = (CarRentalCustomer) object;
-        if ((this.carRentalCustomerId == null && other.carRentalCustomerId != null) || (this.carRentalCustomerId != null && !this.carRentalCustomerId.equals(other.carRentalCustomerId))) {
+        if ((this.customerId == null && other.customerId != null) || (this.customerId != null && !this.customerId.equals(other.customerId))) {
             return false;
         }
         return true;
@@ -80,7 +72,7 @@ public class CarRentalCustomer implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Customer[ id=" + carRentalCustomerId + " ]";
+        return "entity.Customer[ id=" + customerId + " ]";
     }
     
 }
