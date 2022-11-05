@@ -13,6 +13,8 @@ import ejb.session.stateless.OutletSessionBeanRemote;
 import entity.Employee;
 import java.util.Scanner;
 import javax.ejb.EJB;
+import util.exception.InvalidAccessRightException;
+import util.exception.InvalidLoginCredentialException;
 
 /**
  *
@@ -20,12 +22,19 @@ import javax.ejb.EJB;
  */
 public class MainApp {
 
+    //Remote Session Beans
     private CarSessionBeanRemote carSessionBean;
     private CarCategorySessionBeanRemote carCategorySessionBean;
     private EmployeeSessionBeanRemote employeeSessionBean;
     private OutletSessionBeanRemote outletSessionBean;
     private ModelSessionBeanRemote modelSessionBean;
+    
+    //Current user
     private Employee currEmployee;
+    
+    //Sub modules
+    private SalesManagementModule salesManagementModule;
+    private CustomerServiceModule customerServiceModule;
     
     public MainApp() 
     {        
@@ -59,19 +68,20 @@ public class MainApp {
 
                 if(response == 1) // implement login here
                 {
-//                    try
-//                    {
-//                        doLogin();
-//                        System.out.println("Login successful!\n");
-//                        
-//                        cashierOperationModule = new CashierOperationModule(productEntitySessionBeanRemote, saleTransactionEntitySessionBeanRemote, checkoutBeanRemote, emailSessionBeanRemote, queueCheckoutNotification, queueCheckoutNotificationFactory, currentStaffEntity);
-//                        systemAdministrationModule = new SystemAdministrationModule(staffEntitySessionBeanRemote, productEntitySessionBeanRemote, currentStaffEntity);
-//                        menuMain();
-//                    }
-//                    catch(InvalidLoginCredentialException ex) 
-//                    {
-//                        System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
-//                    }
+                    try
+                    {
+                        doLogin();
+                        System.out.println("Login successful!\n");
+                        
+                        //To update respective module with the currEmployee and all SBs
+                        salesManagementModule = new SalesManagementModule();
+                        customerServiceModule = new CustomerServiceModule();
+                        menuMain();
+                    }
+                    catch(InvalidLoginCredentialException ex) 
+                    {
+                        System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
+                    }
                 }
                 else if (response == 2)
                 {
@@ -90,7 +100,7 @@ public class MainApp {
         }
     }
     
-    private void doLogin() //throws InvalidLoginCredentialException
+    private void doLogin() throws InvalidLoginCredentialException
     {
         Scanner scanner = new Scanner(System.in);
         String username = "";
@@ -103,13 +113,12 @@ public class MainApp {
         password = scanner.nextLine().trim();
         
         if(username.length() > 0 && password.length() > 0)
-        {
-            //currentStaffEntity = staffEntitySessionBeanRemote.staffLogin(username, password);      
+        {      
             //currEmployee = employeeSessionBean.employeeLogin(username, password);
         }
         else
         {
-            //throw new InvalidLoginCredentialException("Missing login credential!");
+            throw new InvalidLoginCredentialException("Missing login credential!");
         }
     }
     
@@ -136,18 +145,20 @@ public class MainApp {
                 if(response == 1)
                 {
                     //Sales Management Here
+                    try {
+                        salesManagementModule.mainMenu();
+                    } catch (InvalidAccessRightException ex) {
+                        System.out.println("Invalid option, please try again!: " + ex.getMessage() + "\n");
+                    }
                 }
                 else if(response == 2)
                 {
                     //Customer service module here
-//                    try
-//                    {
-//                        systemAdministrationModule.menuSystemAdministration();
-//                    }
-//                    catch (InvalidAccessRightException ex)
-//                    {
-//                        System.out.println("Invalid option, please try again!: " + ex.getMessage() + "\n");
-//                    }
+                    try {
+                        customerServiceModule.customerServiceMenu();
+                    } catch (InvalidAccessRightException ex) {
+                        System.out.println("Invalid option, please try again!: " + ex.getMessage() + "\n");
+                    }
                 }
                 else if (response == 3)
                 {
