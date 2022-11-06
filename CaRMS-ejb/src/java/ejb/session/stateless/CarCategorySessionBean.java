@@ -9,6 +9,7 @@ import entity.CarCategory;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import util.exception.EntityNotFoundException;
 
 /**
  *
@@ -29,9 +30,13 @@ public class CarCategorySessionBean implements CarCategorySessionBeanRemote, Car
     }
     
     @Override
-    public CarCategory retrieveCategoryById (Long carCategoryId) {
+    public CarCategory retrieveCategoryById (Long carCategoryId) throws EntityNotFoundException {
         CarCategory carCategory = em.find(CarCategory.class, carCategoryId);
-        return carCategory;
+        if (carCategory != null) {
+            return carCategory;
+        } else {
+            throw new EntityNotFoundException("Car Category with this ID does not exist!");
+        }
     }
     
 }

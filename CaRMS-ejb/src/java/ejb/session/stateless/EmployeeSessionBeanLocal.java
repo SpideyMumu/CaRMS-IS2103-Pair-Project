@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.Employee;
 import java.util.List;
 import javax.ejb.Local;
+import util.exception.EntityNotFoundException;
 
 /**
  *
@@ -16,16 +17,17 @@ import javax.ejb.Local;
 @Local
 public interface EmployeeSessionBeanLocal {
 
-    public Employee retrieveEmployeeById(Long employeeId);
+    public Employee retrieveEmployeeById(Long employeeId)  throws EntityNotFoundException;
 
     public Long createNewEmployee(Employee newEmployee);
 
     public void updateEmployee(Employee employee);
 
-    public void deleteEmployee(Long employeeId);
+    public void deleteEmployee(Long employeeId) throws EntityNotFoundException;
 
-    public Employee retrieveEmployeeByUserName(String username);
+    public Employee retrieveEmployeeByUserName(String username) throws EntityNotFoundException;
 
     public List<Employee> retrieveAllEmployees();
     
+    public Employee employeeLogin(String username, String password) throws InvalidLoginCredentialException
 }

@@ -12,6 +12,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.EntityNotFoundException;
 
 /**
  *
@@ -31,8 +32,13 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
     }
     
     @Override
-    public Model retrieveModelById(Long modelId) {
-        return em.find(Model.class, modelId);
+    public Model retrieveModelById(Long modelId) throws EntityNotFoundException {
+        Model model = em.find(Model.class, modelId);
+        if (model != null) {
+            return model;
+        } else {
+            throw new EntityNotFoundException("Model with ID " + modelId + " does not exist!");
+        }
     }
     
     @Override
@@ -48,7 +54,7 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
     }
 
     @Override
-    public void deleteModel(Long modelId) //throws StaffNotFoundException
+    public void deleteModel(Long modelId) throws EntityNotFoundException
     {
         Model modelToRemove = retrieveModelById(modelId);
         em.remove(modelToRemove);

@@ -9,8 +9,11 @@ import entity.Employee;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.EntityNotFoundException;
 
 /**
  *
@@ -30,40 +33,50 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
     }
     
     @Override
-    public Employee retrieveEmployeeById(Long employeeId) {
-        return em.find(Employee.class, employeeId);
+    public Employee retrieveEmployeeById(Long employeeId) throws EntityNotFoundException {
+        Employee employee = em.find(Employee.class, employeeId);
+        if (employee != null) {
+            return employee;
+        } else {
+            throw new EntityNotFoundException("Employee with this ID does not exist!");
+        }
     }
     
     @Override
-    public Employee retrieveEmployeeByUserName(String username) {
+    public Employee retrieveEmployeeByUserName(String username) throws EntityNotFoundException {
         Query query = em.createQuery("SELECT e FROM Employee e WHERE e.username = :inUsername");
         query.setParameter("inUsername", username);
-        
-        return (Employee) query.getSingleResult(); //implement try catch EntityNotFound
-    } 
+
+        try {
+            return (Employee) query.getSingleResult();
+        } catch (NoResultException | NonUniqueResultException ex) {
+            throw new EntityNotFoundException("Employee with username " + username + " does not exist!");
+        }
+    }
     
     //login function here
-//    @Override
-//    public Employee staffLogin(String username, String password) //throws InvalidLoginCredentialException
-//    {
-//        try
-//        {
-//            Employee staffEntity = retrieveStaffByUsername(username);
-//            
-//            if(staffEntity.getPassword().equals(password))
-//            {
-//                staffEntity.getSaleTransactionEntities().size();                
-//                return staffEntity;
-//            }
-//            else
-//            {
-//                throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
-//            }
-//        }
-//        catch(StaffNotFoundException ex)
-//        {
-//            throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
-//        }
+    @Override
+    public Employee employeeLogin(String username, String password) throws InvalidLoginCredentialException
+    {
+        try
+        {
+            Employee employee = retrieveEmployeeByUserName(username);
+            
+            if(employee.getPassword().equals(password))
+            {
+                //staffEntity.getSaleTransactionEntities().size();                
+                return employee;
+            }
+            else
+            {
+                throw new InvalidLoginCredentialException("Invalid password!");
+            }
+        }
+        catch(EntityNotFoundException ex)
+        {
+            throw new InvalidLoginCredentialException("Username does not exist!");
+        }
+    }
      
     @Override
     public List<Employee> retrieveAllEmployees()
@@ -80,7 +93,7 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
     }
     
     @Override
-    public void deleteEmployee(Long employeeId) //throws StaffNotFoundException
+    public void deleteEmployee(Long employeeId) throws EntityNotFoundException
     {
         Employee e = retrieveEmployeeById(employeeId);
         em.remove(e);
