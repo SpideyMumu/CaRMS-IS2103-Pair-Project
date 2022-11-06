@@ -24,11 +24,14 @@ public class SalesManagementModule {
     This module is only accessible to Sales Manager and Operations Manager
     */
     
+    //Remote Session Beans
     private CarSessionBeanRemote carSessionBean;
     private CarCategorySessionBeanRemote carCategorySessionBean;
     private EmployeeSessionBeanRemote employeeSessionBean;
     private OutletSessionBeanRemote outletSessionBean;
     private ModelSessionBeanRemote modelSessionBean;
+    
+    //Current logged-in user
     private Employee currEmployee;
 
     public SalesManagementModule() {
