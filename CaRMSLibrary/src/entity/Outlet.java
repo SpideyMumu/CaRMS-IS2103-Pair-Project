@@ -33,7 +33,10 @@ public class Outlet implements Serializable {
     private String address;
     
     @Column
-    private String openingHours;
+    private String openingHour;
+    
+    @Column
+    private String closingHour;
     
     @OneToMany (mappedBy = "outlet")
     private List<Employee> employees;
@@ -62,14 +65,22 @@ public class Outlet implements Serializable {
         this.address = address;
     }
 
-    public String getOpeningHours() {
-        return openingHours;
+    public String getOpeningHour() {
+        return openingHour;
     }
 
-    public void setOpeningHours(String openingHours) {
-        this.openingHours = openingHours;
+    public void setOpeningHour(String openingHour) {
+        this.openingHour = openingHour;
     }
 
+    public String getClosingHour() {
+        return closingHour;
+    }
+
+    public void setClosingHour(String closingHour) {
+        this.closingHour = closingHour;
+    }
+    
     public List<Car> getCars() {
         return cars;
     }
