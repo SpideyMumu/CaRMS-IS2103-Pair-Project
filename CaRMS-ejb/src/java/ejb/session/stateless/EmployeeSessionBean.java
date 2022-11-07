@@ -14,6 +14,7 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import util.exception.EntityNotFoundException;
+import util.exception.InvalidLoginCredentialException;
 
 /**
  *

@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.CarCategory;
 import javax.ejb.Remote;
+import util.exception.EntityNotFoundException;
 
 /**
  *
@@ -17,6 +18,6 @@ public interface CarCategorySessionBeanRemote {
 
     public Long createNewCategory(CarCategory newCarCategory);
 
-    public CarCategory retrieveCategoryById(Long carCategoryId);
+    public CarCategory retrieveCategoryById(Long carCategoryId) throws EntityNotFoundException;
     
 }

@@ -9,6 +9,7 @@ import entity.Employee;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.EntityNotFoundException;
+import util.exception.InvalidLoginCredentialException;
 
 /**
  *
@@ -29,5 +30,5 @@ public interface EmployeeSessionBeanLocal {
 
     public List<Employee> retrieveAllEmployees();
     
-    public Employee employeeLogin(String username, String password) throws InvalidLoginCredentialException
+    public Employee employeeLogin(String username, String password) throws InvalidLoginCredentialException;
 }

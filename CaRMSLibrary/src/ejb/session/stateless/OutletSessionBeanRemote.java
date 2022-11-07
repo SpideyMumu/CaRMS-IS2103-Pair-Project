@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.Outlet;
 import javax.ejb.Remote;
+import util.exception.EntityNotFoundException;
 
 /**
  *
@@ -15,12 +16,12 @@ import javax.ejb.Remote;
 @Remote
 public interface OutletSessionBeanRemote {
     
-    public Outlet retrieveOutletById(Long outletId);
+    public Outlet retrieveOutletById(Long outletId) throws EntityNotFoundException;
 
     public Long createNewOutlet(Outlet newOutlet);
 
     public void updateOutlet(Outlet outlet);
 
-    public void deleteOutlet(Long outletId);
+    public void deleteOutlet(Long outletId) throws EntityNotFoundException;
     
 }

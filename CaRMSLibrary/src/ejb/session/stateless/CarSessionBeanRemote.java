@@ -8,6 +8,9 @@ package ejb.session.stateless;
 import entity.Car;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.CarLicensePlateNumExistException;
+import util.exception.EntityNotFoundException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -16,16 +19,16 @@ import javax.ejb.Remote;
 @Remote
 public interface CarSessionBeanRemote {
 
-    public void deleteCar(Long carId);
+    public void deleteCar(Long carId) throws EntityNotFoundException;
 
     public void updateCar(Car car);
 
     public List<Car> retrieveAllCars();
 
-    public Long createNewCar(Car newCar);
+    public Long createNewCar(Car newCar)throws CarLicensePlateNumExistException, UnknownPersistenceException;
 
-    public Car retrieveCarById(Long carId);
+    public Car retrieveCarById(Long carId) throws EntityNotFoundException;
     
-    public Car retrieveCarByLicensePlateNum(String licensePlateNum);
+    public Car retrieveCarByLicensePlateNum(String licensePlateNum) throws EntityNotFoundException;
     
 }
