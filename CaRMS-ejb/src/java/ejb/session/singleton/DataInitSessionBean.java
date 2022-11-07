@@ -78,8 +78,6 @@ public class DataInitSessionBean {
         
         //Outlets:
         SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
-//        Date time = formatter.parse("10:00");
-        
         
         Outlet outletA = new Outlet();
         outletA.setOutletName("Outlet A");
@@ -92,16 +90,37 @@ public class DataInitSessionBean {
         outletC.setOpeningHour(formatter.parse("10:00"));
         outletC.setClosingHour(formatter.parse("22:00"));
         
-        
-        
         //Employee
         Employee employeeA1 = new Employee("Employee A1", "employeeA1", UserRole.SALES_MANAGER, outletA);
         Employee employeeA2 = new Employee("Employee A2", "employeeA2", UserRole.OPERATIONS_MANAGER, outletA);
         Employee employeeA3 = new Employee("Employee A3", "employeeA3", UserRole.CS_EXECUTIVE, outletA);
         Employee employeeA4 = new Employee("Employee A4", "employeeA4", UserRole.EMPLOYEE, outletA);
         Employee employeeA5 = new Employee("Employee A5", "employeeA5", UserRole.EMPLOYEE, outletA);
+        Employee employeeB1 = new Employee("Employee B1", "employeeB1", UserRole.SALES_MANAGER, outletB);
+        Employee employeeB2 = new Employee("Employee B2", "employeeB2", UserRole.OPERATIONS_MANAGER, outletB);
+        Employee employeeB3 = new Employee("Employee B3", "employeeB3", UserRole.CS_EXECUTIVE, outletB);
+        Employee employeeC1 = new Employee("Employee C1", "employeeC1", UserRole.SALES_MANAGER, outletC);
+        Employee employeeC2 = new Employee("Employee C2", "employeeC2", UserRole.OPERATIONS_MANAGER, outletC);
+        Employee employeeC3 = new Employee("Employee C3", "employeeC3", UserRole.CS_EXECUTIVE, outletC);
+        
         
         //Associate employees into Outlet list of employees
+        //outlet A employees
+        outletA.getEmployees().add(employeeA1);
+        outletA.getEmployees().add(employeeA2);
+        outletA.getEmployees().add(employeeA3);
+        outletA.getEmployees().add(employeeA4);
+        outletA.getEmployees().add(employeeA5);
+        
+        //outlet B employees
+        outletB.getEmployees().add(employeeB1);
+        outletB.getEmployees().add(employeeB2);
+        outletB.getEmployees().add(employeeB3);
+        
+        //outlet C employees
+        outletC.getEmployees().add(employeeC1);
+        outletC.getEmployees().add(employeeC2);
+        outletC.getEmployees().add(employeeC3);
         
         //Car Category
         CarCategory standardSedan = new CarCategory("Standard Sedan");
@@ -118,6 +137,13 @@ public class DataInitSessionBean {
         Model a6 = new Model("Audi", "A6", luxurySedan);
         
         //Associate models into car category list of models 
+        standardSedan.getModels().add(corolla);
+        standardSedan.getModels().add(civic);
+        standardSedan.getModels().add(sunny);
+        
+        luxurySedan.getModels().add(a6);
+        luxurySedan.getModels().add(bmw);
+        luxurySedan.getModels().add(mercs);
         
         //Car
         Car car1 = new Car("SS00A1TC", corolla, CarStatus.Available, outletA);
@@ -134,9 +160,28 @@ public class DataInitSessionBean {
         Car car12 = new Car("LS00C4A6", a6, CarStatus.Available, outletC);
         
         //Associate Cars into model list of cars
+        corolla.getCars().add(car1);
+        corolla.getCars().add(car2);
+        corolla.getCars().add(car3);
         
-
+        civic.getCars().add(car4);
+        civic.getCars().add(car5);
+        civic.getCars().add(car6);
+        
+        sunny.getCars().add(car7);
+        sunny.getCars().add(car8);
+        sunny.getCars().add(car9);
+        
+        mercs.getCars().add(car10);
+        bmw.getCars().add(car11);
+        a6.getCars().add(car12);
+        
         //RentalRate
+        SimpleDateFormat rentalDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        
+        
+        
+        //Persist everything here (createEntity methods in respective Session Bean)
         
     }
 }

@@ -10,6 +10,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,6 +19,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import util.enumeration.RentalRateType;
 
 /**
  *
@@ -31,11 +34,17 @@ public class RentalRate implements Serializable {
     private Long rentalRateId;
     @Column(nullable = false, length = 22)
     private String rentalRateName;
+    
+    @Enumerated (EnumType.STRING)
+    private RentalRateType rentalRateType;
+    
     @Column(nullable = false, precision = 11, scale = 2)
     private BigDecimal ratePerDay;
+    
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
     private Date startDate;
+    
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
     private Date endDate;
@@ -43,6 +52,18 @@ public class RentalRate implements Serializable {
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
     private CarCategory carCategory;
+
+    public RentalRate() {
+    }
+
+    public RentalRate(String rentalRateName, RentalRateType rentalRateType, BigDecimal ratePerDay, Date startDate, Date endDate, CarCategory carCategory) {
+        this.rentalRateName = rentalRateName;
+        this.rentalRateType = rentalRateType;
+        this.ratePerDay = ratePerDay;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.carCategory = carCategory;
+    }
     
     public Long getRentalRateId() {
         return rentalRateId;
@@ -50,6 +71,14 @@ public class RentalRate implements Serializable {
 
     public void setRentalRateId(Long rentalRateId) {
         this.rentalRateId = rentalRateId;
+    }
+
+    public RentalRateType getRentalRateType() {
+        return rentalRateType;
+    }
+
+    public void setRentalRateType(RentalRateType rentalRateType) {
+        this.rentalRateType = rentalRateType;
     }
 
     public CarCategory getCarCategory() {
