@@ -5,13 +5,16 @@
  */
 package util.enumeration;
 
+import sun.util.locale.provider.AvailableLanguageTags;
+
 /**
  *
  * @author muhdm
  */
 public enum CarStatus {
-    inOutlet,
-    onRental,
-    onRepair,
-    inTransit
+    Available,
+    InOutlet,
+    OnRental,
+    Repair,
+    InTransit
 }

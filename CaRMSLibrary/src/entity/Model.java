@@ -30,10 +30,10 @@ public class Model implements Serializable {
     private Long modelId;
     
     @Column (nullable = false)
-    private String modelName;
+    private String makeName;
     
     @Column (nullable = false)
-    private String makeName;
+    private String modelName;
     
     @ManyToOne
     @JoinColumn (name = "categoryId")
@@ -43,6 +43,13 @@ public class Model implements Serializable {
     private List<Car> cars;
 
     public Model() {
+        this.cars = new ArrayList<Car>();
+    }
+
+    public Model(String makeName, String modelName, CarCategory category) {
+        this.makeName = makeName;
+        this.modelName = modelName;
+        this.category = category;
         this.cars = new ArrayList<Car>();
     }
 
