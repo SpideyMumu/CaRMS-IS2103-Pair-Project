@@ -30,10 +30,34 @@ public class Customer implements Serializable {
     protected Long customerId;
     
     @Column(nullable = false, unique = true, length = 8)
-    protected String mobileNumber;
+    private String mobileNumber;
     
     @ManyToOne(optional = false)
-    protected Partner partner;
+    private Partner partner;
+
+    public Customer() {
+    }
+
+    public Customer(String mobileNumber, Partner partner) {
+        this.mobileNumber = mobileNumber;
+        this.partner = partner;
+    }
+ 
+    public Partner getPartner() {
+        return partner;
+    }
+
+    public void setPartner(Partner partner) {
+        this.partner = partner;
+    }
+
+    public String getMobileNumber() {
+        return mobileNumber;
+    }
+
+    public void setMobileNumber(String mobileNumber) {
+        this.mobileNumber = mobileNumber;
+    }
 
     public Long getCustomerId() {
         return customerId;

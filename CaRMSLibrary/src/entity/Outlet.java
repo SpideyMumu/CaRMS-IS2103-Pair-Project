@@ -29,10 +29,10 @@ public class Outlet implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long outletId;
     
-    @Column
+    @Column(nullable = false, length = 22)
     private String address;
     
-    @Column
+    @Column(nullable = false, length = 10)
     private String openingHours;
     
     @OneToMany (mappedBy = "outlet")

@@ -6,9 +6,12 @@
 package ejb.session.stateless;
 
 import entity.CarCategory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import util.exception.CarCategoryNotFoundException;
 
 /**
  *
@@ -29,9 +32,20 @@ public class CarCategorySessionBean implements CarCategorySessionBeanRemote, Car
     }
     
     @Override
-    public CarCategory retrieveCategoryById (Long carCategoryId) {
+    public CarCategory retrieveCategoryById (Long carCategoryId) throws CarCategoryNotFoundException
+    {
         CarCategory carCategory = em.find(CarCategory.class, carCategoryId);
-        return carCategory;
+            
+        if(carCategory != null)
+        {
+            return carCategory;
+        }
+        else
+        {
+            throw new CarCategoryNotFoundException("Car category ID " + carCategoryId + " does not exist!");
+        }
     }
+    
+    
     
 }
