@@ -134,7 +134,7 @@ public class MainApp {
         while(true)
         {
             System.out.println("*** Merlion Car Rental Management System ***\n");
-            System.out.println("You are login as " + currEmployee.getName() + " with " + currEmployee.getUserRole().toString() + " rights\n");
+            System.out.println("You are logged in as " + currEmployee.getName() + " with " + currEmployee.getUserRole().toString() + " rights\n");
             System.out.println("1: Sales Management");
             System.out.println("2: Customer Service");
             System.out.println("3: Logout\n");
@@ -177,7 +177,6 @@ public class MainApp {
             
             if(response == 3)
             {
-                System.out.println("You have successfully logged out!");
                 break;
             }
         }

@@ -19,6 +19,8 @@ import entity.Car;
 import entity.Model;
 import entity.RentalRate;
 import java.util.List;
+import util.exception.CarNotFoundException;
+import util.exception.RentalRateNotFoundException;
 
 /**
  *
@@ -143,11 +145,6 @@ public class SalesManagementModule {
                         break;                
                 }
             }
-            
-            if(response == 9)
-            {
-                break;
-            }
         }
     }
 
@@ -186,7 +183,7 @@ public class SalesManagementModule {
     }    
     
     private void doViewAllCars() {
-         List<Car> listOfCars = carSessionBean.retrieveAllCars();
+        List<Car> listOfCars = carSessionBean.retrieveAllCars();
         System.out.println("*** All Cars below here***\n");
 
         for (Car car : listOfCars) {
@@ -194,7 +191,7 @@ public class SalesManagementModule {
             System.out.println("Model: " + car.getModel().getMakeName() + " " + car.getModel().getModelName());
             System.out.println("Origin Outlet: " + car.getOutlet().getOutletName());
             System.out.println("Colour: " + car.getColor());
-            System.out.println("Status: "+ car.getStatus().toString());
+            System.out.println("Status: " + car.getStatus().toString());
             System.out.println("-----------------------");
         }
     }
@@ -208,6 +205,22 @@ public class SalesManagementModule {
     }
     
     private void doViewCarDetails() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** View Car Details ***");
+        System.out.print("Enter License Plate Number>");
+        String licensePlateNum = sc.nextLine();
+        try {
+            Car car = carSessionBean.retrieveCarByLicensePlateNum(licensePlateNum);
+            System.out.println("License Plate: " + car.getLicensePlateNum());
+            System.out.println("Model: " + car.getModel().getMakeName() + " " + car.getModel().getModelName());
+            System.out.println("Origin Outlet: " + car.getOutlet().getOutletName());
+            System.out.println("Colour: " + car.getColor());
+            System.out.println("Status: " + car.getStatus().toString());
+            System.out.println("-----------------------");
+        } catch (CarNotFoundException ex) {
+            System.out.println("Please type the correct license plate number! " + ex.getMessage());
+        }
+        
         
     }
     
@@ -251,16 +264,11 @@ public class SalesManagementModule {
                         doDeleteRentalRate();
                         break;
                     case 6:
-                        break OUTER;
+                        return;
                     default:
                         System.out.println("Invalid option, please try again!\n");
                         break;                
                 }
-            }
-            
-            if(response == 6)
-            {
-                break;
             }
         }
     }
@@ -280,6 +288,7 @@ public class SalesManagementModule {
         
         for (RentalRate rate : allRentalRates) {
             System.out.println("Name: " + rate.getName());
+            System.out.println("ID: " + rate.getRentalRateId());
             System.out.println("Price per day: " + rate.getRatePerDay());
             System.out.println("Car Category: " + rate.getCarCategory().getCategoryName());
             System.out.println("Type: " + rate.getType());
@@ -295,6 +304,26 @@ public class SalesManagementModule {
     
     private void doViewRentalRateDetails() {
         Scanner sc = new Scanner(System.in);
+        System.out.print("Enter Rental Rate ID> ");
+        Long rentalRateId = sc.nextLong();
+
+        try {
+        RentalRate rate = rentalRateSessionBean.retrieveRentalRateById(rentalRateId);
+        System.out.println("Name: " + rate.getName());
+        System.out.println("ID: " + rate.getRentalRateId());
+        System.out.println("Price per day: " + rate.getRatePerDay());
+        System.out.println("Car Category: " + rate.getCarCategory().getCategoryName());
+        System.out.println("Type: " + rate.getType());
+        if (rate.getStartDate() != null) {
+            System.out.println("Start Date: " + rate.getStartDate());
+            System.out.println("End Date: " + rate.getEndDate());
+        } else {
+            System.out.println("Rental Rate is valid forever");
+        }
+        System.out.println("-----------------------");
+        } catch (RentalRateNotFoundException ex) {
+            System.out.println("Please type the correct ID! " + ex.getMessage());
+        }
     }
     
     private void doUpdateRentalRate() {
