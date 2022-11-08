@@ -35,6 +35,7 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
     public Model retrieveModelById(Long modelId) throws EntityNotFoundException {
         Model model = em.find(Model.class, modelId);
         if (model != null) {
+            model.getCars().size();
             return model;
         } else {
             throw new EntityNotFoundException("Model with ID " + modelId + " does not exist!");
@@ -57,6 +58,12 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
     public void deleteModel(Long modelId) throws EntityNotFoundException
     {
         Model modelToRemove = retrieveModelById(modelId);
-        em.remove(modelToRemove);
+        
+        if (modelToRemove.getCars().isEmpty()) {
+            modelToRemove.getCarCategory().getModels().remove(modelToRemove);
+            em.remove(modelToRemove);
+        } else {
+            modelToRemove.setEnabled(false);
+        }
     }
 }

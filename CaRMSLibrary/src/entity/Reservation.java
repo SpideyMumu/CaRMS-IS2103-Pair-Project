@@ -15,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -57,8 +58,12 @@ public class Reservation implements Serializable {
     
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
-    private Customer customer;
-
+    private CarRentalCustomer carRentalCustomer;
+    
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
+    private RentalRate rentalRate;
+    
     public Long getReservationId() {
         return reservationId;
     }
@@ -67,14 +72,13 @@ public class Reservation implements Serializable {
         this.reservationId = reservationId;
     }
     
-    public Customer getCustomer() {
-        return customer;
+    public CarRentalCustomer getCustomer() {
+        return carRentalCustomer;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setCustomer(CarRentalCustomer customer) {
+        this.carRentalCustomer = customer;
     }
-
 
     public Outlet getReturnLocation() {
         return returnLocation;

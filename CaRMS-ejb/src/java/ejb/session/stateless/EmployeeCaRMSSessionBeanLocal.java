@@ -16,7 +16,7 @@ import util.exception.InvalidLoginCredentialException;
  * @author muhdm
  */
 @Local
-public interface EmployeeSessionBeanLocal {
+public interface EmployeeCaRMSSessionBeanLocal {
 
     public Employee retrieveEmployeeById(Long employeeId)  throws EntityNotFoundException;
 

@@ -84,7 +84,13 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
     {
         RentalRate rentalRate = retrieveRentalRateById(rentalRateId);
         
-        em.remove(rentalRate);
+        if (rentalRate.getReservations().isEmpty()) {
+            rentalRate.getCarCategory().getRentalRates().remove(rentalRate);
+            em.remove(rentalRate);
+        } else {
+            //disable rental rate here
+            rentalRate.setEnabled(false);
+        }
     }
     
     

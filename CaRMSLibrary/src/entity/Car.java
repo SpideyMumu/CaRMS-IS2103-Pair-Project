@@ -48,8 +48,8 @@ public class Car implements Serializable {
     // Have to make all relationships mandatory
     @ManyToOne //(optional = false)
     @JoinColumn(name = "outletId") //, nullable = false)
-    private Outlet outlet;
-   
+    private Outlet outlet;    
+
     @OneToMany(mappedBy="car")
     private List<Reservation> reservations;
     
@@ -63,11 +63,9 @@ public class Car implements Serializable {
         this.status = status;
         this.outlet = outlet;
         this.color = "Black";
-        this.reservations = new ArrayList<>();
+        this.reservations = new ArrayList<Reservation>();
     }
     
-    
-
     public CarStatus getStatus() {
         return status;
     }

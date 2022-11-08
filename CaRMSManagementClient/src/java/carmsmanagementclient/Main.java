@@ -7,10 +7,10 @@ package carmsmanagementclient;
 
 import ejb.session.stateless.CarCategorySessionBeanRemote;
 import ejb.session.stateless.CarSessionBeanRemote;
-import ejb.session.stateless.EmployeeSessionBeanRemote;
 import ejb.session.stateless.ModelSessionBeanRemote;
 import ejb.session.stateless.OutletSessionBeanRemote;
 import javax.ejb.EJB;
+import ejb.session.stateless.EmployeeCaRMSSessionBeanRemote;
 
 /**
  *
@@ -24,7 +24,7 @@ public class Main {
     @EJB
     private static CarCategorySessionBeanRemote carCategorySessionBean;
     @EJB
-    private static EmployeeSessionBeanRemote employeeSessionBean;
+    private static EmployeeCaRMSSessionBeanRemote employeeSessionBean;
     @EJB
     private static OutletSessionBeanRemote outletSessionBean;
     @EJB
