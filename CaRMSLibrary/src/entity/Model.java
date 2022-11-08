@@ -29,36 +29,49 @@ public class Model implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long modelId;
     
+    @Column
+    private boolean enabled;
+    
     @Column (nullable = false)
     private String makeName;
     
     @Column (nullable = false)
     private String modelName;
     
-    @ManyToOne
-    @JoinColumn (name = "categoryId")
-    private CarCategory category;
+    @ManyToOne (optional = false)
+    @JoinColumn (nullable = false)
+    private CarCategory carCategory;
     
     @OneToMany (mappedBy = "model")
     private List<Car> cars;
 
     public Model() {
+        this.enabled = true;
         this.cars = new ArrayList<Car>();
     }
 
     public Model(String makeName, String modelName, CarCategory category) {
         this.makeName = makeName;
         this.modelName = modelName;
-        this.category = category;
+        this.carCategory = category;
+        this.enabled = true;
         this.cars = new ArrayList<Car>();
     }
 
-    public CarCategory getCategory() {
-        return category;
+    public boolean isEnabled() {
+        return enabled;
     }
 
-    public void setCategory(CarCategory category) {
-        this.category = category;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public CarCategory getCarCategory() {
+        return carCategory;
+    }
+
+    public void setCarCategory(CarCategory carCategory) {
+        this.carCategory = carCategory;
     }
     
     public String getModelName() {

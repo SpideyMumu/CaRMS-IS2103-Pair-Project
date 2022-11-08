@@ -16,7 +16,7 @@ import util.exception.InvalidLoginCredentialException;
  * @author muhdm
  */
 @Remote
-public interface EmployeeSessionBeanRemote {
+public interface EmployeeCaRMSSessionBeanRemote {
 
     public Employee retrieveEmployeeById(Long employeeId) throws EntityNotFoundException;
 

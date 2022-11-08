@@ -33,6 +33,8 @@ public class OutletSessionBean implements OutletSessionBeanRemote, OutletSession
         Outlet outlet = em.find(Outlet.class, outletId);
         if (outlet != null)
         {
+            outlet.getEmployees().size();
+            outlet.getCars().size();
             return outlet;
         } else 
         {

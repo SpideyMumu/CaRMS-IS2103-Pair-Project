@@ -14,6 +14,7 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import util.enumeration.CarStatus;
 import util.exception.CarNotFoundException;
 import util.exception.CarLicensePlateNumExistException;
 import util.exception.UnknownPersistenceException;
@@ -69,7 +70,7 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
         try {
             return (Car) query.getSingleResult();
         } catch (NoResultException | NonUniqueResultException ex) {
-            throw new EntityNotFoundException("Car with license plate number " +  licensePlateNum + " does not exist!");
+            throw new CarNotFoundException("Car with license plate number " +  licensePlateNum + " does not exist!");
         }
     }
 
@@ -89,7 +90,14 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
     public void deleteCar(Long carId) throws CarNotFoundException
     {
         Car carToRemove = retrieveCarById(carId);
-        em.remove(carToRemove);
+        
+        if (carToRemove.getStatus() != CarStatus.OnRental || carToRemove.getStatus() != CarStatus.InTransit || carToRemove.getReservations().isEmpty()) {
+            carToRemove.getModel().getCars().remove(carToRemove);
+            carToRemove.getOutlet().getCars().remove(carToRemove);
+            em.remove(carToRemove);
+        } else {
+            carToRemove.setStatus(CarStatus.Disabled);
+        }
     }
 
 }

@@ -31,7 +31,7 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
     
 
     @Override
-    public RentalRate createNewSaleTransaction(Long carCategoryId, RentalRate newRentalRate) throws CreateNewRentalRateException, CarCategoryNotFoundException
+    public RentalRate createNewRentalRate(Long carCategoryId, RentalRate newRentalRate) throws CreateNewRentalRateException, CarCategoryNotFoundException
     {
         if(newRentalRate != null)
         {
@@ -84,7 +84,13 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
     {
         RentalRate rentalRate = retrieveRentalRateById(rentalRateId);
         
-        em.remove(rentalRate);
+        if (rentalRate.getReservations().isEmpty()) {
+            rentalRate.getCarCategory().getRentalRates().remove(rentalRate);
+            em.remove(rentalRate);
+        } else {
+            //disable rental rate here
+            rentalRate.setEnabled(false);
+        }
     }
     
     

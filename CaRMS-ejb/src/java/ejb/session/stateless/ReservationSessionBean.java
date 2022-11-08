@@ -28,6 +28,9 @@ import util.exception.ReservationNotFoundException;
 public class ReservationSessionBean implements ReservationSessionBeanRemote, ReservationSessionBeanLocal {
 
     @EJB
+    private CarRentalCustomerSessionBeanLocal carRentalCustomerSessionBean;
+
+    @EJB
     private CustomerSesionBeanLocal customerSessionBeanLocal;
 
     @EJB(name = "OutletSessionBeanLocal")
@@ -36,7 +39,6 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     @EJB
     private CarSessionBeanLocal carSessionBeanLocal; 
     
-
     @PersistenceContext(unitName = "CaRMS-ejbPU")
     private EntityManager em;
     
@@ -59,7 +61,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                 Outlet returnOutlet = outletSessionBeanLocal.retrieveOutletById(returnOutletId);
                 newReservation.setReturnLocation(returnOutlet);
                 
-                Customer customer = customerSessionBeanLocal.retrieveCustomerById(customerId);
+                CarRentalCustomer customer = carRentalCustomerSessionBean.retrieveCarRentalCustomerById(customerId);
                 newReservation.setCustomer(customer);
                 
                 em.persist(newReservation);

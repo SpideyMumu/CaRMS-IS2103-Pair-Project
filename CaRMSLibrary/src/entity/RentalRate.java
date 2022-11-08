@@ -7,7 +7,9 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -16,7 +18,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import util.enumeration.RentalRateType;
@@ -32,37 +36,47 @@ public class RentalRate implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long rentalRateId;
-    @Column(nullable = false, length = 22)
-    private String rentalRateName;
+    @Column(nullable = false, length = 125)
+    private String name;
     
     @Enumerated (EnumType.STRING)
-    private RentalRateType rentalRateType;
+    private RentalRateType type;
     
     @Column(nullable = false, precision = 11, scale = 2)
     private BigDecimal ratePerDay;
     
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
+    private boolean enabled;
+    
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column
     private Date startDate;
     
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false)
+    @Column
     private Date endDate;
     
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
     private CarCategory carCategory;
-
+    
+    @OneToMany (mappedBy = "rentalRate")
+    private List<Reservation> reservations;
+    
     public RentalRate() {
+        this.enabled = true;
+        this.reservations = new ArrayList<>();
     }
 
-    public RentalRate(String rentalRateName, RentalRateType rentalRateType, BigDecimal ratePerDay, Date startDate, Date endDate, CarCategory carCategory) {
-        this.rentalRateName = rentalRateName;
-        this.rentalRateType = rentalRateType;
+    public RentalRate(String rentalRateName, RentalRateType rentalRateType, CarCategory carCategory, BigDecimal ratePerDay, Date startDate, Date endDate) {
+        this.name = rentalRateName;
+        this.type = rentalRateType;
         this.ratePerDay = ratePerDay;
         this.startDate = startDate;
         this.endDate = endDate;
         this.carCategory = carCategory;
+        this.enabled = true;
+        this.reservations = new ArrayList<>();
     }
     
     public Long getRentalRateId() {
@@ -73,12 +87,12 @@ public class RentalRate implements Serializable {
         this.rentalRateId = rentalRateId;
     }
 
-    public RentalRateType getRentalRateType() {
-        return rentalRateType;
+    public RentalRateType getType() {
+        return type;
     }
 
-    public void setRentalRateType(RentalRateType rentalRateType) {
-        this.rentalRateType = rentalRateType;
+    public void setType(RentalRateType type) {
+        this.type = type;
     }
 
     public CarCategory getCarCategory() {
@@ -126,14 +140,31 @@ public class RentalRate implements Serializable {
         this.ratePerDay = ratePerDay;
     }
 
-    public String getRentalRateName() {
-        return rentalRateName;
+    public String getName() {
+        return name;
     }
 
-    public void setRentalRateName(String rentalRateName) {
-        this.rentalRateName = rentalRateName;
+    public void setName(String name) {
+        this.name = name;
     }
 
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+    
+    
     
     @Override
     public int hashCode() {

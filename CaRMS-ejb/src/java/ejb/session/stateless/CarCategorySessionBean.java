@@ -38,6 +38,8 @@ public class CarCategorySessionBean implements CarCategorySessionBeanRemote, Car
             
         if(carCategory != null)
         {
+            carCategory.getModels().size();
+            carCategory.getRentalRates().size();
             return carCategory;
         }
         else

@@ -50,10 +50,6 @@ public class Car implements Serializable {
     @JoinColumn(name = "outletId") //, nullable = false)
     private Outlet outlet;
     
-    @ManyToOne //(optional = false)
-    @JoinColumn (name = "modelId") //, nullable = false)
-    private Model model;
-    
     @OneToMany(mappedBy="car")
     private List<Reservation> reservations;
     
@@ -70,8 +66,6 @@ public class Car implements Serializable {
         this.reservations = new ArrayList<>();
     }
     
-    
-
     public CarStatus getStatus() {
         return status;
     }

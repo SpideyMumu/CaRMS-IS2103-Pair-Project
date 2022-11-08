@@ -29,6 +29,6 @@ public interface CarSessionBeanLocal {
 
     public Car retrieveCarById(Long carId) throws CarNotFoundException;
 
-    public Car retrieveCarByLicensePlateNum(String licensePlateNum) throws EntityNotFoundException;
+    public Car retrieveCarByLicensePlateNum(String licensePlateNum) throws CarNotFoundException;
     
 }
