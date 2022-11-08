@@ -49,6 +49,14 @@ public class CarRentalCustomer extends Customer implements Serializable {
     public void setPassword(String password) {
         this.password = password;
     }
+    
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
+    }
 
     @Override
     public int hashCode() {

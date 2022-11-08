@@ -9,12 +9,12 @@ package util.exception;
  *
  * @author kathleen
  */
-public class UnknownPersistenceException extends Exception {
+public class RentalRateNotFoundException extends Exception {
 
-    public UnknownPersistenceException() {
+    public RentalRateNotFoundException() {
     }
 
-    public UnknownPersistenceException(String msg) {
+    public RentalRateNotFoundException(String msg) {
         super(msg);
     }
 }

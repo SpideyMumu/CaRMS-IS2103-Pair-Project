@@ -9,12 +9,12 @@ package util.exception;
  *
  * @author kathleen
  */
-public class UnknownPersistenceException extends Exception {
+public class CustomerMobilePhoneExistException extends Exception {
 
-    public UnknownPersistenceException() {
+    public CustomerMobilePhoneExistException() {
     }
 
-    public UnknownPersistenceException(String msg) {
+    public CustomerMobilePhoneExistException(String msg) {
         super(msg);
     }
 }

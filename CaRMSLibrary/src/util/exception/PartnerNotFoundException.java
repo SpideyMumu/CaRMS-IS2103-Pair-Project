@@ -9,12 +9,12 @@ package util.exception;
  *
  * @author kathleen
  */
-public class UnknownPersistenceException extends Exception {
+public class PartnerNotFoundException extends Exception{
 
-    public UnknownPersistenceException() {
+    public PartnerNotFoundException() {
     }
 
-    public UnknownPersistenceException(String msg) {
+    public PartnerNotFoundException(String msg) {
         super(msg);
     }
 }

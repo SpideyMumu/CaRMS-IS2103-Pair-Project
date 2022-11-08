@@ -7,7 +7,6 @@ package ejb.session.stateless;
 
 import entity.Car;
 import java.util.List;
-import util.exception.EntityNotFoundException;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -15,6 +14,7 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import util.exception.CarNotFoundException;
 import util.exception.CarLicensePlateNumExistException;
 import util.exception.UnknownPersistenceException;
 
@@ -50,17 +50,19 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
     }
 
     @Override
-    public Car retrieveCarById(Long carId) throws EntityNotFoundException {
-        Car car = em.find(Car.class, carId); 
-        if (car != null) {
+    public Car retrieveCarById(Long carId) throws CarNotFoundException{
+        Car car = em.find(Car.class, carId);
+        if (car != null)
+        {
             return car;
-        } else {
-            throw new EntityNotFoundException("Car with this ID does not exist!");
+        } else
+        {
+            throw new CarNotFoundException("Car with ID " + carId + " does not exist!");
         }
     }
      
     @Override
-    public Car retrieveCarByLicensePlateNum(String licensePlateNum) throws EntityNotFoundException {
+    public Car retrieveCarByLicensePlateNum(String licensePlateNum) throws CarNotFoundException {
         Query query = em.createQuery("SELECT c FROM Car c WHERE c.licensePlateNum = :currLicensePlateNum");
         query.setParameter("currLicensePlateNum", licensePlateNum);
         
@@ -84,7 +86,7 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
     }
 
     @Override
-    public void deleteCar(Long carId) throws EntityNotFoundException
+    public void deleteCar(Long carId) throws CarNotFoundException
     {
         Car carToRemove = retrieveCarById(carId);
         em.remove(carToRemove);

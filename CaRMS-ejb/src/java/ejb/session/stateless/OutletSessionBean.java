@@ -9,7 +9,7 @@ import entity.Outlet;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import util.exception.EntityNotFoundException;
+import util.exception.OutletNotFoundException;
 
 /**
  *
@@ -29,13 +29,14 @@ public class OutletSessionBean implements OutletSessionBeanRemote, OutletSession
     }
 
     @Override
-    public Outlet retrieveOutletById(Long outletId) throws EntityNotFoundException {
+    public Outlet retrieveOutletById(Long outletId) throws OutletNotFoundException {
         Outlet outlet = em.find(Outlet.class, outletId);
-        
-        if (outlet != null) {
+        if (outlet != null)
+        {
             return outlet;
-        } else {
-            throw new EntityNotFoundException("Outlet with ID " + outletId + " does not exist!");
+        } else 
+        {
+            throw new OutletNotFoundException("Outlet with ID " + outletId + " does not exist!");
         }
     }
     
@@ -45,7 +46,7 @@ public class OutletSessionBean implements OutletSessionBeanRemote, OutletSession
     }
 
     @Override
-    public void deleteOutlet(Long outletId) throws EntityNotFoundException
+    public void deleteOutlet(Long outletId) throws OutletNotFoundException
     {
         Outlet outletToRemove = retrieveOutletById(outletId);
         em.remove(outletToRemove);

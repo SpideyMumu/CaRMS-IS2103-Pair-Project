@@ -9,12 +9,12 @@ package util.exception;
  *
  * @author kathleen
  */
-public class UnknownPersistenceException extends Exception {
+public class OutletNotFoundException extends Exception {
 
-    public UnknownPersistenceException() {
+    public OutletNotFoundException() {
     }
 
-    public UnknownPersistenceException(String msg) {
+    public OutletNotFoundException(String msg) {
         super(msg);
     }
 }

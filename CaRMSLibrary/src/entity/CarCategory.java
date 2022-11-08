@@ -27,15 +27,34 @@ public class CarCategory implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long categoryId;
     
-    @Column (nullable = false)
+    @Column (nullable = false, length = 22)
     private String categoryName;
     
     @OneToMany (mappedBy = "carCategory")
     private List<Model> models;
+    
+    @OneToMany(mappedBy="carCategory")
+    private List<RentalRate> rentalRates;
 
     public CarCategory() {
         this.models = new ArrayList<Model>();
+        this.rentalRates = new ArrayList<RentalRate>();
     }
+
+    public CarCategory(String categoryName, List<Model> models, List<RentalRate> rentalRates) {
+        this.categoryName = categoryName;
+        this.models = models;
+        this.rentalRates = rentalRates;
+    }
+    
+    public List<RentalRate> getRentalRates() {
+        return rentalRates;
+    }
+
+    public void setRentalRates(List<RentalRate> rentalRates) {
+        this.rentalRates = rentalRates;
+    }
+
 
     public CarCategory(String categoryName) {
         this.categoryName = categoryName;

@@ -9,12 +9,12 @@ package util.exception;
  *
  * @author kathleen
  */
-public class UnknownPersistenceException extends Exception {
+public class CreateReservationException extends Exception {
 
-    public UnknownPersistenceException() {
+    public CreateReservationException() {
     }
 
-    public UnknownPersistenceException(String msg) {
+    public CreateReservationException(String msg) {
         super(msg);
     }
 }

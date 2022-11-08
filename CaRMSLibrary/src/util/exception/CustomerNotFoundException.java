@@ -9,12 +9,12 @@ package util.exception;
  *
  * @author kathleen
  */
-public class UnknownPersistenceException extends Exception {
+public class CustomerNotFoundException extends Exception {
 
-    public UnknownPersistenceException() {
+    public CustomerNotFoundException() {
     }
 
-    public UnknownPersistenceException(String msg) {
+    public CustomerNotFoundException(String msg) {
         super(msg);
     }
 }

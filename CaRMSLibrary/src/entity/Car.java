@@ -17,6 +17,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import util.enumeration.CarStatus;
 
 /**
@@ -30,11 +31,11 @@ public class Car implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long carId;
-
-    @Column(unique = true, nullable = false)
+    
+    @Column (unique = true, nullable = false, length = 22)
     private String licensePlateNum;
-
-    @Column(nullable = false)
+    
+    @Column (nullable = false, length = 22)
     private String color;
 
     @ManyToOne //(optional = false)
@@ -48,13 +49,12 @@ public class Car implements Serializable {
     @ManyToOne //(optional = false)
     @JoinColumn(name = "outletId") //, nullable = false)
     private Outlet outlet;
-
-    /*
-    @ManyToOne (optional = false)
-    @JoinColumn (name = "categoryId", nullable = false)
-    private CarCategory carCategory;
-    */
     
+    @ManyToOne //(optional = false)
+    @JoinColumn (name = "modelId") //, nullable = false)
+    private Model model;
+    
+    @OneToMany(mappedBy="car")
     private List<Reservation> reservations;
     
     
@@ -95,16 +95,7 @@ public class Car implements Serializable {
     public void setModel(Model model) {
         this.model = model;
     }
-
-//    public CarCategory getCarCategory() {
-//        return carCategory;
-//    }
-//
-//    public void setCarCategory(CarCategory carCategory) {
-//        this.carCategory = carCategory;
-//    }
     
-
     public List<Reservation> getReservations() {
         return reservations;
     }
