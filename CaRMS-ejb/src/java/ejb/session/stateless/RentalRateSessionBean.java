@@ -31,7 +31,7 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
     
 
     @Override
-    public RentalRate createNewSaleTransaction(Long carCategoryId, RentalRate newRentalRate) throws CreateNewRentalRateException, CarCategoryNotFoundException
+    public RentalRate createNewRentalRate(Long carCategoryId, RentalRate newRentalRate) throws CreateNewRentalRateException, CarCategoryNotFoundException
     {
         if(newRentalRate != null)
         {

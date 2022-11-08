@@ -69,7 +69,7 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
         try {
             return (Car) query.getSingleResult();
         } catch (NoResultException | NonUniqueResultException ex) {
-            throw new EntityNotFoundException("Car with license plate number " +  licensePlateNum + " does not exist!");
+            throw new CarNotFoundException("Car with license plate number " +  licensePlateNum + " does not exist!");
         }
     }
 

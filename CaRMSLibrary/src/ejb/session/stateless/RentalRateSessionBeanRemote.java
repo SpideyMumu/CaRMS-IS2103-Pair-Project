@@ -18,7 +18,7 @@ import util.exception.RentalRateNotFoundException;
 @Remote
 public interface RentalRateSessionBeanRemote {
     
-    public RentalRate createNewSaleTransaction(Long carCategoryId, RentalRate newRentalRate) throws CreateNewRentalRateException, CarCategoryNotFoundException;
+    public RentalRate createNewRentalRate(Long carCategoryId, RentalRate newRentalRate) throws CreateNewRentalRateException, CarCategoryNotFoundException;
       
     public RentalRate retrieveRentalRateById(Long rentalRateId) throws RentalRateNotFoundException;
      
