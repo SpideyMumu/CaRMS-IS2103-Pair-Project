@@ -13,7 +13,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import util.exception.EntityNotFoundException;
+import util.exception.EmployeeNotFoundException;
 import util.exception.InvalidLoginCredentialException;
 
 /**
@@ -34,24 +34,24 @@ public class EmployeeCaRMSSessionBean implements EmployeeCaRMSSessionBeanRemote,
     }
     
     @Override
-    public Employee retrieveEmployeeById(Long employeeId) throws EntityNotFoundException {
+    public Employee retrieveEmployeeById(Long employeeId) throws EmployeeNotFoundException {
         Employee employee = em.find(Employee.class, employeeId);
         if (employee != null) {
             return employee;
         } else {
-            throw new EntityNotFoundException("Employee with this ID does not exist!");
+            throw new EmployeeNotFoundException("Employee with ID " + employeeId + " does not exist!");
         }
     }
     
     @Override
-    public Employee retrieveEmployeeByUserName(String username) throws EntityNotFoundException {
+    public Employee retrieveEmployeeByUserName(String username) throws EmployeeNotFoundException {
         Query query = em.createQuery("SELECT e FROM Employee e WHERE e.username = :inUsername");
         query.setParameter("inUsername", username);
 
         try {
             return (Employee) query.getSingleResult();
         } catch (NoResultException | NonUniqueResultException ex) {
-            throw new EntityNotFoundException("Employee with username " + username + " does not exist!");
+            throw new EmployeeNotFoundException("Employee with username " + username + " does not exist!");
         }
     }
     
@@ -73,7 +73,7 @@ public class EmployeeCaRMSSessionBean implements EmployeeCaRMSSessionBeanRemote,
                 throw new InvalidLoginCredentialException("Invalid password!");
             }
         }
-        catch(EntityNotFoundException ex)
+        catch(EmployeeNotFoundException ex)
         {
             throw new InvalidLoginCredentialException("Username does not exist!");
         }
@@ -94,7 +94,7 @@ public class EmployeeCaRMSSessionBean implements EmployeeCaRMSSessionBeanRemote,
     }
     
     @Override
-    public void deleteEmployee(Long employeeId) throws EntityNotFoundException
+    public void deleteEmployee(Long employeeId) throws EmployeeNotFoundException
     {
         Employee e = retrieveEmployeeById(employeeId);
         em.remove(e);

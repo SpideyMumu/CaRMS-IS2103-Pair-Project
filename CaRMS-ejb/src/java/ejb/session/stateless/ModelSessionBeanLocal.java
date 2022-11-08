@@ -8,7 +8,7 @@ package ejb.session.stateless;
 import entity.Model;
 import java.util.List;
 import javax.ejb.Local;
-import util.exception.EntityNotFoundException;
+import util.exception.ModelNotFoundException;
 
 /**
  *
@@ -19,12 +19,12 @@ public interface ModelSessionBeanLocal {
 
     public Long createNewModel(Model newModel);
 
-    public Model retrieveModelById(Long modelId)  throws EntityNotFoundException;
+    public Model retrieveModelById(Long modelId) throws ModelNotFoundException;
 
     public List<Model> retrieveAllModels();
 
     public void updateCar(Model model);
 
-    public void deleteModel(Long modelId) throws EntityNotFoundException;
+    public void deleteModel(Long modelId) throws ModelNotFoundException;
     
 }
