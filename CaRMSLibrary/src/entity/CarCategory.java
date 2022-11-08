@@ -56,6 +56,13 @@ public class CarCategory implements Serializable {
     }
 
 
+    public CarCategory(String categoryName) {
+        this.categoryName = categoryName;
+        this.models = new ArrayList<Model>();
+    }
+    
+    
+
     public String getCategoryName() {
         return categoryName;
     }

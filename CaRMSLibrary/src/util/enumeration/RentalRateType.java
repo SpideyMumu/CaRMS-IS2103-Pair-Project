@@ -5,16 +5,14 @@
  */
 package util.enumeration;
 
-import sun.util.locale.provider.AvailableLanguageTags;
+import javax.enterprise.inject.Default;
 
 /**
  *
  * @author muhdm
  */
-public enum CarStatus {
-    Available,
-    InOutlet,
-    OnRental,
-    Repair,
-    InTransit
+public enum RentalRateType {
+    Default,
+    Promotion,
+    Peak
 }

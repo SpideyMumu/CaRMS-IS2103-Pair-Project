@@ -23,5 +23,5 @@ public interface OutletSessionBeanRemote {
     public void updateOutlet(Outlet outlet);
 
     public void deleteOutlet(Long outletId) throws OutletNotFoundException;
-    
+
 }

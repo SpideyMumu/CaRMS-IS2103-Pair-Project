@@ -45,6 +45,18 @@ public class Employee implements Serializable {
     @JoinColumn(name = "outletId")
     private Outlet outlet;
 
+    public Employee() {
+    }
+
+    //use this for dataInitSB
+    public Employee(String name, String username, UserRole userRole, Outlet outlet) {
+        this.name = name;
+        this.username = username;
+        this.userRole = userRole;
+        this.outlet = outlet;
+        this.password = "password";
+    }
+    
     public String getName() {
         return name;
     }

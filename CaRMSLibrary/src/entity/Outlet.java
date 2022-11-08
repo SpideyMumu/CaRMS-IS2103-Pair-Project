@@ -7,6 +7,7 @@ package entity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,6 +17,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  *
@@ -29,11 +32,19 @@ public class Outlet implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long outletId;
     
-    @Column(nullable = false, length = 22)
+    @Column
+    private String outletName;
+    
+    @Column
     private String address;
     
-    @Column(nullable = false, length = 10)
-    private String openingHours;
+    @Column
+    @Temporal(TemporalType.TIME)
+    private Date openingHour;
+    
+    @Column
+    @Temporal(TemporalType.TIME)
+    private Date closingHour;
     
     @OneToMany (mappedBy = "outlet")
     private List<Employee> employees;
@@ -62,20 +73,36 @@ public class Outlet implements Serializable {
         this.address = address;
     }
 
-    public String getOpeningHours() {
-        return openingHours;
+    public Date getOpeningHour() {
+        return openingHour;
     }
 
-    public void setOpeningHours(String openingHours) {
-        this.openingHours = openingHours;
+    public void setOpeningHour(Date openingHour) {
+        this.openingHour = openingHour;
     }
 
+    public Date getClosingHour() {
+        return closingHour;
+    }
+
+    public void setClosingHour(Date closingHour) {
+        this.closingHour = closingHour;
+    }
+    
     public List<Car> getCars() {
         return cars;
     }
 
     public void setCars(List<Car> cars) {
         this.cars = cars;
+    }
+
+    public String getOutletName() {
+        return outletName;
+    }
+
+    public void setOutletName(String outletName) {
+        this.outletName = outletName;
     }
     
     

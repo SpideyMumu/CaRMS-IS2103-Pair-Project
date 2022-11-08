@@ -36,7 +36,7 @@ public class OutletSessionBean implements OutletSessionBeanRemote, OutletSession
             return outlet;
         } else 
         {
-            throw new OutletNotFoundException();
+            throw new OutletNotFoundException("Outlet with ID " + outletId + " does not exist!");
         }
     }
     
@@ -46,7 +46,7 @@ public class OutletSessionBean implements OutletSessionBeanRemote, OutletSession
     }
 
     @Override
-    public void deleteOutlet(Long outletId) throws OutletNotFoundException//throws StaffNotFoundException
+    public void deleteOutlet(Long outletId) throws OutletNotFoundException
     {
         Outlet outletToRemove = retrieveOutletById(outletId);
         em.remove(outletToRemove);

@@ -6,6 +6,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,13 +37,17 @@ public class Car implements Serializable {
     
     @Column (nullable = false, length = 22)
     private String color;
-    
-    @Enumerated (EnumType.STRING)
+
+    @ManyToOne //(optional = false)
+    @JoinColumn(name = "modelId") //, nullable = false)
+    private Model model;
+
+    @Enumerated(EnumType.STRING)
     private CarStatus status;
-    
+
     // Have to make all relationships mandatory
     @ManyToOne //(optional = false)
-    @JoinColumn (name = "outletId") //, nullable = false)
+    @JoinColumn(name = "outletId") //, nullable = false)
     private Outlet outlet;
     
     @ManyToOne //(optional = false)
@@ -55,6 +60,17 @@ public class Car implements Serializable {
     
     public Car() {
     }
+
+    public Car(String licensePlateNum, Model model, CarStatus status, Outlet outlet) {
+        this.licensePlateNum = licensePlateNum;
+        this.model = model;
+        this.status = status;
+        this.outlet = outlet;
+        this.color = "Black";
+        this.reservations = new ArrayList<>();
+    }
+    
+    
 
     public CarStatus getStatus() {
         return status;

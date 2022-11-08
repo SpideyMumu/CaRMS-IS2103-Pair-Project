@@ -9,6 +9,8 @@ import entity.Car;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.CarNotFoundException;
+import util.exception.CarLicensePlateNumExistException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -23,10 +25,10 @@ public interface CarSessionBeanRemote {
 
     public List<Car> retrieveAllCars();
 
-    public Long createNewCar(Car newCar);
+    public Long createNewCar(Car newCar)throws CarLicensePlateNumExistException, UnknownPersistenceException;
 
     public Car retrieveCarById(Long carId) throws CarNotFoundException;
     
-    public Car retrieveCarByLicensePlateNum(String licensePlateNum);
+    public Car retrieveCarByLicensePlateNum(String licensePlateNum) throws CarNotFoundException;
     
 }
