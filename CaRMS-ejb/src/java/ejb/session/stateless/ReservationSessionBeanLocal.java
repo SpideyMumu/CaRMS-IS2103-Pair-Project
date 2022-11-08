@@ -5,7 +5,13 @@
  */
 package ejb.session.stateless;
 
+import entity.RentalRate;
+import entity.Reservation;
 import javax.ejb.Local;
+import util.exception.CarCategoryNotFoundException;
+import util.exception.CreateNewRentalRateException;
+import util.exception.CreateReservationException;
+import util.exception.ReservationNotFoundException;
 
 /**
  *
@@ -13,5 +19,13 @@ import javax.ejb.Local;
  */
 @Local
 public interface ReservationSessionBeanLocal {
-    
+
+    public Reservation createNewReservation(Long carId, Long pickupOutletId, Long returnOutletId, Long customerId, Reservation newReservation) throws CreateReservationException;
+
+    public Reservation retrieveReservationById(Long reservationId) throws ReservationNotFoundException;
+
+    public void updateReservation(Reservation reservation);
+
+    public void deleteReservation(Long reservationId) throws ReservationNotFoundException;
+
 }

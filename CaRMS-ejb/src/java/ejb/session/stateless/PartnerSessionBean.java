@@ -6,13 +6,14 @@
 package ejb.session.stateless;
 
 import entity.Customer;
-import entity.Reservation;
+import entity.Partner;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import util.exception.CustomerMobilePhoneExistException;
-import util.exception.CustomerNotFoundException;
+import util.exception.PartnerNotFoundException;
+import util.exception.PartnerUsernameExistException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -20,20 +21,21 @@ import util.exception.UnknownPersistenceException;
  * @author kathleen
  */
 @Stateless
-public class CustomerSesionBean implements CustomerSesionBeanRemote, CustomerSesionBeanLocal {
+public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSessionBeanLocal {
 
     @PersistenceContext(unitName = "CaRMS-ejbPU")
     private EntityManager em;
+
     
     @Override
-    public Long createNewCustomer(Customer newCustomer) throws CustomerMobilePhoneExistException, UnknownPersistenceException
+    public Long createNewPartner(Partner newPartner) throws UnknownPersistenceException, PartnerUsernameExistException
     {
         try
         {
-            em.persist(newCustomer);
+            em.persist(newPartner);
             em.flush();
 
-            return newCustomer.getCustomerId();
+            return newPartner.getPartnerId();
         }
         catch(PersistenceException ex)
         {
@@ -41,7 +43,7 @@ public class CustomerSesionBean implements CustomerSesionBeanRemote, CustomerSes
             {
                 if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
                 {
-                    throw new CustomerMobilePhoneExistException();
+                    throw new PartnerUsernameExistException();
                 }
                 else
                 {
@@ -56,30 +58,28 @@ public class CustomerSesionBean implements CustomerSesionBeanRemote, CustomerSes
     }
     
     @Override
-    public Customer retrieveCustomerById(Long customerId) throws CustomerNotFoundException
+    public Partner retrievePartnerById(Long partnerId) throws PartnerNotFoundException
     {
-        Customer customer = em.find(Customer.class, customerId);
-        if (customer != null)
+        
+        Partner partner = em.find(Partner.class, partnerId);
+        if (partner != null)
         {
-            return customer;
-        } else
-        {
-            throw new CustomerNotFoundException();
+            return partner;
+        } else {
+            throw new PartnerNotFoundException();
         }
     }
     
     @Override
-    public void updateCustomer(Customer customer)
+    public void updatePartner(Partner partner)
     {
-        em.merge(customer);
+        em.merge(partner);
     }
     
     @Override
-    public void deleteCustomer(Long customerId) throws CustomerNotFoundException//throws StaffNotFoundException
+    public void deletePartner(Long partnerId) throws PartnerNotFoundException
     {
-       Customer customer = retrieveCustomerById(customerId);
-        em.remove(customer);
+        Partner partner = retrievePartnerById(partnerId);
+        em.remove(partner);
     }
-
-
 }

@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.Car;
 import java.util.List;
 import javax.ejb.Local;
+import util.exception.CarNotFoundException;
 
 /**
  *
@@ -16,7 +17,7 @@ import javax.ejb.Local;
 @Local
 public interface CarSessionBeanLocal {
 
-    public void deleteCar(Long carId);
+    public void deleteCar(Long carId) throws CarNotFoundException;
 
     public void updateCar(Car car);
 
@@ -24,7 +25,7 @@ public interface CarSessionBeanLocal {
 
     public Long createNewCar(Car newCar);
 
-    public Car retrieveCarById(Long carId);
+    public Car retrieveCarById(Long carId) throws CarNotFoundException;
 
     public Car retrieveCarByLicensePlateNum(String licensePlateNum);
     

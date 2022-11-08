@@ -11,6 +11,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.CarNotFoundException;
 
 /**
  *
@@ -30,8 +31,15 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
     }
 
     @Override
-    public Car retrieveCarById(Long carId) {
-        return em.find(Car.class, carId);
+    public Car retrieveCarById(Long carId) throws CarNotFoundException{
+        Car car = em.find(Car.class, carId);
+        if (car != null)
+        {
+            return car;
+        } else
+        {
+            throw new CarNotFoundException();
+        }
     }
     
     @Override
@@ -55,7 +63,7 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
     }
 
     @Override
-    public void deleteCar(Long carId) //throws StaffNotFoundException
+    public void deleteCar(Long carId) throws CarNotFoundException//throws StaffNotFoundException
     {
         Car carToRemove = retrieveCarById(carId);
         em.remove(carToRemove);

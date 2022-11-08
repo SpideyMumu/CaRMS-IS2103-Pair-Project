@@ -30,6 +30,7 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
     
     
 
+    @Override
     public RentalRate createNewSaleTransaction(Long carCategoryId, RentalRate newRentalRate) throws CreateNewRentalRateException, CarCategoryNotFoundException
     {
         if(newRentalRate != null)
@@ -57,6 +58,7 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
         }
     }
     
+    @Override
     public RentalRate retrieveRentalRateById(Long rentalRateId) throws RentalRateNotFoundException
     {
         RentalRate rentalRate = em.find(RentalRate.class, rentalRateId);
@@ -69,6 +71,20 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
         {
             throw new RentalRateNotFoundException("Rental rate ID " + rentalRateId + " does not exist!");
         }                
+    }
+    
+    @Override
+    public void updateRentalRate(RentalRate rentalRate)
+    {
+        em.merge(rentalRate);
+    }
+    
+    @Override
+    public void deleteRentalRate(Long rentalRateId) throws RentalRateNotFoundException
+    {
+        RentalRate rentalRate = retrieveRentalRateById(rentalRateId);
+        
+        em.remove(rentalRate);
     }
     
     
