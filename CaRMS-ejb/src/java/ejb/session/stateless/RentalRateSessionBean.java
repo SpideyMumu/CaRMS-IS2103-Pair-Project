@@ -7,10 +7,12 @@ package ejb.session.stateless;
 
 import entity.CarCategory;
 import entity.RentalRate;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import util.exception.CarCategoryNotFoundException;
 import util.exception.CreateNewRentalRateException;
 import util.exception.RentalRateNotFoundException;
@@ -71,6 +73,30 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
         {
             throw new RentalRateNotFoundException("Rental rate ID " + rentalRateId + " does not exist!");
         }                
+    }
+    
+    @Override
+    public List<RentalRate> retrieveAllRentalRates() {
+        Query query = em.createQuery("SELECT r FROM RentalRate r");
+        List<RentalRate> list = query.getResultList();
+        
+        
+        list.sort((o1, o2) -> {
+            if (o1.getCarCategory().getCategoryId().equals(o2.getCarCategory().getCategoryId())) {
+                if (o1.getStartDate() == null && o2.getStartDate() != null) {
+                    return -1;
+                } else if (o1.getStartDate() != null && o2.getStartDate() == null) {
+                    return 1;
+                } else if (o1.getStartDate() == null && o2.getStartDate() == null) {
+                    return 0;
+                } else return o1.getStartDate().compareTo(o2.getStartDate());
+            } else {
+                if (o1.getCarCategory().getCategoryId() > o2.getCarCategory().getCategoryId()) {
+                    return 1;
+                } else return -1;
+            }
+        });
+        return list;
     }
     
     @Override

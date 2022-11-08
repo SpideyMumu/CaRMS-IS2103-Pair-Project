@@ -15,6 +15,7 @@ import javax.ejb.EJB;
 import util.exception.InvalidAccessRightException;
 import util.exception.InvalidLoginCredentialException;
 import ejb.session.stateless.EmployeeCaRMSSessionBeanRemote;
+import ejb.session.stateless.RentalRateSessionBeanRemote;
 
 /**
  *
@@ -28,6 +29,7 @@ public class MainApp {
     private EmployeeCaRMSSessionBeanRemote employeeSessionBean;
     private OutletSessionBeanRemote outletSessionBean;
     private ModelSessionBeanRemote modelSessionBean;
+    private RentalRateSessionBeanRemote rentalRateSessionBean;
     
     //Current user
     private Employee currEmployee;
@@ -40,12 +42,13 @@ public class MainApp {
     {        
     }
 
-    public MainApp(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean, ModelSessionBeanRemote modelSessionBean) {
+    public MainApp(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean, ModelSessionBeanRemote modelSessionBean, RentalRateSessionBeanRemote rentalRateSessionBean) {
         this.carSessionBean = carSessionBean;
         this.carCategorySessionBean = carCategorySessionBean;
         this.employeeSessionBean = employeeSessionBean;
         this.outletSessionBean = outletSessionBean;
         this.modelSessionBean = modelSessionBean;
+        this.rentalRateSessionBean = rentalRateSessionBean;
     }
     
     public void runApp()
@@ -74,8 +77,8 @@ public class MainApp {
                         System.out.println("Login successful!\n");
                         
                         //To update respective module with the currEmployee and all SBs
-                        salesManagementModule = new SalesManagementModule();
-                        customerServiceModule = new CustomerServiceModule();
+                        salesManagementModule = new SalesManagementModule(carSessionBean, carCategorySessionBean, employeeSessionBean, outletSessionBean, modelSessionBean, rentalRateSessionBean, currEmployee);
+                        customerServiceModule = new CustomerServiceModule(carCategorySessionBean, rentalRateSessionBean, currEmployee);
                         menuMain();
                     }
                     catch(InvalidLoginCredentialException ex) 
@@ -85,6 +88,7 @@ public class MainApp {
                 }
                 else if (response == 2)
                 {
+                    System.out.println("Thank you for using Merlion Car Rental Management System!");
                     break;
                 }
                 else
@@ -114,7 +118,7 @@ public class MainApp {
         
         if(username.length() > 0 && password.length() > 0)
         {      
-            //currEmployee = employeeSessionBean.employeeLogin(username, password);
+            currEmployee = employeeSessionBean.employeeLogin(username, password);
         }
         else
         {
@@ -162,6 +166,7 @@ public class MainApp {
                 }
                 else if (response == 3)
                 {
+                    System.out.println("You have successfully logged out!");
                     break;
                 }
                 else
@@ -172,6 +177,7 @@ public class MainApp {
             
             if(response == 3)
             {
+                System.out.println("You have successfully logged out!");
                 break;
             }
         }

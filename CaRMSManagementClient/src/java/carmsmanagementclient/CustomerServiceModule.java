@@ -14,6 +14,8 @@ import java.util.Scanner;
 import util.enumeration.UserRole;
 import util.exception.InvalidAccessRightException;
 import ejb.session.stateless.EmployeeCaRMSSessionBeanRemote;
+import ejb.session.stateless.RentalRateSessionBeanRemote;
+import entity.RentalRate;
 
 /**
  *
@@ -28,12 +30,8 @@ public class CustomerServiceModule {
     2. Return Car
      */
     //Session Beans
-    private CarSessionBeanRemote carSessionBean;
     private CarCategorySessionBeanRemote carCategorySessionBean;
-    private EmployeeCaRMSSessionBeanRemote employeeSessionBean;
-    private OutletSessionBeanRemote outletSessionBean;
-    private ModelSessionBeanRemote modelSessionBean;
-    
+    private RentalRateSessionBeanRemote rentalRateSessionBean;
     
     //Current logged-in user
     private Employee currEmployee;
@@ -41,14 +39,12 @@ public class CustomerServiceModule {
     public CustomerServiceModule() {
     }
 
-    public CustomerServiceModule(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean, ModelSessionBeanRemote modelSessionBean) {
-        this.carSessionBean = carSessionBean;
+    public CustomerServiceModule(CarCategorySessionBeanRemote carCategorySessionBean, RentalRateSessionBeanRemote rentalRateSessionBean, Employee currEmployee) {
         this.carCategorySessionBean = carCategorySessionBean;
-        this.employeeSessionBean = employeeSessionBean;
-        this.outletSessionBean = outletSessionBean;
-        this.modelSessionBean = modelSessionBean;
+        this.rentalRateSessionBean = rentalRateSessionBean;
+        this.currEmployee = currEmployee;
     }
-
+    
     public void customerServiceMenu() throws InvalidAccessRightException {
         if (currEmployee.getUserRole() != UserRole.CS_EXECUTIVE) {
             throw new InvalidAccessRightException("You don't have Customer Service Executive rights to access the customer service module.");

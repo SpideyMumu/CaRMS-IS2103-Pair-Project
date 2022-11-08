@@ -78,7 +78,23 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
     public List<Car> retrieveAllCars() {
         Query query = em.createQuery("SELECT c FROM Car c");
 
-        return query.getResultList();
+        List<Car> cars = query.getResultList();
+        
+        cars.sort(((o1, o2) -> {
+            if (o1.getModel().getCarCategory().getCategoryId().equals(o2.getModel().getCarCategory().getCategoryId())) {
+                if (o1.getModel().getMakeName().equals(o2.getModel().getMakeName())) {
+                    if ( o1.getModel().getModelName().equals(o2.getModel().getModelName())) {
+                        return o1.getLicensePlateNum().compareTo(o2.getLicensePlateNum());
+                    }
+                    return o1.getModel().getModelName().compareTo(o2.getModel().getModelName());
+                }
+                return o1.getModel().getMakeName().compareTo(o2.getModel().getMakeName());
+            }     
+            
+            return o1.getModel().getCarCategory().getCategoryId().compareTo(o2.getModel().getCarCategory().getCategoryId());
+        }));
+        
+        return cars;
     }
 
     @Override

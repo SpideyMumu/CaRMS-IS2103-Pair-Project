@@ -46,7 +46,18 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
     public List<Model> retrieveAllModels() {
         Query query = em.createQuery("SELECT m FROM Model m");
 
-        return query.getResultList();
+        List<Model> models = query.getResultList();
+        models.sort(((o1, o2) -> {
+            if (o1.getCarCategory().getCategoryId().equals(o2.getCarCategory().getCategoryId())) {
+                if (o1.getMakeName().equals(o2.getMakeName())) {
+                    return o1.getModelName().compareTo(o2.getModelName());
+                }
+                return o1.getMakeName().compareTo(o2.getMakeName());
+            }     
+            return o1.getCarCategory().getCategoryId().compareTo(o2.getCarCategory().getCategoryId());
+        }));
+        
+        return models;
     }
 
     @Override

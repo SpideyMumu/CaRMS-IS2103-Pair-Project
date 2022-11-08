@@ -14,6 +14,11 @@ import java.util.Scanner;
 import util.enumeration.UserRole;
 import util.exception.InvalidAccessRightException;
 import ejb.session.stateless.EmployeeCaRMSSessionBeanRemote;
+import ejb.session.stateless.RentalRateSessionBeanRemote;
+import entity.Car;
+import entity.Model;
+import entity.RentalRate;
+import java.util.List;
 
 /**
  *
@@ -30,6 +35,7 @@ public class SalesManagementModule {
     private EmployeeCaRMSSessionBeanRemote employeeSessionBean;
     private OutletSessionBeanRemote outletSessionBean;
     private ModelSessionBeanRemote modelSessionBean;
+    private RentalRateSessionBeanRemote rentalRateSessionBean;
     
     //Current logged-in user
     private Employee currEmployee;
@@ -37,12 +43,13 @@ public class SalesManagementModule {
     public SalesManagementModule() {
     }
 
-    public SalesManagementModule(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean, ModelSessionBeanRemote modelSessionBean, Employee currEmployee) {
+    public SalesManagementModule(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean, ModelSessionBeanRemote modelSessionBean, RentalRateSessionBeanRemote rentalRateSessionBean, Employee currEmployee) {
         this.carSessionBean = carSessionBean;
         this.carCategorySessionBean = carCategorySessionBean;
         this.employeeSessionBean = employeeSessionBean;
         this.outletSessionBean = outletSessionBean;
         this.modelSessionBean = modelSessionBean;
+        this.rentalRateSessionBean = rentalRateSessionBean;
         this.currEmployee = currEmployee;
     }
     
@@ -88,43 +95,52 @@ public class SalesManagementModule {
             System.out.println("13: Back\n");
             response = 0;
             
-            while(response < 1 || response > 9)
-            {
+            //OUTER:
+            while (response < 1 || response > 13) {
                 System.out.print("> ");
-
                 response = scanner.nextInt();
-
-                if(response == 1)
-                {
-                    
-                }
-                else if(response == 2)
-                {
-                    
-                }
-                else if(response == 3)
-                {
-                    
-                }
-                else if(response == 4)
-                {
-                   
-                }
-                else if(response == 5)
-                {
-                    
-                }
-                else if(response == 6)
-                {
-                    
-                }
-                else if (response == 9)
-                {
-                    break;
-                }
-                else
-                {
-                    System.out.println("Invalid option, please try again!\n");                
+                switch (response) {
+                    case 1:
+                        doCreateNewModel();
+                        break;
+                    case 2:
+                        doViewAllModels();
+                        break;
+                    case 3:
+                        doUpdateModels();
+                        break;
+                    case 4:
+                        doDeleteModel();
+                        break;
+                    case 5:
+                        doCreateNewCar();
+                        break;
+                    case 6:
+                        doViewAllCars();
+                        break;
+                    case 7:
+                        doViewCarDetails();
+                        break;
+                    case 8:
+                        doUpdateCar();
+                        break;
+                    case 9:
+                        doDeleteCar();
+                        break;
+                    case 10:
+                        System.out.println("Functionality Not Available right now.\n");
+                        break;
+                    case 11:
+                        System.out.println("Functionality Not Available right now.\n");
+                        break;
+                    case 12:
+                        System.out.println("Functionality Not Available right now.\n");
+                        break;
+                    case 13:
+                        return;
+                    default:
+                        System.out.println("Invalid option, please try again!\n");
+                        break;                
                 }
             }
             
@@ -135,10 +151,68 @@ public class SalesManagementModule {
         }
     }
 
+    private void doCreateNewModel() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** Create Model ***\n");
+    }
     
+    private void doViewAllModels() {
+        List<Model> listOfModels = modelSessionBean.retrieveAllModels();
+        System.out.println("*** All Models below here***\n");
+
+        for (Model model : listOfModels) {
+            System.out.println("Name: " + model.getMakeName() + " " + model.getModelName());
+            System.out.println("Car Category: " + model.getCarCategory().getCategoryName());
+            if (model.isEnabled()) {
+                System.out.println("Status: Enabled");
+            } else {
+                System.out.println("Status: Disabled");
+            }
+            System.out.println("-----------------------");
+        }
+    }
     
+    private void doUpdateModels() {
     
-    private void salesManagerMenu() //throws InvalidAccessRightException
+    }
+    
+    private void doDeleteModel() {
+        
+    }
+    
+    private void doCreateNewCar() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** Create Car ***\n");
+    }    
+    
+    private void doViewAllCars() {
+         List<Car> listOfCars = carSessionBean.retrieveAllCars();
+        System.out.println("*** All Cars below here***\n");
+
+        for (Car car : listOfCars) {
+            System.out.println("License Plate: " + car.getLicensePlateNum());
+            System.out.println("Model: " + car.getModel().getMakeName() + " " + car.getModel().getModelName());
+            System.out.println("Origin Outlet: " + car.getOutlet().getOutletName());
+            System.out.println("Colour: " + car.getColor());
+            System.out.println("Status: "+ car.getStatus().toString());
+            System.out.println("-----------------------");
+        }
+    }
+    
+    private void doUpdateCar() {
+        
+    }
+    
+    private void doDeleteCar() {
+        
+    }
+    
+    private void doViewCarDetails() {
+        
+    }
+    
+    // Sales Manager Use Cases Below
+    private void salesManagerMenu()
     {
         
         Scanner scanner = new Scanner(System.in);
@@ -156,52 +230,79 @@ public class SalesManagementModule {
             System.out.println("6: Back\n");
             response = 0;
             
-            while(response < 1 || response > 7)
-            {
+            OUTER:
+            while (response < 1 || response > 7) {
                 System.out.print("> ");
-
                 response = scanner.nextInt();
-
-                if(response == 1)
-                {
-                    
-                }
-                else if(response == 2)
-                {
-                    
-                }
-                else if(response == 3)
-                {
-                    
-                }
-                else if(response == 4)
-                {
-                    
-                }
-                else if(response == 5)
-                {
-                    
-                }
-                else if(response == 6)
-                {
-                    
-                }
-                else if (response == 7)
-                {
-                    break;
-                }
-                else
-                {
-                    System.out.println("Invalid option, please try again!\n");                
+                switch (response) {
+                    case 1:
+                        doCreateRentalRate();
+                        break;
+                    case 2:
+                        doViewAllRentalRates();
+                        break;
+                    case 3:
+                        doViewRentalRateDetails();
+                        break;
+                    case 4:
+                        doUpdateRentalRate();
+                        break;
+                    case 5:
+                        doDeleteRentalRate();
+                        break;
+                    case 6:
+                        break OUTER;
+                    default:
+                        System.out.println("Invalid option, please try again!\n");
+                        break;                
                 }
             }
             
-            if(response == 7)
+            if(response == 6)
             {
                 break;
             }
         }
     }
     
+    private void doCreateRentalRate() {
+        Scanner sc = new Scanner(System.in);
+        
+        System.out.println("*** Create Rental Rate ***\n");
+        
+        
+    }
+    
+    private void doViewAllRentalRates() {
+        //Scanner sc = new Scanner(System.in);
+        List<RentalRate> allRentalRates= rentalRateSessionBean.retrieveAllRentalRates();
+        System.out.println("*** All Rental Rates below here***\n");
+        
+        for (RentalRate rate : allRentalRates) {
+            System.out.println("Name: " + rate.getName());
+            System.out.println("Price per day: " + rate.getRatePerDay());
+            System.out.println("Car Category: " + rate.getCarCategory().getCategoryName());
+            System.out.println("Type: " + rate.getType());
+            if (rate.getStartDate() != null) {
+                System.out.println("Start Date: " + rate.getStartDate());
+                System.out.println("End Date: " + rate.getEndDate());
+            } else {
+                System.out.println("Rental Rate is valid forever");
+            }
+            System.out.println("-----------------------");
+        }
+    }
+    
+    private void doViewRentalRateDetails() {
+        Scanner sc = new Scanner(System.in);
+    }
+    
+    private void doUpdateRentalRate() {
+        Scanner sc = new Scanner(System.in);
+    }
+    
+    private void doDeleteRentalRate() {
+        Scanner sc = new Scanner(System.in);
+    }
     
 }

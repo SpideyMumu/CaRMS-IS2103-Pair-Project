@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.RentalRate;
+import java.util.List;
 import javax.ejb.Local;
 import util.exception.CarCategoryNotFoundException;
 import util.exception.CreateNewRentalRateException;
@@ -26,4 +27,5 @@ public interface RentalRateSessionBeanLocal {
 
     public void deleteRentalRate(Long rentalRateId) throws RentalRateNotFoundException;
     
+    public List<RentalRate> retrieveAllRentalRates();
 }
