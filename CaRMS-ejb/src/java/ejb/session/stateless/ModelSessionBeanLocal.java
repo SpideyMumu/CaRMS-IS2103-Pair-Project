@@ -27,7 +27,7 @@ public interface ModelSessionBeanLocal {
 
     public List<Model> retrieveAllModels();
 
-    public void updateCar(Model model) throws UpdateModelException;
+    public void updateModel(Model model) throws UpdateModelException;
 
     public void deleteModel(Long modelId) throws ModelNotFoundException;
 

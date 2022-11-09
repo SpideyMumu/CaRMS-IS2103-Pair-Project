@@ -87,7 +87,7 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
     }
 
     @Override
-    public void updateCar(Model model) throws UpdateModelException {
+    public void updateModel(Model model) throws UpdateModelException {
         //em.merge(model);
         
         try {

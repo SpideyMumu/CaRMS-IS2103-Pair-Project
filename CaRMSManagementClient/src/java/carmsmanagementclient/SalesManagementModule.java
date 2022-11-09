@@ -18,6 +18,7 @@ import ejb.session.stateless.RentalRateSessionBeanRemote;
 import entity.Car;
 import entity.CarCategory;
 import entity.Model;
+import entity.Outlet;
 import entity.RentalRate;
 import java.util.List;
 import util.enumeration.CarStatus;
@@ -27,8 +28,11 @@ import util.exception.CarNotFoundException;
 import util.exception.CreateNewCarException;
 import util.exception.CreateNewModelException;
 import util.exception.ModelNotFoundException;
+import util.exception.OutletNotFoundException;
 import util.exception.RentalRateNotFoundException;
 import util.exception.UnknownPersistenceException;
+import util.exception.UpdateCarException;
+import util.exception.UpdateModelException;
 
 /**
  *
@@ -39,7 +43,6 @@ public class SalesManagementModule {
     /* 
     This module is only accessible to Sales Manager and Operations Manager
      */
-
     //Remote Session Beans
     private CarSessionBeanRemote carSessionBean;
     private CarCategorySessionBeanRemote carCategorySessionBean;
@@ -203,6 +206,102 @@ public class SalesManagementModule {
     }
 
     private void doUpdateModels() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** Update Model ***\n");
+        int response;
+        System.out.println("Which Model would you like to update?");
+        System.out.print("Enter Model ID>");
+        Long selection = sc.nextLong();
+
+        try {
+            Model model = modelSessionBean.retrieveModelById(selection);
+            while (true) {
+                System.out.println("You are currently updating " + model.getMakeName() + " " + model.getModelName());
+                System.out.println("What would you like to update?");
+                System.out.println("1: Make Name");
+                System.out.println("2: Model Name");
+                System.out.println("3: Car Category");
+                System.out.println("4: Disable/Enable Model");
+                System.out.println("5: Back \n");
+                response = 0;
+
+                while (response < 1 || response > 5) {
+                    System.out.print("> ");
+
+                    response = sc.nextInt();
+                    sc.nextLine();
+
+                    switch (response) {
+                        case 1: // change Make name
+                            System.out.print("Enter new Make name> ");
+                            String makeName = sc.nextLine();
+                            model.setMakeName(makeName);
+                            try {
+                                modelSessionBean.updateModel(model);
+                                System.out.println("Successfully Updated Make name!");
+                            } catch (UpdateModelException ex) {
+                                System.out.println("Update Failed! " + ex.getMessage());
+                            }
+                            break;
+                        case 2: //change Model name
+                            System.out.print("Enter new Model name> ");
+                            String modelName = sc.nextLine();
+                            model.setModelName(modelName);
+                            try {
+                                modelSessionBean.updateModel(model);
+                                System.out.println("Successfully Updated Model name!");
+                            } catch (UpdateModelException ex) {
+                                System.out.println("Update Failed! " + ex.getMessage());
+                            }
+                            break;
+                        case 3: //change Car Category
+                            System.out.print("Enter new Car Category ID> ");
+                            Long carCategoryID = sc.nextLong();
+                            try {
+                                CarCategory newCarCategory = carCategorySessionBean.retrieveCategoryById(carCategoryID);
+                                model.setCarCategory(newCarCategory);
+                                modelSessionBean.updateModel(model);
+                                System.out.println("Successfully Updated Car Category!");
+                            } catch (UpdateModelException | CarCategoryNotFoundException ex) {
+                                System.out.println("Update Failed! " + ex.getMessage());
+                            }
+                            break;
+                        case 4: //Disable/Enable
+                            if (model.isEnabled()) {
+                                System.out.print("Model is currently Enabled. ");
+                                System.out.print("Would you like to disable it? (y/n) >");
+                                if (sc.nextLine().equalsIgnoreCase("y")) {
+                                    model.setEnabled(false);
+                                    try {
+                                        modelSessionBean.updateModel(model);
+                                    } catch (UpdateModelException ex) {
+                                        System.out.println("Update Failed! " + ex.getMessage());
+                                    }
+                                }
+                            } else {
+                                System.out.print("Model is currently Disabled. ");
+                                System.out.print("Would you like to enable it? (y/n) >");
+                                if (sc.nextLine().equalsIgnoreCase("y")) {
+                                    model.setEnabled(true);
+                                    try {
+                                        modelSessionBean.updateModel(model);
+                                    } catch (UpdateModelException ex) {
+                                        System.out.println("Update Failed! " + ex.getMessage());
+                                    }
+                                }
+                            }
+                            break;
+                        case 5:
+                            return;
+                        default:
+                            System.out.println("Invalid option, please try again!\n");
+                            break;
+                    }
+                }
+            }
+        } catch (ModelNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        }
 
     }
 
@@ -229,10 +328,11 @@ public class SalesManagementModule {
         Scanner sc = new Scanner(System.in);
         System.out.println("*** Create Car ***\n");
         Car newCar = new Car();
-        //assume new car is always available
+        //Assume new car is always available
         newCar.setStatus(CarStatus.Available);
 
         //License Plate, colour, model, outlet (currEmployee outlet)
+        // Assume that when creating a new car it always starts off at the current logged in employee's outlet
         System.out.print("License Plate Number> ");
         String licensePlateNumber = sc.nextLine();
         newCar.setLicensePlateNum(licensePlateNumber);
@@ -269,7 +369,129 @@ public class SalesManagementModule {
     }
 
     private void doUpdateCar() {
-        
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** Update Car ***\n");
+        int response;
+        System.out.println("Which Car would you like to update?");
+        System.out.print("Enter Car license plate number>");
+        String licensePlateNum = sc.nextLine();
+
+        try {
+            Car car = carSessionBean.retrieveCarByLicensePlateNum(licensePlateNum);
+            while (true) {
+                System.out.println("You are currently updating: ");
+                System.out.println("License Plate: " + car.getLicensePlateNum());
+                System.out.println("CarID : " + car.getCarId());
+                System.out.println("Model: " + car.getModel().getMakeName() + " " + car.getModel().getModelName());
+                System.out.println("Origin Outlet: " + car.getOutlet().getOutletName());
+                System.out.println("Colour: " + car.getColor());
+                System.out.println("Status: " + car.getStatus().toString());
+                System.out.println("-----------------------");
+                System.out.println("What would you like to update?");
+                System.out.println("1: Color");
+                System.out.println("2: Model"); //assume that a car can keep the same license plate but change model
+                System.out.println("3: Original Outlet");
+                System.out.println("4: Status");
+                System.out.println("5: Back \n");
+                response = 0;
+
+                while (response < 1 || response > 5) {
+                    System.out.print("> ");
+
+                    response = sc.nextInt();
+                    sc.nextLine();
+
+                    switch (response) {
+                        case 1: // change color
+                            System.out.print("Enter new color> ");
+                            String color = sc.nextLine();
+                            car.setColor(color);
+                            try {
+                                carSessionBean.updateCar(car);
+                                System.out.println("Successfully Updated Color!");
+                            } catch (UpdateCarException ex) {
+                                System.out.println("Update Failed! " + ex.getMessage());
+                            }
+                            break;
+                        case 2: //change model
+                            System.out.print("Enter new Model ID> ");
+                            Long modelId = sc.nextLong();
+
+                            try {
+                                Model model = modelSessionBean.retrieveModelById(modelId);
+                                car.setModel(model);
+                                carSessionBean.updateCar(car);
+                                System.out.println("Successfully Updated Car Model!");
+                            } catch (UpdateCarException | ModelNotFoundException ex) {
+                                System.out.println("Update Failed! " + ex.getMessage());
+                            }
+                            break;
+                        case 3: //change outlet
+                            System.out.print("Enter new Outlet ID> ");
+                            Long outletID = sc.nextLong();
+                            try {
+                                Outlet newOutlet = outletSessionBean.retrieveOutletById(outletID);
+                                car.setOutlet(newOutlet);
+                                carSessionBean.updateCar(car);
+                                System.out.println("Successfully Updated Car Outlet!");
+                            } catch (UpdateCarException | OutletNotFoundException ex) {
+                                System.out.println("Update Failed! " + ex.getMessage());
+                            }
+                            break;
+                        case 4: //change status
+                            System.out.println("Status is currently: " + car.getStatus().toString());
+                            System.out.println("Select new status: ");
+                            System.out.print(
+                                    "1: Available\n"
+                                    + "2: Disabled\n"
+                                    + "3: In Outlet\n"
+                                    + "4: On Rental\n"
+                                    + "5: Repair\n"
+                                    + "6: In Transit\n"
+                                    + ">");
+                            int selection = sc.nextInt();
+                            switch (selection) {
+                                case 1:
+                                    car.setStatus(CarStatus.Available);
+                                    break;
+                                case 2:
+                                    car.setStatus(CarStatus.Disabled);
+                                    break;
+                                case 3:
+                                    car.setStatus(CarStatus.InOutlet);
+                                    break;
+                                case 4:
+                                    car.setStatus(CarStatus.OnRental);
+                                    break;
+                                case 5:
+                                    car.setStatus(CarStatus.Repair);
+                                    break;
+                                case 6:
+                                    car.setStatus(CarStatus.InTransit);
+                                    break;
+                                default:
+                                    System.out.println("Invalid Option!");
+                                    break;
+                            }
+                            try {
+                                carSessionBean.updateCar(car);
+                                System.out.println("Successfully Updated Car Status to " + car.getStatus());
+                            } catch (UpdateCarException ex) {
+                                System.out.println("Update Failed! " + ex.getMessage());
+                            }
+                            break;
+                        case 5:
+                            return;
+                        default:
+                            System.out.println("Invalid option, please try again!\n");
+                            break;
+                    }
+
+                }
+            }
+        } catch (CarNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
     private void doDeleteCar() {
@@ -288,7 +510,7 @@ public class SalesManagementModule {
             System.out.println("Status: " + carToDelete.getStatus().toString());
             System.out.println("-----------------------");
             System.out.print("Are you sure you want to delete this car? (Y/N) >");
-            
+
             if (sc.nextLine().equalsIgnoreCase("y")) {
                 carSessionBean.deleteCar(carToDelete.getCarId());
                 System.out.println("Car Succesfully Deleted!");
