@@ -27,16 +27,15 @@ import javax.ejb.Startup;
 import util.enumeration.CarStatus;
 import util.enumeration.UserRole;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import util.enumeration.RentalRateType;
 import util.exception.CarCategoryNotFoundException;
 import util.exception.CarLicensePlateNumExistException;
 import util.exception.CreateNewRentalRateException;
-import util.exception.EntityNotFoundException;
 import util.exception.UnknownPersistenceException;
 import ejb.session.stateless.EmployeeCaRMSSessionBeanLocal;
 import util.exception.CarNotFoundException;
+import util.exception.CreateNewEmployeeException;
+import util.exception.CreateNewModelException;
 import util.exception.EmployeeNotFoundException;
 import util.exception.ModelNotFoundException;
 import util.exception.OutletNotFoundException;
@@ -84,7 +83,8 @@ public class DataInitSessionBean {
             try {
                 initializeData();
             } catch (OutletNotFoundException | ParseException | CarCategoryNotFoundException | EmployeeNotFoundException | ModelNotFoundException | 
-                    CarNotFoundException | CarLicensePlateNumExistException | UnknownPersistenceException | CreateNewRentalRateException ex2) {
+                    CarNotFoundException | CarLicensePlateNumExistException | UnknownPersistenceException | 
+                    CreateNewRentalRateException | CreateNewEmployeeException | CreateNewModelException ex2) {
                 ex.printStackTrace();
             }
         }
@@ -92,7 +92,8 @@ public class DataInitSessionBean {
     
     private void initializeData() 
             throws OutletNotFoundException, ParseException, CarCategoryNotFoundException, EmployeeNotFoundException, ModelNotFoundException,
-                    CarNotFoundException, CarLicensePlateNumExistException, UnknownPersistenceException, CreateNewRentalRateException 
+                    CarNotFoundException, CarLicensePlateNumExistException, UnknownPersistenceException, CreateNewRentalRateException, 
+                    CreateNewEmployeeException , CreateNewModelException
     {
         
         //Outlets:
@@ -126,38 +127,38 @@ public class DataInitSessionBean {
         Employee employeeC2 = new Employee("Employee C2", "employeeC2", UserRole.OPERATIONS_MANAGER, outletC);
         Employee employeeC3 = new Employee("Employee C3", "employeeC3", UserRole.CS_EXECUTIVE, outletC);
         
-        employeeSessionBean.createNewEmployee(employeeA1);
-        employeeSessionBean.createNewEmployee(employeeA2);
-        employeeSessionBean.createNewEmployee(employeeA3);
-        employeeSessionBean.createNewEmployee(employeeA4);
-        employeeSessionBean.createNewEmployee(employeeA5);
-        employeeSessionBean.createNewEmployee(employeeB1);
-        employeeSessionBean.createNewEmployee(employeeB2);
-        employeeSessionBean.createNewEmployee(employeeB3);
-        employeeSessionBean.createNewEmployee(employeeC1);
-        employeeSessionBean.createNewEmployee(employeeC2);
-        employeeSessionBean.createNewEmployee(employeeC3);
+        employeeSessionBean.createNewEmployee(outletAId, employeeA1);
+        employeeSessionBean.createNewEmployee(outletAId, employeeA2);
+        employeeSessionBean.createNewEmployee(outletAId, employeeA3);
+        employeeSessionBean.createNewEmployee(outletAId, employeeA4);
+        employeeSessionBean.createNewEmployee(outletAId, employeeA5);
+        employeeSessionBean.createNewEmployee(outletBId, employeeB1);
+        employeeSessionBean.createNewEmployee(outletBId, employeeB2);
+        employeeSessionBean.createNewEmployee(outletBId, employeeB3);
+        employeeSessionBean.createNewEmployee(outletCId, employeeC1);
+        employeeSessionBean.createNewEmployee(outletCId, employeeC2);
+        employeeSessionBean.createNewEmployee(outletCId, employeeC3);
         
-        //Associate employees into Outlet list of employees
-        //outlet A employees
-        Outlet managedOutletA = outletSessionBean.retrieveOutletById(outletAId);
-        managedOutletA.getEmployees().add(employeeA1);
-        managedOutletA.getEmployees().add(employeeA2);
-        managedOutletA.getEmployees().add(employeeA3);
-        managedOutletA.getEmployees().add(employeeA4);
-        managedOutletA.getEmployees().add(employeeA5);
-        
-        //outlet B employees
-        Outlet managedOutletB = outletSessionBean.retrieveOutletById(outletBId);
-        managedOutletB.getEmployees().add(employeeB1);
-        managedOutletB.getEmployees().add(employeeB2);
-        managedOutletB.getEmployees().add(employeeB3);
-        
-        //outlet C employees
-        Outlet managedOutletC = outletSessionBean.retrieveOutletById(outletCId);
-        managedOutletC.getEmployees().add(employeeC1);
-        managedOutletC.getEmployees().add(employeeC2);
-        managedOutletC.getEmployees().add(employeeC3);
+//        //Associate employees into Outlet list of employees
+//        //outlet A employees
+//        Outlet managedOutletA = outletSessionBean.retrieveOutletById(outletAId);
+//        managedOutletA.getEmployees().add(employeeA1);
+//        managedOutletA.getEmployees().add(employeeA2);
+//        managedOutletA.getEmployees().add(employeeA3);
+//        managedOutletA.getEmployees().add(employeeA4);
+//        managedOutletA.getEmployees().add(employeeA5);
+//        
+//        //outlet B employees
+//        Outlet managedOutletB = outletSessionBean.retrieveOutletById(outletBId);
+//        managedOutletB.getEmployees().add(employeeB1);
+//        managedOutletB.getEmployees().add(employeeB2);
+//        managedOutletB.getEmployees().add(employeeB3);
+//        
+//        //outlet C employees
+//        Outlet managedOutletC = outletSessionBean.retrieveOutletById(outletCId);
+//        managedOutletC.getEmployees().add(employeeC1);
+//        managedOutletC.getEmployees().add(employeeC2);
+//        managedOutletC.getEmployees().add(employeeC3);
         
         //Car Category
         CarCategory standardSedan = new CarCategory("Standard Sedan");
@@ -178,23 +179,23 @@ public class DataInitSessionBean {
         Model bmw = new Model("BMW", "5 Series", luxurySedan);
         Model a6 = new Model("Audi", "A6", luxurySedan);
 
-        Long corollaId = modelSessionBean.createNewModel(corolla);
-        Long civicId = modelSessionBean.createNewModel(civic);
-        Long sunnyId = modelSessionBean.createNewModel(sunny);
-        Long bmwId = modelSessionBean.createNewModel(bmw);
-        Long mercsId = modelSessionBean.createNewModel(mercs);
-        Long a6Id = modelSessionBean.createNewModel(a6);
+        Long corollaId = modelSessionBean.createNewModel(standardSedanId, corolla);
+        Long civicId = modelSessionBean.createNewModel(standardSedanId, civic);
+        Long sunnyId = modelSessionBean.createNewModel(standardSedanId, sunny);
+        Long bmwId = modelSessionBean.createNewModel(luxurySedanId, bmw);
+        Long mercsId = modelSessionBean.createNewModel(luxurySedanId, mercs);
+        Long a6Id = modelSessionBean.createNewModel(luxurySedanId, a6);
         
-        //Associate models into car category list of models 
-        CarCategory managedStandardSedan = carCategorySessionBean.retrieveCategoryById(standardSedanId);
-        managedStandardSedan.getModels().add(corolla);
-        managedStandardSedan.getModels().add(civic);
-        managedStandardSedan.getModels().add(sunny);
-        
-        CarCategory managedluxurySedan = carCategorySessionBean.retrieveCategoryById(luxurySedanId);
-        managedluxurySedan.getModels().add(a6);
-        managedluxurySedan.getModels().add(bmw);
-        managedluxurySedan.getModels().add(mercs);
+//        //Associate models into car category list of models 
+//        CarCategory managedStandardSedan = carCategorySessionBean.retrieveCategoryById(standardSedanId);
+//        managedStandardSedan.getModels().add(corolla);
+//        managedStandardSedan.getModels().add(civic);
+//        managedStandardSedan.getModels().add(sunny);
+//        
+//        CarCategory managedluxurySedan = carCategorySessionBean.retrieveCategoryById(luxurySedanId);
+//        managedluxurySedan.getModels().add(a6);
+//        managedluxurySedan.getModels().add(bmw);
+//        managedluxurySedan.getModels().add(mercs);
         
         //Car
         Car car1 = new Car("SS00A1TC", corolla, CarStatus.Available, outletA);
@@ -210,59 +211,59 @@ public class DataInitSessionBean {
         Car car11 = new Car("LS00B4B5", bmw, CarStatus.Available, outletB);
         Car car12 = new Car("LS00C4A6", a6, CarStatus.Available, outletC);
         
-        carSessionBean.createNewCar(car1);
-        carSessionBean.createNewCar(car2);
-        carSessionBean.createNewCar(car3);
-        carSessionBean.createNewCar(car4);
-        carSessionBean.createNewCar(car5);
-        carSessionBean.createNewCar(car6);
-        carSessionBean.createNewCar(car7);
-        carSessionBean.createNewCar(car8);
-        carSessionBean.createNewCar(car9);
-        carSessionBean.createNewCar(car10);
-        carSessionBean.createNewCar(car11);
-        carSessionBean.createNewCar(car12);
+        carSessionBean.createNewCar(corollaId, outletAId, car1);
+        carSessionBean.createNewCar(corollaId, outletAId, car2);
+        carSessionBean.createNewCar(corollaId, outletAId, car3);
+        carSessionBean.createNewCar(civicId, outletBId, car4);
+        carSessionBean.createNewCar(civicId, outletBId, car5);
+        carSessionBean.createNewCar(civicId, outletBId, car6);
+        carSessionBean.createNewCar(sunnyId, outletCId, car7);
+        carSessionBean.createNewCar(sunnyId, outletCId, car8);
+        carSessionBean.createNewCar(sunnyId, outletCId, car9);
+        carSessionBean.createNewCar(mercsId, outletAId, car10);
+        carSessionBean.createNewCar(bmwId, outletBId, car11);
+        carSessionBean.createNewCar(a6Id, outletCId, car12);
         
-        //Associate Cars into model list of cars
-        
-        Model managedCorolla = modelSessionBean.retrieveModelById(corollaId);
-        managedCorolla.getCars().add(car1);
-        managedCorolla.getCars().add(car2);
-        managedCorolla.getCars().add(car3);
-        
-        Model managedCivic = modelSessionBean.retrieveModelById(civicId);
-        managedCivic.getCars().add(car4);
-        managedCivic.getCars().add(car5);
-        managedCivic.getCars().add(car6);
-        
-        Model managedSunny = modelSessionBean.retrieveModelById(sunnyId);
-        managedSunny.getCars().add(car7);
-        managedSunny.getCars().add(car8);
-        managedSunny.getCars().add(car9);
-        
-        Model managedMercs = modelSessionBean.retrieveModelById(mercsId);
-        managedMercs.getCars().add(car10);
-        Model managedBmw = modelSessionBean.retrieveModelById(bmwId);
-        managedBmw.getCars().add(car11);
-        Model managedA6 = modelSessionBean.retrieveModelById(a6Id);
-        managedA6.getCars().add(car12);
-        
-        //Associate Outlet to car
-        managedOutletA.getCars().add(car1);
-        managedOutletA.getCars().add(car2);
-        managedOutletA.getCars().add(car3);
-        
-        managedOutletB.getCars().add(car4);
-        managedOutletB.getCars().add(car5);
-        managedOutletB.getCars().add(car6);
-        
-        managedOutletC.getCars().add(car7);
-        managedOutletC.getCars().add(car8);
-        managedOutletC.getCars().add(car9);
-        
-        managedOutletA.getCars().add(car10);
-        managedOutletB.getCars().add(car11);
-        managedOutletC.getCars().add(car12);
+//        //Associate Cars into model list of cars
+//        
+//        Model managedCorolla = modelSessionBean.retrieveModelById(corollaId);
+//        managedCorolla.getCars().add(car1);
+//        managedCorolla.getCars().add(car2);
+//        managedCorolla.getCars().add(car3);
+//        
+//        Model managedCivic = modelSessionBean.retrieveModelById(civicId);
+//        managedCivic.getCars().add(car4);
+//        managedCivic.getCars().add(car5);
+//        managedCivic.getCars().add(car6);
+//        
+//        Model managedSunny = modelSessionBean.retrieveModelById(sunnyId);
+//        managedSunny.getCars().add(car7);
+//        managedSunny.getCars().add(car8);
+//        managedSunny.getCars().add(car9);
+//        
+//        Model managedMercs = modelSessionBean.retrieveModelById(mercsId);
+//        managedMercs.getCars().add(car10);
+//        Model managedBmw = modelSessionBean.retrieveModelById(bmwId);
+//        managedBmw.getCars().add(car11);
+//        Model managedA6 = modelSessionBean.retrieveModelById(a6Id);
+//        managedA6.getCars().add(car12);
+//        
+//        //Associate Outlet to car
+//        managedOutletA.getCars().add(car1);
+//        managedOutletA.getCars().add(car2);
+//        managedOutletA.getCars().add(car3);
+//        
+//        managedOutletB.getCars().add(car4);
+//        managedOutletB.getCars().add(car5);
+//        managedOutletB.getCars().add(car6);
+//        
+//        managedOutletC.getCars().add(car7);
+//        managedOutletC.getCars().add(car8);
+//        managedOutletC.getCars().add(car9);
+//        
+//        managedOutletA.getCars().add(car10);
+//        managedOutletB.getCars().add(car11);
+//        managedOutletC.getCars().add(car12);
         
         //RentalRate
         SimpleDateFormat rentalDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
