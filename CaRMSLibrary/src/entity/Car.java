@@ -55,6 +55,7 @@ public class Car implements Serializable {
     
     
     public Car() {
+        this.reservations = new ArrayList<>();
     }
 
     public Car(String licensePlateNum, Model model, CarStatus status, Outlet outlet) {

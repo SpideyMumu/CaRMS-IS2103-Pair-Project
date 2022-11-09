@@ -16,11 +16,18 @@ import util.exception.InvalidAccessRightException;
 import ejb.session.stateless.EmployeeCaRMSSessionBeanRemote;
 import ejb.session.stateless.RentalRateSessionBeanRemote;
 import entity.Car;
+import entity.CarCategory;
 import entity.Model;
 import entity.RentalRate;
 import java.util.List;
+import util.enumeration.CarStatus;
+import util.exception.CarCategoryNotFoundException;
+import util.exception.CarLicensePlateNumExistException;
 import util.exception.CarNotFoundException;
+import util.exception.CreateNewModelException;
+import util.exception.ModelNotFoundException;
 import util.exception.RentalRateNotFoundException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -151,6 +158,36 @@ public class SalesManagementModule {
     private void doCreateNewModel() {
         Scanner sc = new Scanner(System.in);
         System.out.println("*** Create Model ***\n");
+        Model newModel = new Model();
+        
+        //Ask make and model
+        System.out.println("Type Make and Model name of this new Model:");
+        System.out.print("Make Name> ");
+        String makeName = sc.nextLine();
+        newModel.setMakeName(makeName);
+        System.out.print("Model Name> ");
+        String modelName = sc.nextLine();
+        newModel.setModelName(modelName);
+        
+        //Ask which car category it would be in
+        List<CarCategory> carCategories = carCategorySessionBean.retrieveAllCarCategories();
+        System.out.println("All Car Cateogries: \n");
+        for (CarCategory carCategory : carCategories) {
+            System.out.println("Name: " + carCategory.getCategoryName());
+            System.out.println("ID: " + carCategory.getCategoryId());
+            System.out.println("-----------------------");
+        }
+        
+        System.out.print("Type the Car Category ID that this model is>");
+        Long selection = sc.nextLong();
+        
+        //Persist to DB
+        try {
+            Long modelId = modelSessionBean.createNewModel(selection, newModel);
+            System.out.println("Succesully created new Model! ModelID is " + modelId + ". Model " + makeName + " " + modelName + ".");
+        } catch (CreateNewModelException ex) {
+            System.out.println("Invalid input! " + ex.getMessage());
+        }
     }
     
     private void doViewAllModels() {
@@ -159,6 +196,7 @@ public class SalesManagementModule {
 
         for (Model model : listOfModels) {
             System.out.println("Name: " + model.getMakeName() + " " + model.getModelName());
+            System.out.println("ID: " + model.getModelId());
             System.out.println("Car Category: " + model.getCarCategory().getCategoryName());
             if (model.isEnabled()) {
                 System.out.println("Status: Enabled");
@@ -174,12 +212,44 @@ public class SalesManagementModule {
     }
     
     private void doDeleteModel() {
-        
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** Delete Model ***\n");
+        System.out.println("Model ID>");
+        Long modelId = sc.nextLong();
+        try {
+            modelSessionBean.deleteModel(modelId);
+            System.out.println("Model " + modelId + " is succesfully Deleted!");
+        } catch (ModelNotFoundException ex) {
+            System.out.println("Invalid Input! " + ex.getMessage());
+        }
     }
     
     private void doCreateNewCar() {
         Scanner sc = new Scanner(System.in);
         System.out.println("*** Create Car ***\n");
+        Car newCar = new Car();
+        //assume new car is always available
+        newCar.setStatus(CarStatus.Available);
+        
+        //License Plate, colour, model, outlet (currEmployee outlet)
+        System.out.print("License Plate Number> ");
+        String licensePlateNumber = sc.nextLine();
+        newCar.setLicensePlateNum(licensePlateNumber);
+        
+        System.out.print("Color> ");
+        String color = sc.nextLine();
+        newCar.setColor(color);
+        
+        //Ask which Model it is
+        this.doViewAllModels();
+        System.out.print("Type the Model ID that this car is>");
+        Long selection = sc.nextLong();
+        try { //assume new car belongs to the outlet of the current employee
+            Long carId = carSessionBean.createNewCar(selection, currEmployee.getOutlet().getOutletId(), newCar);
+            System.out.println("Car Succesfully created! CarID is " + carId + ".");
+        } catch (CarLicensePlateNumExistException | UnknownPersistenceException ex) {
+            System.out.println("Invalid input! " + ex.getMessage());
+        }
     }    
     
     private void doViewAllCars() {
@@ -188,6 +258,7 @@ public class SalesManagementModule {
 
         for (Car car : listOfCars) {
             System.out.println("License Plate: " + car.getLicensePlateNum());
+            System.out.println("CarID : " + car.getCarId());
             System.out.println("Model: " + car.getModel().getMakeName() + " " + car.getModel().getModelName());
             System.out.println("Origin Outlet: " + car.getOutlet().getOutletName());
             System.out.println("Colour: " + car.getColor());
@@ -201,7 +272,15 @@ public class SalesManagementModule {
     }
     
     private void doDeleteCar() {
-        
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** Delete Car ***\n");
+        String licensePlateNum = sc.nextLine();
+        try {
+            Car carToDelete = carSessionBean.retrieveCarByLicensePlateNum(licensePlateNum);
+            carSessionBean.deleteCar(carToDelete.getCarId());
+        } catch (CarNotFoundException ex) {
+            System.out.println("Invalid Input! " + ex.getMessage());
+        }
     }
     
     private void doViewCarDetails() {
@@ -212,6 +291,7 @@ public class SalesManagementModule {
         try {
             Car car = carSessionBean.retrieveCarByLicensePlateNum(licensePlateNum);
             System.out.println("License Plate: " + car.getLicensePlateNum());
+            System.out.println("CarID : " + car.getCarId());
             System.out.println("Model: " + car.getModel().getMakeName() + " " + car.getModel().getModelName());
             System.out.println("Origin Outlet: " + car.getOutlet().getOutletName());
             System.out.println("Colour: " + car.getColor());
