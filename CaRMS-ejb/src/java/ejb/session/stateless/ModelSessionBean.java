@@ -17,6 +17,7 @@ import javax.persistence.Query;
 import util.exception.CarCategoryNotFoundException;
 import util.exception.CreateNewModelException;
 import util.exception.ModelNotFoundException;
+import util.exception.UpdateModelException;
 
 /**
  *
@@ -86,8 +87,18 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
     }
 
     @Override
-    public void updateCar(Model model) {
-        em.merge(model);
+    public void updateCar(Model model) throws UpdateModelException {
+        //em.merge(model);
+        
+        try {
+            Model modelToUpdate = retrieveModelById(model.getModelId());
+            modelToUpdate.setCarCategory(model.getCarCategory());
+            modelToUpdate.setEnabled(model.isEnabled());
+            modelToUpdate.setMakeName(model.getMakeName());
+            modelToUpdate.setModelName(model.getModelName());
+        } catch (ModelNotFoundException ex) {
+            throw new UpdateModelException("Model you want to update does not exist in the Database!");
+        }
     }
 
     @Override

@@ -10,6 +10,7 @@ import java.util.List;
 import javax.ejb.Local;
 import util.exception.CreateNewModelException;
 import util.exception.ModelNotFoundException;
+import util.exception.UpdateModelException;
 
 /**
  *
@@ -26,7 +27,7 @@ public interface ModelSessionBeanLocal {
 
     public List<Model> retrieveAllModels();
 
-    public void updateCar(Model model);
+    public void updateCar(Model model) throws UpdateModelException;
 
     public void deleteModel(Long modelId) throws ModelNotFoundException;
 

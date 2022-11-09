@@ -24,6 +24,7 @@ import util.exception.CreateNewCarException;
 import util.exception.ModelNotFoundException;
 import util.exception.OutletNotFoundException;
 import util.exception.UnknownPersistenceException;
+import util.exception.UpdateCarException;
 
 /**
  *
@@ -41,7 +42,6 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
     @PersistenceContext(unitName = "CaRMS-ejbPU")
     private EntityManager em;
 
-    
     @Override
     public Long createNewCar(Car newCar) throws CarLicensePlateNumExistException, UnknownPersistenceException {
 
@@ -62,7 +62,7 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
             }
         }
     }
-    
+
     @Override
     public Long createNewCar(Long modelId, Long outletId, Car newCar) throws CarLicensePlateNumExistException, UnknownPersistenceException, CreateNewCarException {
 
@@ -71,14 +71,14 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
             if (!model.isEnabled()) {
                 throw new CreateNewCarException("Car cannot be created as Model selected is disabled!");
             }
-            
+
             Outlet outlet = outletSessionBean.retrieveOutletById(outletId);
             newCar.setModel(model);
             newCar.setOutlet(outlet);
-            
+
             model.getCars().add(newCar);
             outlet.getCars().add(newCar);
-            
+
             em.persist(newCar);
             em.flush();
 
@@ -95,29 +95,26 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
             }
         }
     }
-    
 
     @Override
-    public Car retrieveCarById(Long carId) throws CarNotFoundException{
+    public Car retrieveCarById(Long carId) throws CarNotFoundException {
         Car car = em.find(Car.class, carId);
-        if (car != null)
-        {
+        if (car != null) {
             return car;
-        } else
-        {
+        } else {
             throw new CarNotFoundException("Car with ID " + carId + " does not exist!");
         }
     }
-     
+
     @Override
     public Car retrieveCarByLicensePlateNum(String licensePlateNum) throws CarNotFoundException {
         Query query = em.createQuery("SELECT c FROM Car c WHERE c.licensePlateNum = :currLicensePlateNum");
         query.setParameter("currLicensePlateNum", licensePlateNum);
-        
+
         try {
             return (Car) query.getSingleResult();
         } catch (NoResultException | NonUniqueResultException ex) {
-            throw new CarNotFoundException("Car with license plate number " +  licensePlateNum + " does not exist!");
+            throw new CarNotFoundException("Car with license plate number " + licensePlateNum + " does not exist!");
         }
     }
 
@@ -126,34 +123,47 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
         Query query = em.createQuery("SELECT c FROM Car c");
 
         List<Car> cars = query.getResultList();
-        
+
         cars.sort(((o1, o2) -> {
             if (o1.getModel().getCarCategory().getCategoryId().equals(o2.getModel().getCarCategory().getCategoryId())) {
                 if (o1.getModel().getMakeName().equals(o2.getModel().getMakeName())) {
-                    if ( o1.getModel().getModelName().equals(o2.getModel().getModelName())) {
+                    if (o1.getModel().getModelName().equals(o2.getModel().getModelName())) {
                         return o1.getLicensePlateNum().compareTo(o2.getLicensePlateNum());
                     }
                     return o1.getModel().getModelName().compareTo(o2.getModel().getModelName());
                 }
                 return o1.getModel().getMakeName().compareTo(o2.getModel().getMakeName());
-            }     
-            
+            }
+
             return o1.getModel().getCarCategory().getCategoryId().compareTo(o2.getModel().getCarCategory().getCategoryId());
         }));
-        
+
         return cars;
     }
 
     @Override
-    public void updateCar(Car car) {
-        em.merge(car);
+    public void updateCar(Car car) throws UpdateCarException {
+        //em.merge(car);
+
+        try {
+            Car carToUpdate = retrieveCarById(car.getCarId());
+            if (carToUpdate.getLicensePlateNum().equals(car.getLicensePlateNum())) {
+                carToUpdate.setColor(car.getColor());
+                carToUpdate.setModel(car.getModel());
+                carToUpdate.setOutlet(car.getOutlet());
+                carToUpdate.setStatus(car.getStatus());
+            } else {
+                throw new UpdateCarException("Editing License Plate is not allowed! Update Car Operation aborted");
+            }
+        } catch (CarNotFoundException ex) {
+            throw new UpdateCarException("Car you want to update does not exist in the Database!");
+        }
     }
 
     @Override
-    public void deleteCar(Long carId) throws CarNotFoundException
-    {
+    public void deleteCar(Long carId) throws CarNotFoundException {
         Car carToRemove = retrieveCarById(carId);
-        
+
         if (carToRemove.getStatus() != CarStatus.OnRental || carToRemove.getStatus() != CarStatus.InTransit || carToRemove.getReservations().isEmpty()) {
             carToRemove.getModel().getCars().remove(carToRemove);
             carToRemove.getOutlet().getCars().remove(carToRemove);
