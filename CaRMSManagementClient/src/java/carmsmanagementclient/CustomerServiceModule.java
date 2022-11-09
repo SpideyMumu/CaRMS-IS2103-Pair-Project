@@ -65,9 +65,9 @@ public class CustomerServiceModule {
                 response = scanner.nextInt();
 
                 if (response == 1) {
-
+                    doPickUpCar();;
                 } else if (response == 2) {
-
+                    doReturnCar();
                 } else if (response == 3) {
                     break;
                 }
@@ -75,5 +75,13 @@ public class CustomerServiceModule {
 
         }
 
+    }
+    
+    private void doPickUpCar() {
+        
+    }
+    
+    private void doReturnCar() {
+    
     }
 }

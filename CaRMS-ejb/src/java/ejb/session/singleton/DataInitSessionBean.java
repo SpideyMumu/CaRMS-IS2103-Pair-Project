@@ -34,6 +34,7 @@ import util.exception.CreateNewRentalRateException;
 import util.exception.UnknownPersistenceException;
 import ejb.session.stateless.EmployeeCaRMSSessionBeanLocal;
 import util.exception.CarNotFoundException;
+import util.exception.CreateNewCarException;
 import util.exception.CreateNewEmployeeException;
 import util.exception.CreateNewModelException;
 import util.exception.EmployeeNotFoundException;
@@ -84,7 +85,7 @@ public class DataInitSessionBean {
                 initializeData();
             } catch (OutletNotFoundException | ParseException | CarCategoryNotFoundException | EmployeeNotFoundException | ModelNotFoundException | 
                     CarNotFoundException | CarLicensePlateNumExistException | UnknownPersistenceException | 
-                    CreateNewRentalRateException | CreateNewEmployeeException | CreateNewModelException ex2) {
+                    CreateNewRentalRateException | CreateNewEmployeeException | CreateNewModelException | CreateNewCarException ex2) {
                 ex.printStackTrace();
             }
         }
@@ -93,7 +94,7 @@ public class DataInitSessionBean {
     private void initializeData() 
             throws OutletNotFoundException, ParseException, CarCategoryNotFoundException, EmployeeNotFoundException, ModelNotFoundException,
                     CarNotFoundException, CarLicensePlateNumExistException, UnknownPersistenceException, CreateNewRentalRateException, 
-                    CreateNewEmployeeException , CreateNewModelException
+                    CreateNewEmployeeException , CreateNewModelException, CreateNewCarException
     {
         
         //Outlets:

@@ -24,6 +24,7 @@ import util.enumeration.CarStatus;
 import util.exception.CarCategoryNotFoundException;
 import util.exception.CarLicensePlateNumExistException;
 import util.exception.CarNotFoundException;
+import util.exception.CreateNewCarException;
 import util.exception.CreateNewModelException;
 import util.exception.ModelNotFoundException;
 import util.exception.RentalRateNotFoundException;
@@ -34,10 +35,11 @@ import util.exception.UnknownPersistenceException;
  * @author muhdm
  */
 public class SalesManagementModule {
+
     /* 
     This module is only accessible to Sales Manager and Operations Manager
-    */
-    
+     */
+
     //Remote Session Beans
     private CarSessionBeanRemote carSessionBean;
     private CarCategorySessionBeanRemote carCategorySessionBean;
@@ -45,7 +47,7 @@ public class SalesManagementModule {
     private OutletSessionBeanRemote outletSessionBean;
     private ModelSessionBeanRemote modelSessionBean;
     private RentalRateSessionBeanRemote rentalRateSessionBean;
-    
+
     //Current logged-in user
     private Employee currEmployee;
 
@@ -61,30 +63,23 @@ public class SalesManagementModule {
         this.rentalRateSessionBean = rentalRateSessionBean;
         this.currEmployee = currEmployee;
     }
-    
-    public void mainMenu() throws InvalidAccessRightException
-    { 
-        if(currEmployee.getUserRole()== UserRole.OPERATIONS_MANAGER)
-        {
+
+    public void mainMenu() throws InvalidAccessRightException {
+        if (currEmployee.getUserRole() == UserRole.OPERATIONS_MANAGER) {
             operationsManagerMenu();
-        } 
-        else if (currEmployee.getUserRole() == UserRole.SALES_MANAGER) 
-        {
+        } else if (currEmployee.getUserRole() == UserRole.SALES_MANAGER) {
             salesManagerMenu();
         } else {
             throw new InvalidAccessRightException("You don't have Manager rights to access the Sales Management module.");
         }
     }
-    
-    
-    private void operationsManagerMenu()
-    {
-        
+
+    private void operationsManagerMenu() {
+
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
-        
-        while(true)
-        {
+
+        while (true) {
             System.out.println("*** CaRMS :: Sales Management For Operations Manager ***\n");
             System.out.println("1: Create New Model");
             System.out.println("2: View All Model");
@@ -103,7 +98,7 @@ public class SalesManagementModule {
             System.out.println("-----------------------");
             System.out.println("13: Back\n");
             response = 0;
-            
+
             //OUTER:
             while (response < 1 || response > 13) {
                 System.out.print("> ");
@@ -149,7 +144,7 @@ public class SalesManagementModule {
                         return;
                     default:
                         System.out.println("Invalid option, please try again!\n");
-                        break;                
+                        break;
                 }
             }
         }
@@ -159,7 +154,7 @@ public class SalesManagementModule {
         Scanner sc = new Scanner(System.in);
         System.out.println("*** Create Model ***\n");
         Model newModel = new Model();
-        
+
         //Ask make and model
         System.out.println("Type Make and Model name of this new Model:");
         System.out.print("Make Name> ");
@@ -168,7 +163,7 @@ public class SalesManagementModule {
         System.out.print("Model Name> ");
         String modelName = sc.nextLine();
         newModel.setModelName(modelName);
-        
+
         //Ask which car category it would be in
         List<CarCategory> carCategories = carCategorySessionBean.retrieveAllCarCategories();
         System.out.println("All Car Cateogries: \n");
@@ -177,10 +172,10 @@ public class SalesManagementModule {
             System.out.println("ID: " + carCategory.getCategoryId());
             System.out.println("-----------------------");
         }
-        
+
         System.out.print("Type the Car Category ID that this model is>");
         Long selection = sc.nextLong();
-        
+
         //Persist to DB
         try {
             Long modelId = modelSessionBean.createNewModel(selection, newModel);
@@ -189,7 +184,7 @@ public class SalesManagementModule {
             System.out.println("Invalid input! " + ex.getMessage());
         }
     }
-    
+
     private void doViewAllModels() {
         List<Model> listOfModels = modelSessionBean.retrieveAllModels();
         System.out.println("*** All Models below here***\n");
@@ -206,40 +201,46 @@ public class SalesManagementModule {
             System.out.println("-----------------------");
         }
     }
-    
+
     private void doUpdateModels() {
-    
+
     }
-    
+
     private void doDeleteModel() {
         Scanner sc = new Scanner(System.in);
         System.out.println("*** Delete Model ***\n");
-        System.out.println("Model ID>");
+        System.out.print("Model ID>");
         Long modelId = sc.nextLong();
+        sc.nextLine();
         try {
-            modelSessionBean.deleteModel(modelId);
-            System.out.println("Model " + modelId + " is succesfully Deleted!");
+            System.out.print("Are you sure you want to delete this model? (Y/N) >");
+            if (sc.nextLine().equalsIgnoreCase("y")) {
+                modelSessionBean.deleteModel(modelId);
+                System.out.println("Model " + modelId + " is succesfully Deleted!");
+            } else {
+                System.out.println("Model Deletion Aborted!");
+            }
         } catch (ModelNotFoundException ex) {
             System.out.println("Invalid Input! " + ex.getMessage());
         }
     }
-    
+
     private void doCreateNewCar() {
         Scanner sc = new Scanner(System.in);
         System.out.println("*** Create Car ***\n");
         Car newCar = new Car();
         //assume new car is always available
         newCar.setStatus(CarStatus.Available);
-        
+
         //License Plate, colour, model, outlet (currEmployee outlet)
         System.out.print("License Plate Number> ");
         String licensePlateNumber = sc.nextLine();
         newCar.setLicensePlateNum(licensePlateNumber);
-        
+
         System.out.print("Color> ");
         String color = sc.nextLine();
         newCar.setColor(color);
-        
+
         //Ask which Model it is
         this.doViewAllModels();
         System.out.print("Type the Model ID that this car is>");
@@ -247,11 +248,11 @@ public class SalesManagementModule {
         try { //assume new car belongs to the outlet of the current employee
             Long carId = carSessionBean.createNewCar(selection, currEmployee.getOutlet().getOutletId(), newCar);
             System.out.println("Car Succesfully created! CarID is " + carId + ".");
-        } catch (CarLicensePlateNumExistException | UnknownPersistenceException ex) {
+        } catch (CarLicensePlateNumExistException | UnknownPersistenceException | CreateNewCarException ex) {
             System.out.println("Invalid input! " + ex.getMessage());
         }
-    }    
-    
+    }
+
     private void doViewAllCars() {
         List<Car> listOfCars = carSessionBean.retrieveAllCars();
         System.out.println("*** All Cars below here***\n");
@@ -266,23 +267,40 @@ public class SalesManagementModule {
             System.out.println("-----------------------");
         }
     }
-    
+
     private void doUpdateCar() {
         
     }
-    
+
     private void doDeleteCar() {
         Scanner sc = new Scanner(System.in);
         System.out.println("*** Delete Car ***\n");
+        System.out.print("License Plate Nummber>");
         String licensePlateNum = sc.nextLine();
         try {
             Car carToDelete = carSessionBean.retrieveCarByLicensePlateNum(licensePlateNum);
-            carSessionBean.deleteCar(carToDelete.getCarId());
+            // Display Car details here
+            System.out.println("License Plate: " + carToDelete.getLicensePlateNum());
+            System.out.println("CarID : " + carToDelete.getCarId());
+            System.out.println("Model: " + carToDelete.getModel().getMakeName() + " " + carToDelete.getModel().getModelName());
+            System.out.println("Origin Outlet: " + carToDelete.getOutlet().getOutletName());
+            System.out.println("Colour: " + carToDelete.getColor());
+            System.out.println("Status: " + carToDelete.getStatus().toString());
+            System.out.println("-----------------------");
+            System.out.print("Are you sure you want to delete this car? (Y/N) >");
+            
+            if (sc.nextLine().equalsIgnoreCase("y")) {
+                carSessionBean.deleteCar(carToDelete.getCarId());
+                System.out.println("Car Succesfully Deleted!");
+            } else {
+                System.out.println("Car Deletion Aborted!");
+            }
+
         } catch (CarNotFoundException ex) {
             System.out.println("Invalid Input! " + ex.getMessage());
         }
     }
-    
+
     private void doViewCarDetails() {
         Scanner sc = new Scanner(System.in);
         System.out.println("*** View Car Details ***");
@@ -300,19 +318,16 @@ public class SalesManagementModule {
         } catch (CarNotFoundException ex) {
             System.out.println("Please type the correct license plate number! " + ex.getMessage());
         }
-        
-        
+
     }
-    
+
     // Sales Manager Use Cases Below
-    private void salesManagerMenu()
-    {
-        
+    private void salesManagerMenu() {
+
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
-        
-        while(true)
-        {
+
+        while (true) {
             System.out.println("*** CaRMS :: Sales Management For Sales Manager ***\n");
             System.out.println("1: Create New Rental Rate");
             System.out.println("2: View All Rental Rates");
@@ -322,7 +337,7 @@ public class SalesManagementModule {
             System.out.println("-----------------------");
             System.out.println("6: Back\n");
             response = 0;
-            
+
             OUTER:
             while (response < 1 || response > 7) {
                 System.out.print("> ");
@@ -347,25 +362,24 @@ public class SalesManagementModule {
                         return;
                     default:
                         System.out.println("Invalid option, please try again!\n");
-                        break;                
+                        break;
                 }
             }
         }
     }
-    
+
     private void doCreateRentalRate() {
         Scanner sc = new Scanner(System.in);
-        
+
         System.out.println("*** Create Rental Rate ***\n");
-        
-        
+
     }
-    
+
     private void doViewAllRentalRates() {
         //Scanner sc = new Scanner(System.in);
-        List<RentalRate> allRentalRates= rentalRateSessionBean.retrieveAllRentalRates();
+        List<RentalRate> allRentalRates = rentalRateSessionBean.retrieveAllRentalRates();
         System.out.println("*** All Rental Rates below here***\n");
-        
+
         for (RentalRate rate : allRentalRates) {
             System.out.println("Name: " + rate.getName());
             System.out.println("ID: " + rate.getRentalRateId());
@@ -381,37 +395,37 @@ public class SalesManagementModule {
             System.out.println("-----------------------");
         }
     }
-    
+
     private void doViewRentalRateDetails() {
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter Rental Rate ID> ");
         Long rentalRateId = sc.nextLong();
 
         try {
-        RentalRate rate = rentalRateSessionBean.retrieveRentalRateById(rentalRateId);
-        System.out.println("Name: " + rate.getName());
-        System.out.println("ID: " + rate.getRentalRateId());
-        System.out.println("Price per day: " + rate.getRatePerDay());
-        System.out.println("Car Category: " + rate.getCarCategory().getCategoryName());
-        System.out.println("Type: " + rate.getType());
-        if (rate.getStartDate() != null) {
-            System.out.println("Start Date: " + rate.getStartDate());
-            System.out.println("End Date: " + rate.getEndDate());
-        } else {
-            System.out.println("Rental Rate is valid forever");
-        }
-        System.out.println("-----------------------");
+            RentalRate rate = rentalRateSessionBean.retrieveRentalRateById(rentalRateId);
+            System.out.println("Name: " + rate.getName());
+            System.out.println("ID: " + rate.getRentalRateId());
+            System.out.println("Price per day: " + rate.getRatePerDay());
+            System.out.println("Car Category: " + rate.getCarCategory().getCategoryName());
+            System.out.println("Type: " + rate.getType());
+            if (rate.getStartDate() != null) {
+                System.out.println("Start Date: " + rate.getStartDate());
+                System.out.println("End Date: " + rate.getEndDate());
+            } else {
+                System.out.println("Rental Rate is valid forever");
+            }
+            System.out.println("-----------------------");
         } catch (RentalRateNotFoundException ex) {
             System.out.println("Please type the correct ID! " + ex.getMessage());
         }
     }
-    
+
     private void doUpdateRentalRate() {
         Scanner sc = new Scanner(System.in);
     }
-    
+
     private void doDeleteRentalRate() {
         Scanner sc = new Scanner(System.in);
     }
-    
+
 }

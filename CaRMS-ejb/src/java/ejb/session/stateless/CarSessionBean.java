@@ -20,6 +20,7 @@ import javax.persistence.Query;
 import util.enumeration.CarStatus;
 import util.exception.CarNotFoundException;
 import util.exception.CarLicensePlateNumExistException;
+import util.exception.CreateNewCarException;
 import util.exception.ModelNotFoundException;
 import util.exception.OutletNotFoundException;
 import util.exception.UnknownPersistenceException;
@@ -63,10 +64,14 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
     }
     
     @Override
-    public Long createNewCar(Long modelId, Long outletId, Car newCar) throws CarLicensePlateNumExistException, UnknownPersistenceException {
+    public Long createNewCar(Long modelId, Long outletId, Car newCar) throws CarLicensePlateNumExistException, UnknownPersistenceException, CreateNewCarException {
 
         try {
             Model model = modelSessionBean.retrieveModelById(modelId);
+            if (!model.isEnabled()) {
+                throw new CreateNewCarException("Car cannot be created as Model selected is disabled!");
+            }
+            
             Outlet outlet = outletSessionBean.retrieveOutletById(outletId);
             newCar.setModel(model);
             newCar.setOutlet(outlet);
@@ -81,7 +86,7 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
         } catch (OutletNotFoundException | ModelNotFoundException | PersistenceException ex) {
             if (ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
                 if (ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
-                    throw new CarLicensePlateNumExistException(ex.getMessage());
+                    throw new CarLicensePlateNumExistException("License Plate " + newCar.getLicensePlateNum() + " already exists in Database!");
                 } else {
                     throw new UnknownPersistenceException(ex.getMessage());
                 }
