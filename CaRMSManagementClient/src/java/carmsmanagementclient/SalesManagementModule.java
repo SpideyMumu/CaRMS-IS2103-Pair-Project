@@ -20,13 +20,19 @@ import entity.CarCategory;
 import entity.Model;
 import entity.Outlet;
 import entity.RentalRate;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import util.enumeration.CarStatus;
+import util.enumeration.RentalRateType;
 import util.exception.CarCategoryNotFoundException;
 import util.exception.CarLicensePlateNumExistException;
 import util.exception.CarNotFoundException;
 import util.exception.CreateNewCarException;
 import util.exception.CreateNewModelException;
+import util.exception.CreateNewRentalRateException;
 import util.exception.ModelNotFoundException;
 import util.exception.OutletNotFoundException;
 import util.exception.RentalRateNotFoundException;
@@ -590,11 +596,68 @@ public class SalesManagementModule {
         }
     }
 
-    private void doCreateRentalRate() {
+    private void doCreateRentalRate() { //Assume Rental rate is enabled by default when creating and new rental rate cannot be default
         Scanner sc = new Scanner(System.in);
 
         System.out.println("*** Create Rental Rate ***\n");
+        RentalRate newRentalRate = new RentalRate();
 
+        System.out.print("Enter rental rate name>");
+        newRentalRate.setName(sc.nextLine());
+
+        System.out.print("Enter rate per day>");
+        newRentalRate.setRatePerDay(new BigDecimal(sc.nextDouble()));
+        sc.nextLine();
+
+        System.out.println("Select Rental rate type: ");
+        System.out.print(
+                "1: Promotion\n"
+                + "2: Peak\n"
+                + ">");
+        int typeSelection = sc.nextInt();
+        if (typeSelection == 1) {
+            newRentalRate.setType(RentalRateType.Promotion);
+        } else if (typeSelection == 2) {
+            newRentalRate.setType(RentalRateType.Peak);
+        } else {
+            System.out.println("Invalid input! Creating operation failed. Please try again");
+            return;
+        }
+
+        System.out.println("Select new Car Category: ");
+        System.out.print(
+                "1: Standard Sedan\n"
+                + "2: Family Sedan\n"
+                + "3: Luxury Sedan\n"
+                + "4: SUV and Minivan\n"
+                + ">");
+        Long selection = sc.nextLong();
+        sc.nextLine();
+
+        SimpleDateFormat rentalDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
+        try {
+            System.out.print("Enter start date (Format: dd/MM/yyyy HH:mm) >");
+            String startDateString = sc.nextLine();
+            Date startDate = rentalDateFormat.parse(startDateString);
+            newRentalRate.setStartDate(startDate);
+
+            //Probably should check if end date is less than start date
+            System.out.print("Enter end date (Fomrat: dd/MM/yyyy HH:mm) >");
+            String endDateString = sc.nextLine();
+            Date endDate = rentalDateFormat.parse(endDateString);
+            newRentalRate.setEndDate(endDate);
+        } catch (ParseException ex) {
+            System.out.println("Please input the dates in the correct format! Creating operation failed. Please try again");
+            return;
+        }
+
+        try {
+            rentalRateSessionBean.createNewRentalRate(selection, newRentalRate);
+            System.out.println("Successfully created new rental rate!");
+        } catch (CreateNewRentalRateException | CarCategoryNotFoundException ex) {
+            System.out.println("Creating operation failed! " + ex.getMessage());
+        }
     }
 
     private void doViewAllRentalRates() {
@@ -605,7 +668,7 @@ public class SalesManagementModule {
         for (RentalRate rate : allRentalRates) {
             System.out.println("Name: " + rate.getName());
             System.out.println("ID: " + rate.getRentalRateId());
-            System.out.println("Price per day: " + rate.getRatePerDay());
+            System.out.println("Rate per day: " + rate.getRatePerDay());
             System.out.println("Car Category: " + rate.getCarCategory().getCategoryName());
             System.out.println("Type: " + rate.getType());
             if (rate.getStartDate() != null) {
@@ -627,7 +690,7 @@ public class SalesManagementModule {
             RentalRate rate = rentalRateSessionBean.retrieveRentalRateById(rentalRateId);
             System.out.println("Name: " + rate.getName());
             System.out.println("ID: " + rate.getRentalRateId());
-            System.out.println("Price per day: " + rate.getRatePerDay());
+            System.out.println("Rate per day: " + rate.getRatePerDay());
             System.out.println("Car Category: " + rate.getCarCategory().getCategoryName());
             System.out.println("Type: " + rate.getType());
             if (rate.getStartDate() != null) {
@@ -644,10 +707,116 @@ public class SalesManagementModule {
 
     private void doUpdateRentalRate() {
         Scanner sc = new Scanner(System.in);
+        System.out.println("*** Update Rental Rate ***\n");
+        int response;
+        System.out.println("Which Rental Rate would you like to update?");
+        System.out.print("Enter Rental Rate ID>");
+        Long selection = sc.nextLong();
+
+        try {
+            RentalRate rentalRate = rentalRateSessionBean.retrieveRentalRateById(selection);
+            while (true) {
+                System.out.println("You are currently updating:");
+                //Rental Rate details here
+                System.out.println("Name: " + rentalRate.getName());
+                System.out.println("ID: " + rentalRate.getRentalRateId());
+                System.out.println("Rate per day: " + rentalRate.getRatePerDay());
+                System.out.println("Car Category: " + rentalRate.getCarCategory().getCategoryName());
+                System.out.println("Type: " + rentalRate.getType());
+                if (rentalRate.getStartDate() != null) {
+                    System.out.println("Start Date: " + rentalRate.getStartDate());
+                    System.out.println("End Date: " + rentalRate.getEndDate());
+                } else {
+                    System.out.println("Rental Rate is valid forever");
+                }
+                System.out.println("-----------------------");
+
+                System.out.println("What would you like to update?");
+                System.out.println("1: Name");
+                System.out.println("2: Rate Per Day");
+                System.out.println("3: Car Category");
+                System.out.println("4: Start Date");
+                System.out.println("5: End Date");
+                if (rentalRate.getType() != RentalRateType.Default) { //assume that default type rental rates cannot have its rental rate type changed
+                    System.out.println("6: Type");
+                }
+                System.out.println("7: Back \n");
+                response = 0;
+
+                while (response < 1 || response > 7) {
+                    System.out.print("> ");
+                    response = sc.nextInt();
+                    sc.nextLine();
+
+                    switch (response) {
+                        case 1:
+                            System.out.print("Enter new name>");
+                            break;
+                        case 2:
+                            System.out.print("Enter new rate per day>");
+                            break;
+                        case 3:
+                            System.out.print("Enter new car category ID>");
+                            break;
+                        case 4:
+                            break;
+                        case 5:
+                            break;
+                        case 6:
+                            if (rentalRate.getType() == RentalRateType.Default) {
+                                System.out.println("Invalid option, please try again!\n");
+                                break;
+                            }
+                            
+                            
+                            break;
+                        case 7:
+                            return;
+                        default:
+                            System.out.println("Invalid option, please try again!\n");
+                            break;
+                    }
+                }
+            }
+        } catch (RentalRateNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
     private void doDeleteRentalRate() {
         Scanner sc = new Scanner(System.in);
+
+        System.out.println("*** Delete Rental Rate ***\n");
+        System.out.print("Rental Rate ID>");
+        Long rentalRateId = sc.nextLong();
+        sc.nextLine();
+
+        try {
+            RentalRate rentalRate = rentalRateSessionBean.retrieveRentalRateById(rentalRateId);
+            // Display Rental Rate details here
+            System.out.println("Name: " + rentalRate.getName());
+            System.out.println("ID: " + rentalRate.getRentalRateId());
+            System.out.println("Rate per day: " + rentalRate.getRatePerDay());
+            System.out.println("Car Category: " + rentalRate.getCarCategory().getCategoryName());
+            System.out.println("Type: " + rentalRate.getType());
+            if (rentalRate.getStartDate() != null) {
+                System.out.println("Start Date: " + rentalRate.getStartDate());
+                System.out.println("End Date: " + rentalRate.getEndDate());
+            } else {
+                System.out.println("Rental Rate is valid forever");
+            }
+            System.out.print("Are you sure you want to delete this rental rate? (Y/N) >");
+
+            if (sc.nextLine().equalsIgnoreCase("y")) {
+                rentalRateSessionBean.deleteRentalRate(rentalRateId);
+                System.out.println("Rental Rate Succesfully Deleted!");
+            } else {
+                System.out.println("Rental Rate Deletion Aborted!");
+            }
+
+        } catch (RentalRateNotFoundException ex) {
+            System.out.println("Invalid Input! " + ex.getMessage());
+        }
     }
 
 }
