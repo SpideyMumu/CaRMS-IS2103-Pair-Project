@@ -28,7 +28,9 @@ public interface CarSessionBeanLocal {
     public Long createNewCar(Car newCar)throws CarLicensePlateNumExistException, UnknownPersistenceException;
 
     public Car retrieveCarById(Long carId) throws CarNotFoundException;
-
+    
     public Car retrieveCarByLicensePlateNum(String licensePlateNum) throws CarNotFoundException;
+
+    public Long createNewCar(Long modelId, Long outletId, Car newCar) throws CarLicensePlateNumExistException, UnknownPersistenceException;
     
 }

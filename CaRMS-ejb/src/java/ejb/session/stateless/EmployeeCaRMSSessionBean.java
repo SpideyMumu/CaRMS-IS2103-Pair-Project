@@ -6,15 +6,19 @@
 package ejb.session.stateless;
 
 import entity.Employee;
+import entity.Outlet;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.CreateNewEmployeeException;
 import util.exception.EmployeeNotFoundException;
 import util.exception.InvalidLoginCredentialException;
+import util.exception.OutletNotFoundException;
 
 /**
  *
@@ -23,8 +27,12 @@ import util.exception.InvalidLoginCredentialException;
 @Stateless
 public class EmployeeCaRMSSessionBean implements EmployeeCaRMSSessionBeanRemote, EmployeeCaRMSSessionBeanLocal {
 
+    @EJB
+    private OutletSessionBeanLocal outletSessionBean;
+
     @PersistenceContext(unitName = "CaRMS-ejbPU")
     private EntityManager em;
+    
 
     @Override
     public Long createNewEmployee(Employee newEmployee) {
@@ -32,6 +40,24 @@ public class EmployeeCaRMSSessionBean implements EmployeeCaRMSSessionBeanRemote,
         em.flush();
         return newEmployee.getEmployeeId();
     }
+    
+    @Override
+    public Long createNewEmployee(Long outletId, Employee employee) throws CreateNewEmployeeException {
+        try {
+            Outlet outlet = outletSessionBean.retrieveOutletById(outletId);
+            employee.setOutlet(outlet);
+            outlet.getEmployees().add(employee);
+            
+            em.persist(employee);
+            em.flush();
+            
+            return employee.getEmployeeId();
+            
+        } catch (OutletNotFoundException ex) {
+            throw new CreateNewEmployeeException(ex.getMessage());
+        }
+    }
+    
     
     @Override
     public Employee retrieveEmployeeById(Long employeeId) throws EmployeeNotFoundException {

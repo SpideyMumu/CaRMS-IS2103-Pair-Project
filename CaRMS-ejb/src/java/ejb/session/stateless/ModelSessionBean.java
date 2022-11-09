@@ -6,12 +6,16 @@
 package ejb.session.stateless;
 
 import entity.Car;
+import entity.CarCategory;
 import entity.Model;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.CarCategoryNotFoundException;
+import util.exception.CreateNewModelException;
 import util.exception.ModelNotFoundException;
 
 /**
@@ -21,6 +25,10 @@ import util.exception.ModelNotFoundException;
 @Stateless
 public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBeanLocal {
 
+    @EJB
+    private CarCategorySessionBeanLocal carCategorySessionBean;
+
+    
     @PersistenceContext(unitName = "CaRMS-ejbPU")
     private EntityManager em;
 
@@ -29,6 +37,23 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
         em.persist(newModel);
         em.flush();
         return newModel.getModelId();
+    }
+    
+    @Override
+    public Long createNewModel(Long carCategoryId, Model model) throws CreateNewModelException {
+        try {
+            CarCategory carCategory = carCategorySessionBean.retrieveCategoryById(carCategoryId);
+            model.setCarCategory(carCategory);
+            carCategory.getModels().add(model);
+            
+            em.persist(model);
+            em.flush();
+            
+            return model.getModelId();
+            
+        } catch (CarCategoryNotFoundException ex) {
+            throw new CreateNewModelException(ex.getMessage());
+        }
     }
     
     @Override

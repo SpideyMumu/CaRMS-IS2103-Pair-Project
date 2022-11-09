@@ -6,7 +6,10 @@
 package ejb.session.stateless;
 
 import entity.Car;
+import entity.Model;
+import entity.Outlet;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -17,6 +20,8 @@ import javax.persistence.Query;
 import util.enumeration.CarStatus;
 import util.exception.CarNotFoundException;
 import util.exception.CarLicensePlateNumExistException;
+import util.exception.ModelNotFoundException;
+import util.exception.OutletNotFoundException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -26,9 +31,16 @@ import util.exception.UnknownPersistenceException;
 @Stateless
 public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal {
 
+    @EJB
+    private OutletSessionBeanLocal outletSessionBean;
+
+    @EJB
+    private ModelSessionBeanLocal modelSessionBean;
+
     @PersistenceContext(unitName = "CaRMS-ejbPU")
     private EntityManager em;
 
+    
     @Override
     public Long createNewCar(Car newCar) throws CarLicensePlateNumExistException, UnknownPersistenceException {
 
@@ -49,6 +61,36 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
             }
         }
     }
+    
+    @Override
+    public Long createNewCar(Long modelId, Long outletId, Car newCar) throws CarLicensePlateNumExistException, UnknownPersistenceException {
+
+        try {
+            Model model = modelSessionBean.retrieveModelById(modelId);
+            Outlet outlet = outletSessionBean.retrieveOutletById(outletId);
+            newCar.setModel(model);
+            newCar.setOutlet(outlet);
+            
+            model.getCars().add(newCar);
+            outlet.getCars().add(newCar);
+            
+            em.persist(newCar);
+            em.flush();
+
+            return newCar.getCarId();
+        } catch (OutletNotFoundException | ModelNotFoundException | PersistenceException ex) {
+            if (ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
+                if (ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
+                    throw new CarLicensePlateNumExistException(ex.getMessage());
+                } else {
+                    throw new UnknownPersistenceException(ex.getMessage());
+                }
+            } else {
+                throw new UnknownPersistenceException(ex.getMessage());
+            }
+        }
+    }
+    
 
     @Override
     public Car retrieveCarById(Long carId) throws CarNotFoundException{

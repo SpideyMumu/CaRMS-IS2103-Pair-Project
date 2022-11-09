@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.Employee;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.CreateNewEmployeeException;
 import util.exception.EmployeeNotFoundException;
 import util.exception.InvalidLoginCredentialException;
 
@@ -21,6 +22,8 @@ public interface EmployeeCaRMSSessionBeanRemote {
     public Employee retrieveEmployeeById(Long employeeId) throws EmployeeNotFoundException;
 
     public Long createNewEmployee(Employee newEmployee);
+    
+    public Long createNewEmployee(Long outletId, Employee employee) throws CreateNewEmployeeException;
 
     public void updateEmployee(Employee employee);
 
@@ -32,4 +35,5 @@ public interface EmployeeCaRMSSessionBeanRemote {
     
     public Employee employeeLogin(String username, String password) throws InvalidLoginCredentialException;
 
+    
 }
