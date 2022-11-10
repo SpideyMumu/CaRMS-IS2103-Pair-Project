@@ -78,7 +78,7 @@ public class MainApp {
                         
                         //To update respective module with the currEmployee and all SBs
                         salesManagementModule = new SalesManagementModule(carSessionBean, carCategorySessionBean, employeeSessionBean, outletSessionBean, modelSessionBean, rentalRateSessionBean, currEmployee);
-                        customerServiceModule = new CustomerServiceModule(carCategorySessionBean, rentalRateSessionBean, currEmployee);
+                        customerServiceModule = new CustomerServiceModule(carSessionBean, carCategorySessionBean, rentalRateSessionBean, currEmployee);
                         menuMain();
                     }
                     catch(InvalidLoginCredentialException ex) 

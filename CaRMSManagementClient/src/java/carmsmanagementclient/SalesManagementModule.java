@@ -73,7 +73,8 @@ public class SalesManagementModule {
         this.rentalRateSessionBean = rentalRateSessionBean;
         this.currEmployee = currEmployee;
     }
-
+    
+    //This method serves to direct the logged in employee to the correct menu depending on their user role
     public void mainMenu() throws InvalidAccessRightException {
         if (currEmployee.getUserRole() == UserRole.OPERATIONS_MANAGER) {
             operationsManagerMenu();
@@ -84,6 +85,7 @@ public class SalesManagementModule {
         }
     }
 
+    //Operations Manager Use Cases below
     private void operationsManagerMenu() {
 
         Scanner scanner = new Scanner(System.in);
@@ -550,7 +552,7 @@ public class SalesManagementModule {
 
     }
 
-    // Sales Manager Use Cases Below
+    // Sales Manager Use Cases below
     private void salesManagerMenu() {
 
         Scanner scanner = new Scanner(System.in);
