@@ -10,12 +10,20 @@ import ejb.session.stateless.CarSessionBeanRemote;
 import ejb.session.stateless.ReservationSessionBeanRemote;
 import entity.Car;
 import entity.CarRentalCustomer;
+import entity.Customer;
+import entity.Outlet;
+import entity.RentalRate;
+import entity.Reservation;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import util.exception.CustomerMobilePhoneExistException;
 import util.exception.InvalidLoginCredentialException;
+import util.exception.ReservationNotFoundException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -44,7 +52,7 @@ public class MainApp
     
     
     
-    public void runApp()
+    public void runApp() throws ParseException
     {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
@@ -125,6 +133,36 @@ public class MainApp
         }
     }
     
+    private void doRegisterCustomer()
+    {
+        Scanner scanner = new Scanner(System.in);
+        
+        CarRentalCustomer customer = new CarRentalCustomer();
+        
+        System.out.println("*** CaRMS Reservation System :: Register as customer *** \n");
+        
+        System.out.println("Enter mobile number>");
+        customer.setMobileNumber(scanner.nextLine().trim());
+        System.out.println("Enter full name>");
+        customer.setFullName(scanner.nextLine().trim());
+        System.out.println("Enter password for account> ");
+        customer.setPassword(scanner.nextLine().trim());
+        
+        try
+        {
+            Long newCustomerId = carRentalCustomerSessionBeanRemote.createNewCarRentalCustomer(customer);
+            System.out.println("Registered successfully!: Your customer Id is " + newCustomerId + "\n");
+        }
+        catch(CustomerMobilePhoneExistException ex)
+        {
+            System.out.println("An error has occurred while registering!: The mobile number already exist\n");
+        }
+        catch(UnknownPersistenceException ex)
+        {
+            System.out.println("An unknown error has occurred while registering!: " + ex.getMessage() + "\n");
+        }
+    }
+    
     
     
     private void menuMain() throws ParseException
@@ -134,7 +172,7 @@ public class MainApp
         
         while(true)
         {
-            System.out.println("*** CaRMS Reservation System (v4.2) ***\n");
+            System.out.println("*** CaRMS Reservation System ***\n");
             System.out.println("You are login as " + carRentalCustomer.getFullName());
             System.out.println("1: Search car");
             System.out.println("2: Reserve car");
@@ -168,10 +206,12 @@ public class MainApp
                 }
                 else if(response == 5)
                 {
-                    //doViewAllMyReservation();
+                    doViewAllMyReservations();
                 }
                 else if (response == 6)
                 {
+                    System.out.println("Log out successfully!");
+                    runApp();
                     break;
                 }
                 else
@@ -210,8 +250,81 @@ public class MainApp
         Date searchEndDate = formatter.parse(endDateTime);
         
         System.out.println("Enter your preferred pick up outlet name>");
+        String pickupOutletName = scanner.nextLine().trim();
+        
+        System.out.println("Enter your preferred return outlet name>");
+        String returnOutletName = scanner.nextLine().trim();
+        
+        List<Car> searchResult = carSessionBeanRemote.searchCar(searchStartDate, pickupOutletName, searchEndDate, returnOutletName);
+            
         
     }
     
+    private void doViewReservationDetails() throws ReservationNotFoundException
+    {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("*** CaRMS Reservation System :: View Reservation Details");
+        
+        List<Reservation> myReservations = carRentalCustomer.getReservations();
+        
+        for (Reservation reservation : myReservations)
+        {
+            System.out.println("Reservation Id: " + reservation.getReservationId() + ": start date - " + reservation.getStartDate().toString() + ", end date - " + reservation.getEndDate().toString());
+        }
+        
+        System.out.println("Enter the Id of the reservation that you would like to enquire about> ");
+        Long id = Long.parseLong(scanner.nextLine().trim());
+        
+        try
+        {
+            Reservation reservation = reservationSessionBeanRemote.retrieveReservationById(id);
+            
+            Date startDate = reservation.getStartDate();
+            Date endDate = reservation.getEndDate();
+            BigDecimal totalAmountChargeable = reservation.getTotalAmountChargeable();
+            Car car = reservation.getCar();
+            Outlet pickupLocation = reservation.getPickUpLocation();
+            Outlet returnLocation = reservation.getReturnLocation();
+            
+            System.out.println("start date: " + startDate.toString() + 
+                    ", end date: " + endDate.toString() + ", total amount chargeable: $" + totalAmountChargeable.toString() + 
+                    ", car license plate number: " + car.getLicensePlateNum() + ", car model: " + car.getModel() +
+                    ", pick up outlet: " + pickupLocation.getOutletName() + ", return outlet: " + returnLocation.getOutletName());
+        }
+        catch(ReservationNotFoundException ex)
+        {
+            System.out.println("Failed to display reservation details: reservation Id does not exist!");
+        }
+        
+    }
     
+    private void doViewAllMyReservations()
+    {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("*** CaRMS Reservation System :: View all my Reservation Details");
+        List<Reservation> myReservations = carRentalCustomer.getReservations();
+        
+        int count = 1;
+        
+        for (Reservation reservation : myReservations)
+        {
+            Date startDate = reservation.getStartDate();
+            Date endDate = reservation.getEndDate();
+            BigDecimal totalAmountChargeable = reservation.getTotalAmountChargeable();
+            Car car = reservation.getCar();
+            Outlet pickupLocation = reservation.getPickUpLocation();
+            Outlet returnLocation = reservation.getReturnLocation();
+            
+            System.out.println(count + ". Reservation Id: " + reservation.getReservationId() + ", start date: " + startDate.toString() + 
+                    ", end date: " + endDate.toString() + ", total amount chargeable: $" + totalAmountChargeable.toString() + 
+                    ", car license plate number: " + car.getLicensePlateNum() + ", car model: " + car.getModel() +
+                    ", pick up outlet: " + pickupLocation.getOutletName() + ", return outlet: " + returnLocation.getOutletName());
+            
+            count += 1;
+        }
+    }
+    
+
 }
