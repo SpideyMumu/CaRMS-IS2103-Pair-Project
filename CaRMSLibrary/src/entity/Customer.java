@@ -26,11 +26,14 @@ public class Customer implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long customerId;
     
     @Column(nullable = false, unique = true, length = 8)
-    private String mobileNumber;
+    protected String mobileNumber;
+    
+    @Column(nullable = false, length = 125)
+    private String fullName;
     
     @ManyToOne(optional = false)
     private Partner partner;
@@ -65,6 +68,14 @@ public class Customer implements Serializable {
 
     public void setCustomerId(Long customerId) {
         this.customerId = customerId;
+    }
+ 
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     @Override

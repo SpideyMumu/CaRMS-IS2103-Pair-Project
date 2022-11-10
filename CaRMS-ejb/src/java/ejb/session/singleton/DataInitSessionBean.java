@@ -35,8 +35,10 @@ import util.exception.CarLicensePlateNumExistException;
 import util.exception.CreateNewRentalRateException;
 import util.exception.EntityNotFoundException;
 import util.exception.UnknownPersistenceException;
-import ejb.session.stateless.EmployeeCaRMSSessionBeanLocal;
 import util.exception.OutletNotFoundException;
+import ejb.session.stateless.EmployeeSessionBeanLocal;
+import util.exception.EmployeeNotFoundException;
+import util.exception.EmployeeUsernameExistException;
 
 /**
  *
@@ -57,7 +59,7 @@ public class DataInitSessionBean {
     private ModelSessionBeanLocal modelSessionBean;
 
     @EJB
-    private EmployeeCaRMSSessionBeanLocal employeeSessionBean;
+    private EmployeeSessionBeanLocal employeeSessionBean;
 
     @EJB
     private CarSessionBeanLocal carSessionBean;
@@ -77,16 +79,16 @@ public class DataInitSessionBean {
         
         try {
             employeeSessionBean.retrieveEmployeeByUserName("employeeA1");
-        } catch (EntityNotFoundException ex) {
+        } catch (EmployeeNotFoundException ex) {
             try {
                 initializeData();
-            } catch (OutletNotFoundException | ParseException | CarCategoryNotFoundException | CarLicensePlateNumExistException | UnknownPersistenceException | EntityNotFoundException | CreateNewRentalRateException ex2) {
+            } catch (OutletNotFoundException | ParseException | CarCategoryNotFoundException | CarLicensePlateNumExistException | UnknownPersistenceException | EntityNotFoundException | CreateNewRentalRateException | EmployeeUsernameExistException ex2) {
                 ex.printStackTrace();
             }
         }
     }
     
-    private void initializeData() throws ParseException, OutletNotFoundException, CarCategoryNotFoundException, CarLicensePlateNumExistException, UnknownPersistenceException, EntityNotFoundException, CreateNewRentalRateException {
+    private void initializeData() throws ParseException, OutletNotFoundException, CarCategoryNotFoundException, CarLicensePlateNumExistException, UnknownPersistenceException, EntityNotFoundException, CreateNewRentalRateException, EmployeeUsernameExistException {
         
         //Outlets:
         SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");

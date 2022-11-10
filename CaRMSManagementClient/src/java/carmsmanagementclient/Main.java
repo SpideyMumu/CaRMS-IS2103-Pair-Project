@@ -10,7 +10,7 @@ import ejb.session.stateless.CarSessionBeanRemote;
 import ejb.session.stateless.ModelSessionBeanRemote;
 import ejb.session.stateless.OutletSessionBeanRemote;
 import javax.ejb.EJB;
-import ejb.session.stateless.EmployeeCaRMSSessionBeanRemote;
+import ejb.session.stateless.EmployeeSessionBeanRemote;
 
 /**
  *
@@ -24,7 +24,7 @@ public class Main {
     @EJB
     private static CarCategorySessionBeanRemote carCategorySessionBean;
     @EJB
-    private static EmployeeCaRMSSessionBeanRemote employeeSessionBean;
+    private static EmployeeSessionBeanRemote employeeSessionBean;
     @EJB
     private static OutletSessionBeanRemote outletSessionBean;
     @EJB

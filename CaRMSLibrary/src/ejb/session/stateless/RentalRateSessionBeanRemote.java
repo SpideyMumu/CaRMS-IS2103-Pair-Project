@@ -10,6 +10,7 @@ import javax.ejb.Remote;
 import util.exception.CarCategoryNotFoundException;
 import util.exception.CreateNewRentalRateException;
 import util.exception.RentalRateNotFoundException;
+import util.exception.UpdateRentalRateException;
 
 /**
  *
@@ -22,7 +23,7 @@ public interface RentalRateSessionBeanRemote {
       
     public RentalRate retrieveRentalRateById(Long rentalRateId) throws RentalRateNotFoundException;
      
-    public void updateRentalRate(RentalRate rentalRate);
+    public void updateRentalRate(RentalRate rentalRate) throws RentalRateNotFoundException, UpdateRentalRateException;
 
     public void deleteRentalRate(Long rentalRateId) throws RentalRateNotFoundException;
 }

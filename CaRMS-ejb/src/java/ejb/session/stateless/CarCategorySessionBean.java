@@ -6,8 +6,6 @@
 package ejb.session.stateless;
 
 import entity.CarCategory;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -46,8 +44,5 @@ public class CarCategorySessionBean implements CarCategorySessionBeanRemote, Car
         {
             throw new CarCategoryNotFoundException("Car category ID " + carCategoryId + " does not exist!");
         }
-    }
-    
-    
-    
+    } 
 }

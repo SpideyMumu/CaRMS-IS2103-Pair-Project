@@ -14,6 +14,7 @@ import javax.persistence.PersistenceContext;
 import util.exception.CarCategoryNotFoundException;
 import util.exception.CreateNewRentalRateException;
 import util.exception.RentalRateNotFoundException;
+import util.exception.UpdateRentalRateException;
 
 /**
  *
@@ -74,9 +75,33 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
     }
     
     @Override
-    public void updateRentalRate(RentalRate rentalRate)
+    public void updateRentalRate(RentalRate rentalRate) throws RentalRateNotFoundException, UpdateRentalRateException
     {
-        em.merge(rentalRate);
+        //em.merge(rentalRate);
+        
+        if(rentalRate != null && rentalRate.getRentalRateId()!= null)
+        {
+        
+              RentalRate rentalRateToUpdate = retrieveRentalRateById(rentalRate.getRentalRateId());
+
+              if(rentalRateToUpdate.getName().equals(rentalRate.getName()))
+              {
+                  rentalRateToUpdate.setType(rentalRate.getType());
+                  rentalRateToUpdate.setRatePerDay(rentalRate.getRatePerDay());
+                  rentalRateToUpdate.setStartDate(rentalRate.getStartDate());
+                  rentalRateToUpdate.setEndDate(rentalRate.getEndDate());
+                  rentalRateToUpdate.setEnabled(rentalRate.getEnabled());
+                  rentalRateToUpdate.setCarCategory(rentalRate.getCarCategory());
+              }
+              else
+              {
+                  throw new UpdateRentalRateException("Name of rental rate record to be updated does not match the existing record");
+              }
+        }
+        else
+        {
+            throw new RentalRateNotFoundException("Product ID not provided for product to be updated");
+        }
     }
     
     @Override

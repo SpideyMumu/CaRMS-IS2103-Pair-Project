@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Car;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.CarNotFoundException;
@@ -30,5 +31,19 @@ public interface CarSessionBeanLocal {
     public Car retrieveCarById(Long carId) throws CarNotFoundException;
 
     public Car retrieveCarByLicensePlateNum(String licensePlateNum) throws CarNotFoundException;
+
+    public List<Car> retrieveAvailableCars();
+
+    public List<Car> retrieveDisabledCars();
+
+    public List<Car> retrieveInTransitCars();
+
+    public List<Car> retrieveInOutletCars();
+
+    public List<Car> retrieveInRepairCars();
+
+    public List<Car> retrieveCarsByOutletName(String outletName);
+
+    public List<Car> searchCar(Date pickupDate, String pickupOutlet, Date returnDate, String returnOutlet);
     
 }

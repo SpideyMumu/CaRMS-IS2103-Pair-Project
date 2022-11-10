@@ -46,8 +46,8 @@ public class Car implements Serializable {
     private CarStatus status;
 
     // Have to make all relationships mandatory
-    @ManyToOne //(optional = false)
-    @JoinColumn(name = "outletId") //, nullable = false)
+    @ManyToOne (optional = false)
+    @JoinColumn(name = "outletId", nullable = false)
     private Outlet outlet;    
 
     @OneToMany(mappedBy="car")
