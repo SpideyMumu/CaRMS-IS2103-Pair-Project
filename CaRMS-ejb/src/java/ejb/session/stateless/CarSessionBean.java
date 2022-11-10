@@ -142,21 +142,36 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
     }
 
     @Override
-    public void updateCar(Car car) throws UpdateCarException {
+    public void updateCar(Car newCar) throws UpdateCarException {
         //em.merge(car);
 
         try {
-            Car carToUpdate = retrieveCarById(car.getCarId());
-            if (carToUpdate.getLicensePlateNum().equals(car.getLicensePlateNum())) {
-                carToUpdate.setColor(car.getColor());
-                carToUpdate.setModel(car.getModel());
-                carToUpdate.setOutlet(car.getOutlet());
-                carToUpdate.setStatus(car.getStatus());
+            Car carToUpdate = retrieveCarById(newCar.getCarId());
+            if (carToUpdate.getLicensePlateNum().equals(newCar.getLicensePlateNum())) {
+                carToUpdate.setColor(newCar.getColor());
+                carToUpdate.setStatus(newCar.getStatus());
+                
+                //Disassociate Model and Outlet
+                carToUpdate.getModel().getCars().size();
+                carToUpdate.getModel().getCars().remove(carToUpdate);
+                carToUpdate.getOutlet().getCars().size();
+                carToUpdate.getOutlet().getCars().remove(carToUpdate);
+                
+                //Associate model and outlet
+                Model newModel = modelSessionBean.retrieveModelById(newCar.getModel().getModelId());
+                Outlet newOutlet = outletSessionBean.retrieveOutletById(newCar.getOutlet().getOutletId());
+                carToUpdate.setModel(newModel);
+                carToUpdate.setOutlet(newOutlet);
+                newModel.getCars().add(carToUpdate);
+                newOutlet.getCars().add(carToUpdate);
+                
+                
+                
             } else {
                 throw new UpdateCarException("Editing License Plate is not allowed! Update Car Operation aborted");
             }
-        } catch (CarNotFoundException ex) {
-            throw new UpdateCarException("Car you want to update does not exist in the Database!");
+        } catch (CarNotFoundException | ModelNotFoundException | OutletNotFoundException ex) {
+            throw new UpdateCarException(ex.getMessage());
         }
     }
 

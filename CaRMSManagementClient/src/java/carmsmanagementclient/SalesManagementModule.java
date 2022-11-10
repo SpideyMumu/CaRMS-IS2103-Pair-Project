@@ -39,6 +39,7 @@ import util.exception.RentalRateNotFoundException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateCarException;
 import util.exception.UpdateModelException;
+import util.exception.UpdateRentalRateException;
 
 /**
  *
@@ -712,6 +713,7 @@ public class SalesManagementModule {
         System.out.println("Which Rental Rate would you like to update?");
         System.out.print("Enter Rental Rate ID>");
         Long selection = sc.nextLong();
+        SimpleDateFormat rentalDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
         try {
             RentalRate rentalRate = rentalRateSessionBean.retrieveRentalRateById(selection);
@@ -737,9 +739,7 @@ public class SalesManagementModule {
                 System.out.println("3: Car Category");
                 System.out.println("4: Start Date");
                 System.out.println("5: End Date");
-                if (rentalRate.getType() != RentalRateType.Default) { //assume that default type rental rates cannot have its rental rate type changed
-                    System.out.println("6: Type");
-                }
+                System.out.println("6: Type");
                 System.out.println("7: Back \n");
                 response = 0;
 
@@ -751,24 +751,76 @@ public class SalesManagementModule {
                     switch (response) {
                         case 1:
                             System.out.print("Enter new name>");
+                            String name = sc.nextLine();
+                            try {
+                                rentalRate.setName(name);
+                                rentalRateSessionBean.updateRentalRate(rentalRate);
+                                System.out.println("Successfully Updated Rate per day!");
+                            } catch (UpdateRentalRateException ex) {
+                                System.out.println("Update Failed! " + ex.getMessage());
+                            }
                             break;
                         case 2:
                             System.out.print("Enter new rate per day>");
+                            BigDecimal ratePerDay = sc.nextBigDecimal();
+                            
+                            try {
+                                rentalRate.setRatePerDay(ratePerDay);
+                                rentalRateSessionBean.updateRentalRate(rentalRate);
+                                System.out.println("Successfully Updated Rate per day!");
+                            } catch (UpdateRentalRateException ex) {
+                                System.out.println("Update Failed! " + ex.getMessage());
+                            }
                             break;
                         case 3:
                             System.out.print("Enter new car category ID>");
+                            Long carCategoryId = sc.nextLong();
+                            try {
+                                CarCategory carCategory = carCategorySessionBean.retrieveCategoryById(carCategoryId);
+                                rentalRate.setCarCategory(carCategory);
+                                rentalRateSessionBean.updateRentalRate(rentalRate);
+                                System.out.println("Successfully Updated Car Category!");
+                            } catch (CarCategoryNotFoundException | UpdateRentalRateException ex) {
+                                System.out.println("Update Failed! " + ex.getMessage());
+                            }
                             break;
                         case 4:
+                            System.out.print("Enter new start date (Format: dd/MM/yyyy HH:mm) >");
+                            String newStartDateString = sc.nextLine();
+                            try {
+                                rentalRate.setStartDate(rentalDateFormat.parse(newStartDateString));
+                                rentalRateSessionBean.updateRentalRate(rentalRate);
+                                System.out.println("Successfully Start Date!");
+                            } catch (UpdateRentalRateException | ParseException ex) {
+                                System.out.println("Update Failed! " + ex.getMessage());
+                            }
                             break;
                         case 5:
+                            System.out.print("Enter new end date (Format: dd/MM/yyyy HH:mm) >");
+                            String newEndDateString = sc.nextLine();
+                            try {
+                                rentalRate.setEndDate(rentalDateFormat.parse(newEndDateString));
+                                rentalRateSessionBean.updateRentalRate(rentalRate);
+                                System.out.println("Successfully Updated End Date!");
+                            } catch (UpdateRentalRateException | ParseException ex) {
+                                System.out.println("Update Failed! " + ex.getMessage());
+                            }
                             break;
                         case 6:
-                            if (rentalRate.getType() == RentalRateType.Default) {
-                                System.out.println("Invalid option, please try again!\n");
-                                break;
+                            if (rentalRate.getType() == RentalRateType.Default) { //assume that default type rental rates cannot have its rental rate type changed
+                                System.out.println("Default Rental Rates cannot have it type changed!Please try again!\n");
+                            } else {
+                                System.out.println("Select new type: \n1: Promotion \n2:Peak");
+                                int typeSelection = sc.nextInt();
+                                RentalRateType selectedType = (typeSelection == 1) ? RentalRateType.Promotion : RentalRateType.Peak;
+                                try {
+                                    rentalRate.setType(selectedType);
+                                    rentalRateSessionBean.updateRentalRate(rentalRate);
+                                    System.out.println("Successfully Updated Rental Rate type!");
+                                } catch (UpdateRentalRateException ex) {
+                                    System.out.println("Update Failed! " + ex.getMessage());
+                                }
                             }
-                            
-                            
                             break;
                         case 7:
                             return;

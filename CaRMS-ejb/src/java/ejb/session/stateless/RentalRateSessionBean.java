@@ -102,15 +102,28 @@ public class RentalRateSessionBean implements RentalRateSessionBeanRemote, Renta
 
         try {
             RentalRate rentalRateToUpdate = retrieveRentalRateById(rentalRate.getRentalRateId());
-            rentalRateToUpdate.setCarCategory(rentalRate.getCarCategory());
             rentalRateToUpdate.setEnabled(rentalRate.isEnabled());
             rentalRateToUpdate.setName(rentalRate.getName());
             rentalRateToUpdate.setRatePerDay(rentalRate.getRatePerDay());
             rentalRateToUpdate.setType(rentalRate.getType());
             rentalRateToUpdate.setEndDate(rentalRate.getEndDate());
             rentalRateToUpdate.setStartDate(rentalRate.getStartDate());
-        } catch (RentalRateNotFoundException ex) {
-            throw new UpdateRentalRateException("Rental Rate you want to update does not exist in the Database!");
+            
+            //Associate new car category and disassociate old car category
+            rentalRateToUpdate.getCarCategory().getRentalRates().size();
+            rentalRateToUpdate.getCarCategory().getRentalRates().remove(rentalRateToUpdate);
+            
+            CarCategory newCarCategory = carCategorySessionBeanLocal.retrieveCategoryById(rentalRate.getCarCategory().getCategoryId());
+            rentalRateToUpdate.setCarCategory(newCarCategory);
+            
+            if(!newCarCategory.getRentalRates().contains(rentalRateToUpdate))
+            {
+               newCarCategory.getRentalRates().add(rentalRateToUpdate);
+            }
+       
+            
+        } catch (RentalRateNotFoundException | CarCategoryNotFoundException ex) {
+            throw new UpdateRentalRateException(ex.getMessage());
         }
 
     }

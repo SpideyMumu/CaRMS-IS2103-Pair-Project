@@ -92,12 +92,21 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
         
         try {
             Model modelToUpdate = retrieveModelById(model.getModelId());
-            modelToUpdate.setCarCategory(model.getCarCategory());
             modelToUpdate.setEnabled(model.isEnabled());
             modelToUpdate.setMakeName(model.getMakeName());
             modelToUpdate.setModelName(model.getModelName());
-        } catch (ModelNotFoundException ex) {
-            throw new UpdateModelException("Model you want to update does not exist in the Database!");
+            
+            //Disassociate car category list of models
+            modelToUpdate.getCarCategory().getModels().size();
+            modelToUpdate.getCarCategory().getModels().remove(modelToUpdate);
+            
+            //Associate
+            CarCategory newCarCategory = carCategorySessionBean.retrieveCategoryById(model.getCarCategory().getCategoryId());
+            modelToUpdate.setCarCategory(newCarCategory);           
+            newCarCategory.getModels().add(modelToUpdate);
+ 
+        } catch (ModelNotFoundException | CarCategoryNotFoundException ex) {
+            throw new UpdateModelException(ex.getMessage());
         }
     }
 
