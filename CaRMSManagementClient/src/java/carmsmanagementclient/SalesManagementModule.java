@@ -15,15 +15,18 @@ import util.enumeration.UserRole;
 import util.exception.InvalidAccessRightException;
 import ejb.session.stateless.EmployeeCaRMSSessionBeanRemote;
 import ejb.session.stateless.RentalRateSessionBeanRemote;
+import ejb.session.stateless.TransitDriveDispatchSessionBeanRemote;
 import entity.Car;
 import entity.CarCategory;
 import entity.Model;
 import entity.Outlet;
 import entity.RentalRate;
+import entity.TransitDriverDispatch;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import util.enumeration.CarStatus;
 import util.enumeration.RentalRateType;
@@ -57,6 +60,7 @@ public class SalesManagementModule {
     private OutletSessionBeanRemote outletSessionBean;
     private ModelSessionBeanRemote modelSessionBean;
     private RentalRateSessionBeanRemote rentalRateSessionBean;
+    private TransitDriveDispatchSessionBeanRemote transitDriveDispatchSessionBean;
 
     //Current logged-in user
     private Employee currEmployee;
@@ -64,13 +68,15 @@ public class SalesManagementModule {
     public SalesManagementModule() {
     }
 
-    public SalesManagementModule(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean, ModelSessionBeanRemote modelSessionBean, RentalRateSessionBeanRemote rentalRateSessionBean, Employee currEmployee) {
+    public SalesManagementModule(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean, ModelSessionBeanRemote modelSessionBean, RentalRateSessionBeanRemote rentalRateSessionBean, TransitDriveDispatchSessionBeanRemote transitDriveDispatchSessionBean, Employee currEmployee) {
         this.carSessionBean = carSessionBean;
         this.carCategorySessionBean = carCategorySessionBean;
         this.employeeSessionBean = employeeSessionBean;
         this.outletSessionBean = outletSessionBean;
         this.modelSessionBean = modelSessionBean;
         this.rentalRateSessionBean = rentalRateSessionBean;
+        this.transitDriveDispatchSessionBean = transitDriveDispatchSessionBean;
+        
         this.currEmployee = currEmployee;
     }
     
@@ -145,6 +151,7 @@ public class SalesManagementModule {
                         break;
                     case 10:
                         System.out.println("Functionality Not Available right now.\n");
+                        doViewTransitDriverDispatchRecords();
                         break;
                     case 11:
                         System.out.println("Functionality Not Available right now.\n");
@@ -550,6 +557,18 @@ public class SalesManagementModule {
             System.out.println("Please type the correct license plate number! " + ex.getMessage());
         }
 
+    }
+    
+    private void doViewTransitDriverDispatchRecords() {
+         System.out.println("*** View Transit Driver Dispatch Records For Today ***");
+//        //retrieve records here
+//        //List<TransitDriverDispatch> fulListOfRecords = transitDriveDispatchSessionBean.retrieveAllDispatch();
+//        
+//        List<TransitDriverDispatch> listOfRecordsToday = new LinkedList<>();
+//        
+//        for (TransitDriverDispatch record : fullListOfRecords) {
+//            if (record.getTransitStartDate())
+//        }
     }
 
     // Sales Manager Use Cases below
