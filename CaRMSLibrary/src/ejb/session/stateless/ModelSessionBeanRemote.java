@@ -8,7 +8,9 @@ package ejb.session.stateless;
 import entity.Model;
 import java.util.List;
 import javax.ejb.Remote;
-import util.exception.EntityNotFoundException;
+import util.exception.CreateNewModelException;
+import util.exception.ModelNotFoundException;
+import util.exception.UpdateModelException;
 
 /**
  *
@@ -19,12 +21,14 @@ public interface ModelSessionBeanRemote {
     
     public Long createNewModel(Model newModel);
 
-    public Model retrieveModelById(Long modelId) throws EntityNotFoundException;
+    public Long createNewModel(Long carCategoryId, Model model) throws CreateNewModelException;
+    
+    public Model retrieveModelById(Long modelId) throws ModelNotFoundException;
 
     public List<Model> retrieveAllModels();
 
-    public void updateCar(Model model);
+    public void updateModel(Model model) throws UpdateModelException;
 
-    public void deleteModel(Long modelId) throws EntityNotFoundException;
-    
+    public void deleteModel(Long modelId) throws ModelNotFoundException;
+
 }

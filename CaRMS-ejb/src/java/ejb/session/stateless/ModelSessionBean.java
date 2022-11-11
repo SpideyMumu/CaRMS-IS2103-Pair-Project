@@ -6,13 +6,18 @@
 package ejb.session.stateless;
 
 import entity.Car;
+import entity.CarCategory;
 import entity.Model;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import util.exception.EntityNotFoundException;
+import util.exception.CarCategoryNotFoundException;
+import util.exception.CreateNewModelException;
+import util.exception.ModelNotFoundException;
+import util.exception.UpdateModelException;
 
 /**
  *
@@ -21,6 +26,10 @@ import util.exception.EntityNotFoundException;
 @Stateless
 public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBeanLocal {
 
+    @EJB
+    private CarCategorySessionBeanLocal carCategorySessionBean;
+
+    
     @PersistenceContext(unitName = "CaRMS-ejbPU")
     private EntityManager em;
 
@@ -32,13 +41,30 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
     }
     
     @Override
-    public Model retrieveModelById(Long modelId) throws EntityNotFoundException {
+    public Long createNewModel(Long carCategoryId, Model model) throws CreateNewModelException {
+        try {
+            CarCategory carCategory = carCategorySessionBean.retrieveCategoryById(carCategoryId);
+            model.setCarCategory(carCategory);
+            carCategory.getModels().add(model);
+            
+            em.persist(model);
+            em.flush();
+            
+            return model.getModelId();
+            
+        } catch (CarCategoryNotFoundException ex) {
+            throw new CreateNewModelException(ex.getMessage());
+        }
+    }
+    
+    @Override
+    public Model retrieveModelById(Long modelId) throws ModelNotFoundException {
         Model model = em.find(Model.class, modelId);
         if (model != null) {
             model.getCars().size();
             return model;
         } else {
-            throw new EntityNotFoundException("Model with ID " + modelId + " does not exist!");
+            throw new ModelNotFoundException("Model with ID " + modelId + " does not exist!");
         }
     }
     
@@ -46,16 +72,46 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
     public List<Model> retrieveAllModels() {
         Query query = em.createQuery("SELECT m FROM Model m");
 
-        return query.getResultList();
+        List<Model> models = query.getResultList();
+        models.sort(((o1, o2) -> {
+            if (o1.getCarCategory().getCategoryId().equals(o2.getCarCategory().getCategoryId())) {
+                if (o1.getMakeName().equals(o2.getMakeName())) {
+                    return o1.getModelName().compareTo(o2.getModelName());
+                }
+                return o1.getMakeName().compareTo(o2.getMakeName());
+            }     
+            return o1.getCarCategory().getCategoryId().compareTo(o2.getCarCategory().getCategoryId());
+        }));
+        
+        return models;
     }
 
     @Override
-    public void updateCar(Model model) {
-        em.merge(model);
+    public void updateModel(Model model) throws UpdateModelException {
+        //em.merge(model);
+        
+        try {
+            Model modelToUpdate = retrieveModelById(model.getModelId());
+            modelToUpdate.setEnabled(model.isEnabled());
+            modelToUpdate.setMakeName(model.getMakeName());
+            modelToUpdate.setModelName(model.getModelName());
+            
+            //Disassociate car category list of models
+            modelToUpdate.getCarCategory().getModels().size();
+            modelToUpdate.getCarCategory().getModels().remove(modelToUpdate);
+            
+            //Associate
+            CarCategory newCarCategory = carCategorySessionBean.retrieveCategoryById(model.getCarCategory().getCategoryId());
+            modelToUpdate.setCarCategory(newCarCategory);           
+            newCarCategory.getModels().add(modelToUpdate);
+ 
+        } catch (ModelNotFoundException | CarCategoryNotFoundException ex) {
+            throw new UpdateModelException(ex.getMessage());
+        }
     }
 
     @Override
-    public void deleteModel(Long modelId) throws EntityNotFoundException
+    public void deleteModel(Long modelId) throws ModelNotFoundException
     {
         Model modelToRemove = retrieveModelById(modelId);
         

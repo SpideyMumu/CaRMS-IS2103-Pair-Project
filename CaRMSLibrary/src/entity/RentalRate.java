@@ -100,20 +100,7 @@ public class RentalRate implements Serializable {
     }
 
     public void setCarCategory(CarCategory carCategory) {
-        if(this.carCategory != null)
-        {
-            this.carCategory.getRentalRates().remove(this);
-        }
-        
         this.carCategory = carCategory;
-        
-        if(this.carCategory != null)
-        {
-            if(!this.carCategory.getRentalRates().contains(this))
-            {
-                this.carCategory.getRentalRates().add(this);
-            }
-        }
     }
 
     public Date getEndDate() {

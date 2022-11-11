@@ -10,7 +10,9 @@ import java.util.List;
 import javax.ejb.Local;
 import util.exception.CarNotFoundException;
 import util.exception.CarLicensePlateNumExistException;
+import util.exception.CreateNewCarException;
 import util.exception.UnknownPersistenceException;
+import util.exception.UpdateCarException;
 
 /**
  *
@@ -21,14 +23,16 @@ public interface CarSessionBeanLocal {
 
     public void deleteCar(Long carId) throws CarNotFoundException;
 
-    public void updateCar(Car car);
+    public void updateCar(Car car) throws UpdateCarException;
 
     public List<Car> retrieveAllCars();
 
     public Long createNewCar(Car newCar)throws CarLicensePlateNumExistException, UnknownPersistenceException;
 
     public Car retrieveCarById(Long carId) throws CarNotFoundException;
-
+    
     public Car retrieveCarByLicensePlateNum(String licensePlateNum) throws CarNotFoundException;
+
+    public Long createNewCar(Long modelId, Long outletId, Car newCar) throws CarLicensePlateNumExistException, UnknownPersistenceException, CreateNewCarException;
     
 }
