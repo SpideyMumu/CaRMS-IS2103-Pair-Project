@@ -21,7 +21,7 @@ import util.exception.ReservationNotFoundException;
 @Local
 public interface ReservationSessionBeanLocal {
 
-    public Reservation createNewReservation(Long carId, Long pickupOutletId, Long returnOutletId, Long customerId, Reservation newReservation) throws CreateReservationException;
+    public Reservation createNewReservation(Long carCategoryId, Long pickupOutletId, Long returnOutletId, Long customerId, Reservation newReservation) throws CreateReservationException, CarCategoryNotFoundException;
 
     public Reservation retrieveReservationById(Long reservationId) throws ReservationNotFoundException;
 

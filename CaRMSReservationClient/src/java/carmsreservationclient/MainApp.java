@@ -5,10 +5,12 @@
  */
 package carmsreservationclient;
 
+import ejb.session.stateless.CarCategorySessionBeanRemote;
 import ejb.session.stateless.CarRentalCustomerSessionBeanRemote;
 import ejb.session.stateless.CarSessionBeanRemote;
 import ejb.session.stateless.ReservationSessionBeanRemote;
 import entity.Car;
+import entity.CarCategory;
 import entity.CarRentalCustomer;
 import entity.Customer;
 import entity.Outlet;
@@ -17,11 +19,20 @@ import entity.Reservation;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import util.exception.CustomerMobilePhoneExistException;
 import util.exception.InvalidLoginCredentialException;
+import util.exception.OutletNotFoundException;
 import util.exception.ReservationNotFoundException;
 import util.exception.UnknownPersistenceException;
 
@@ -34,6 +45,8 @@ public class MainApp
     private CarRentalCustomerSessionBeanRemote carRentalCustomerSessionBeanRemote;
     private CarSessionBeanRemote carSessionBeanRemote;
     private ReservationSessionBeanRemote reservationSessionBeanRemote;
+    private CarCategorySessionBeanRemote carCategorySessionBeanRemote;
+    
     
     private CarRentalCustomer carRentalCustomer;
       
@@ -43,16 +56,17 @@ public class MainApp
 
     
     
-    public MainApp(CarRentalCustomerSessionBeanRemote carRentalCustomerSessionBeanRemote, CarSessionBeanRemote carSessionBeanRemote, ReservationSessionBeanRemote reservationSessionBeanRemote)
+    public MainApp(CarRentalCustomerSessionBeanRemote carRentalCustomerSessionBeanRemote, CarSessionBeanRemote carSessionBeanRemote, ReservationSessionBeanRemote reservationSessionBeanRemote, CarCategorySessionBeanRemote carCategorySessionBeanRemote)
     {
         this.carRentalCustomerSessionBeanRemote = carRentalCustomerSessionBeanRemote;
         this.carSessionBeanRemote = carSessionBeanRemote;
         this.reservationSessionBeanRemote = reservationSessionBeanRemote;
+        this.carCategorySessionBeanRemote = carCategorySessionBeanRemote;
     }
     
     
     
-    public void runApp() throws ParseException
+    public void runApp() throws ParseException, ReservationNotFoundException, OutletNotFoundException
     {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
@@ -62,10 +76,11 @@ public class MainApp
             System.out.println("*** Welcome to CaRMS Reservation System ***\n");
             System.out.println("1: Login");
             System.out.println("2: Register as customer");
-            System.out.println("3: Exit\n");
+            System.out.println("3: Search car");
+            System.out.println("4: Exit\n");
             response = 0;
             
-            while(response < 1 || response > 3)
+            while(response < 1 || response > 4)
             {
                 System.out.print("> ");
 
@@ -93,6 +108,10 @@ public class MainApp
                     
                 }
                 else if (response == 3)
+                {
+                    doSearchCar();
+                }
+                else if (response == 4)
                 {
                     break;
                 }
@@ -165,7 +184,7 @@ public class MainApp
     
     
     
-    private void menuMain() throws ParseException
+    private void menuMain() throws ParseException, ReservationNotFoundException, OutletNotFoundException
     {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
@@ -202,7 +221,7 @@ public class MainApp
                 }
                 else if(response == 4)
                 {
-                    //doViewReservationDetails();
+                    doViewReservationDetails();
                 }
                 else if(response == 5)
                 {
@@ -212,7 +231,6 @@ public class MainApp
                 {
                     System.out.println("Log out successfully!");
                     runApp();
-                    break;
                 }
                 else
                 {
@@ -227,7 +245,7 @@ public class MainApp
         }
     }
     
-    private void doSearchCar() throws ParseException
+    private void doSearchCar() throws ParseException, OutletNotFoundException
     {
         Scanner scanner = new Scanner(System.in);
         
@@ -255,9 +273,25 @@ public class MainApp
         System.out.println("Enter your preferred return outlet name>");
         String returnOutletName = scanner.nextLine().trim();
         
-        List<Car> searchResult = carSessionBeanRemote.searchCar(searchStartDate, pickupOutletName, searchEndDate, returnOutletName);
-            
+        HashMap<CarCategory, Integer> searchResult = carSessionBeanRemote.searchCar(searchStartDate, pickupOutletName, searchEndDate, returnOutletName); 
+        List<CarCategory> listOfCategoriesAvailable = new ArrayList<CarCategory>();
         
+        for (Map.Entry<CarCategory, Integer> map : searchResult.entrySet())
+        {
+            if (map.getValue() > 0)
+            {
+                listOfCategoriesAvailable.add(map.getKey());
+            }
+        }
+        
+        HashMap<CarCategory, BigDecimal> rates = carCategorySessionBeanRemote.calculatePrevailingRentalFeeForEachCategories(listOfCategoriesAvailable, searchStartDate, searchEndDate);
+        
+        for (Map.Entry<CarCategory, BigDecimal> rentalFee : rates.entrySet())
+        {
+            CarCategory carCategory = rentalFee.getKey();
+            BigDecimal rate = rentalFee.getValue();
+            System.out.println("Car Category " + carCategory.getCategoryName() + " is available at $" + rate.toString());
+        }
     }
     
     private void doViewReservationDetails() throws ReservationNotFoundException
@@ -287,10 +321,12 @@ public class MainApp
             Outlet pickupLocation = reservation.getPickUpLocation();
             Outlet returnLocation = reservation.getReturnLocation();
             
-            System.out.println("start date: " + startDate.toString() + 
-                    ", end date: " + endDate.toString() + ", total amount chargeable: $" + totalAmountChargeable.toString() + 
-                    ", car license plate number: " + car.getLicensePlateNum() + ", car model: " + car.getModel() +
-                    ", pick up outlet: " + pickupLocation.getOutletName() + ", return outlet: " + returnLocation.getOutletName());
+            System.out.println("Reservation Id : " + reservation.getReservationId());
+            System.out.println("Start Date and Time : " + startDate.toString());
+            System.out.println("End Date and Time : " + endDate.toString());
+            System.out.println("Total amount chargeable : $" + totalAmountChargeable.toString());
+            System.out.println("Pick up outlet : " + pickupLocation.getOutletName());
+            System.out.println("Return outlet : " + returnLocation.getOutletName());
         }
         catch(ReservationNotFoundException ex)
         {
@@ -306,7 +342,6 @@ public class MainApp
         System.out.println("*** CaRMS Reservation System :: View all my Reservation Details");
         List<Reservation> myReservations = carRentalCustomer.getReservations();
         
-        int count = 1;
         
         for (Reservation reservation : myReservations)
         {
@@ -317,12 +352,24 @@ public class MainApp
             Outlet pickupLocation = reservation.getPickUpLocation();
             Outlet returnLocation = reservation.getReturnLocation();
             
-            System.out.println(count + ". Reservation Id: " + reservation.getReservationId() + ", start date: " + startDate.toString() + 
-                    ", end date: " + endDate.toString() + ", total amount chargeable: $" + totalAmountChargeable.toString() + 
-                    ", car license plate number: " + car.getLicensePlateNum() + ", car model: " + car.getModel() +
-                    ", pick up outlet: " + pickupLocation.getOutletName() + ", return outlet: " + returnLocation.getOutletName());
+            System.out.println("Reservation Id : " + reservation.getReservationId());
+            System.out.println("Start Date and Time : " + startDate.toString());
+            System.out.println("End Date and Time : " + endDate.toString());
+            System.out.println("Total amount chargeable : $" + totalAmountChargeable.toString());
+            System.out.println("Pick up outlet : " + pickupLocation.getOutletName());
+            System.out.println("Return outlet : " + returnLocation.getOutletName());
+            System.out.println();
             
-            count += 1;
+        }
+    }
+
+    private CarCategorySessionBeanRemote lookupCarCategorySessionBeanRemote() {
+        try {
+            Context c = new InitialContext();
+            return (CarCategorySessionBeanRemote) c.lookup("java:comp/env/CarCategorySessionBeanRemote");
+        } catch (NamingException ne) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "exception caught", ne);
+            throw new RuntimeException(ne);
         }
     }
     

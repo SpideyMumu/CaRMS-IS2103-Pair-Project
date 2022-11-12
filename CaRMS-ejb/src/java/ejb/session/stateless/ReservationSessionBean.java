@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Car;
+import entity.CarCategory;
 import entity.CarRentalCustomer;
 import entity.Customer;
 import entity.Outlet;
@@ -16,6 +17,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.CarCategoryNotFoundException;
 import util.exception.CarNotFoundException;
 import util.exception.CreateReservationException;
 import util.exception.CustomerNotFoundException;
@@ -29,6 +31,9 @@ import util.exception.ReservationNotFoundException;
 @Stateless
 public class ReservationSessionBean implements ReservationSessionBeanRemote, ReservationSessionBeanLocal {
 
+    @EJB(name = "CarCategorySessionBeanLocal")
+    private CarCategorySessionBeanLocal carCategorySessionBeanLocal;
+
     @EJB
     private CarRentalCustomerSessionBeanLocal carRentalCustomerSessionBean;
 
@@ -41,21 +46,22 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     @EJB
     private CarSessionBeanLocal carSessionBeanLocal; 
     
+    
+    
     @PersistenceContext(unitName = "CaRMS-ejbPU")
     private EntityManager em;
     
     
 
     @Override
-    public Reservation createNewReservation(Long carId, Long pickupOutletId, Long returnOutletId, Long customerId, Reservation newReservation) throws CreateReservationException
+    public Reservation createNewReservation(Long carCategoryId, Long pickupOutletId, Long returnOutletId, Long customerId, Reservation newReservation) throws CreateReservationException, CarCategoryNotFoundException
     {
         if(newReservation != null)
         {
             try
             {   
-                Car car = carSessionBeanLocal.retrieveCarById(carId);
-                newReservation.setCar(car);
-                car.getReservations().add(newReservation);
+                CarCategory carCategory = carCategorySessionBeanLocal.retrieveCategoryById(carCategoryId);
+                newReservation.setCarCategory(carCategory);
                 
                 Outlet pickupOutlet = outletSessionBeanLocal.retrieveOutletById(pickupOutletId);
                 newReservation.setPickUpLocation(pickupOutlet);
@@ -79,7 +85,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                 return newReservation;      
           
             }
-            catch(CarNotFoundException | OutletNotFoundException | CustomerNotFoundException ex)
+            catch(CarCategoryNotFoundException | OutletNotFoundException | CustomerNotFoundException ex)
             {   
                 throw new CreateReservationException(ex.getMessage());
             }
@@ -110,27 +116,6 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     
     public void updateReservation(Reservation reservation)
     {
-        /*if(productEntity != null && productEntity.getProductId()!= null)
-        {
-            ProductEntity productEntityToUpdate = retrieveProductByProductId(productEntity.getProductId());
-            
-            if(productEntityToUpdate.getSkuCode().equals(productEntity.getSkuCode()))
-            {
-                productEntityToUpdate.setName(productEntity.getName());
-                productEntityToUpdate.setDescription(productEntity.getDescription());
-                productEntityToUpdate.setQuantityOnHand(productEntity.getQuantityOnHand());
-                productEntityToUpdate.setUnitPrice(productEntity.getUnitPrice());
-                productEntityToUpdate.setCategory(productEntity.getCategory());
-            }
-            else
-            {
-                throw new UpdateProductException("SKU Code of product record to be updated does not match the existing record");
-            }
-        }
-        else
-        {
-            throw new ProductNotFoundException("Product ID not provided for product to be updated");
-        }*/
         em.merge(reservation);
     }
     

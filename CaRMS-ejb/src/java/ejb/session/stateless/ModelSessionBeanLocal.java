@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Model;
+import java.util.HashMap;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.EntityNotFoundException;
@@ -26,5 +27,7 @@ public interface ModelSessionBeanLocal {
     public void updateCar(Model model);
 
     public void deleteModel(Long modelId) throws EntityNotFoundException;
+
+    public HashMap<Model, Integer> retrieveQuantityOfCarsForEachModel();
     
 }

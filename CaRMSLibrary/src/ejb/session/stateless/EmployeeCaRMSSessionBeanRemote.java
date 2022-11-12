@@ -19,7 +19,7 @@ import util.exception.UnknownPersistenceException;
  * @author muhdm
  */
 @Remote
-public interface EmployeeSessionBeanRemote {
+public interface EmployeeCaRMSSessionBeanRemote {
 
     public Employee retrieveEmployeeById(Long employeeId) throws EmployeeNotFoundException;
 

@@ -36,9 +36,9 @@ import util.exception.CreateNewRentalRateException;
 import util.exception.EntityNotFoundException;
 import util.exception.UnknownPersistenceException;
 import util.exception.OutletNotFoundException;
-import ejb.session.stateless.EmployeeSessionBeanLocal;
 import util.exception.EmployeeNotFoundException;
 import util.exception.EmployeeUsernameExistException;
+import ejb.session.stateless.EmployeeCaRMSSessionBeanLocal;
 
 /**
  *
@@ -59,7 +59,7 @@ public class DataInitSessionBean {
     private ModelSessionBeanLocal modelSessionBean;
 
     @EJB
-    private EmployeeSessionBeanLocal employeeSessionBean;
+    private EmployeeCaRMSSessionBeanLocal employeeSessionBean;
 
     @EJB
     private CarSessionBeanLocal carSessionBean;

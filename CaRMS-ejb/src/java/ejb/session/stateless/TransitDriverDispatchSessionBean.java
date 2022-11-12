@@ -32,7 +32,7 @@ public class TransitDriverDispatchSessionBean implements TransitDriverDispatchSe
     private CarSessionBeanLocal carSessionBeanLocal;
 
     @EJB(name = "EmployeeSessionBeanLocal")
-    private EmployeeSessionBeanLocal employeeSessionBeanLocal;
+    private EmployeeCaRMSSessionBeanLocal employeeSessionBeanLocal;
  
     @EJB(name = "OutletSessionBeanLocal")
     private OutletSessionBeanLocal outletSessionBeanLocal;

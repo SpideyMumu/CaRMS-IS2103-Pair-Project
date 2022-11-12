@@ -14,7 +14,7 @@ import java.util.Scanner;
 import javax.ejb.EJB;
 import util.exception.InvalidAccessRightException;
 import util.exception.InvalidLoginCredentialException;
-import ejb.session.stateless.EmployeeSessionBeanRemote;
+import ejb.session.stateless.EmployeeCaRMSSessionBeanRemote;
 
 /**
  *
@@ -25,7 +25,7 @@ public class MainApp {
     //Remote Session Beans
     private CarSessionBeanRemote carSessionBean;
     private CarCategorySessionBeanRemote carCategorySessionBean;
-    private EmployeeSessionBeanRemote employeeSessionBean;
+    private EmployeeCaRMSSessionBeanRemote employeeSessionBean;
     private OutletSessionBeanRemote outletSessionBean;
     private ModelSessionBeanRemote modelSessionBean;
     
@@ -40,7 +40,7 @@ public class MainApp {
     {        
     }
 
-    public MainApp(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean, ModelSessionBeanRemote modelSessionBean) {
+    public MainApp(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean, ModelSessionBeanRemote modelSessionBean) {
         this.carSessionBean = carSessionBean;
         this.carCategorySessionBean = carCategorySessionBean;
         this.employeeSessionBean = employeeSessionBean;

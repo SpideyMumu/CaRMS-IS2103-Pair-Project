@@ -6,6 +6,10 @@
 package ejb.session.stateless;
 
 import entity.CarCategory;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import javax.ejb.Remote;
 import util.exception.CarCategoryNotFoundException;
 
@@ -20,4 +24,7 @@ public interface CarCategorySessionBeanRemote {
 
     public CarCategory retrieveCategoryById(Long carCategoryId) throws CarCategoryNotFoundException;
     
+    public HashMap<CarCategory, Integer> retrieveQuantityOfCarsForEachCategory();
+    
+    public HashMap<CarCategory, BigDecimal> calculatePrevailingRentalFeeForEachCategories(List<CarCategory> list, Date pickupDate, Date returnDate);
 }

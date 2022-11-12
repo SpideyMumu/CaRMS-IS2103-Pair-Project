@@ -13,7 +13,7 @@ import entity.Employee;
 import java.util.Scanner;
 import util.enumeration.UserRole;
 import util.exception.InvalidAccessRightException;
-import ejb.session.stateless.EmployeeSessionBeanRemote;
+import ejb.session.stateless.EmployeeCaRMSSessionBeanRemote;
 
 /**
  *
@@ -30,7 +30,7 @@ public class CustomerServiceModule {
     //Session Beans
     private CarSessionBeanRemote carSessionBean;
     private CarCategorySessionBeanRemote carCategorySessionBean;
-    private EmployeeSessionBeanRemote employeeSessionBean;
+    private EmployeeCaRMSSessionBeanRemote employeeSessionBean;
     private OutletSessionBeanRemote outletSessionBean;
     private ModelSessionBeanRemote modelSessionBean;
     
@@ -41,7 +41,7 @@ public class CustomerServiceModule {
     public CustomerServiceModule() {
     }
 
-    public CustomerServiceModule(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean, ModelSessionBeanRemote modelSessionBean) {
+    public CustomerServiceModule(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean, ModelSessionBeanRemote modelSessionBean) {
         this.carSessionBean = carSessionBean;
         this.carCategorySessionBean = carCategorySessionBean;
         this.employeeSessionBean = employeeSessionBean;

@@ -6,11 +6,14 @@
 package ejb.session.stateless;
 
 import entity.Car;
+import entity.CarCategory;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.CarNotFoundException;
 import util.exception.CarLicensePlateNumExistException;
+import util.exception.OutletNotFoundException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -33,17 +36,15 @@ public interface CarSessionBeanRemote {
     public Car retrieveCarByLicensePlateNum(String licensePlateNum) throws CarNotFoundException;
     
     public List<Car> retrieveAvailableCars();
-
+    
     public List<Car> retrieveDisabledCars();
 
     public List<Car> retrieveInTransitCars();
-
-    public List<Car> retrieveInOutletCars();
 
     public List<Car> retrieveInRepairCars();
 
     public List<Car> retrieveCarsByOutletName(String outletName);
 
-    public List<Car> searchCar(Date pickupDate, String pickupOutlet, Date returnDate, String returnOutlet);
+    public HashMap<CarCategory, Integer> searchCar(Date pickupDate, String pickupOutlet, Date returnDate, String returnOutlet) throws OutletNotFoundException;
     
 }

@@ -45,7 +45,7 @@ public class Reservation implements Serializable {
     private BigDecimal totalAmountChargeable;
     
     @ManyToOne(optional = false)
-    @JoinColumn(nullable = false)
+    @JoinColumn(nullable = true)
     private Car car;
     
     @ManyToOne(optional = false)
@@ -62,7 +62,11 @@ public class Reservation implements Serializable {
     
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
-    private RentalRate rentalRate;
+    private CarCategory carCategory;
+    
+    @ManyToOne(optional = true)
+    @JoinColumn(nullable = true)
+    private Model carModel;
     
     public Long getReservationId() {
         return reservationId;
@@ -157,12 +161,20 @@ public class Reservation implements Serializable {
         this.startDate = startDate;
     }
 
-    public RentalRate getRentalRate() {
-        return rentalRate;
+    public Model getCarModel() {
+        return carModel;
     }
 
-    public void setRentalRate(RentalRate rentalRate) {
-        this.rentalRate = rentalRate;
+    public void setCarModel(Model carModel) {
+        this.carModel = carModel;
+    }
+
+    public CarCategory getCarCategory() {
+        return carCategory;
+    }
+    
+    public void setCarCategory(CarCategory carCategory) {
+        this.carCategory = carCategory;
     }
 
 

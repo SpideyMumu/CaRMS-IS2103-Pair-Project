@@ -43,6 +43,7 @@ public class Car implements Serializable {
     private Model model;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private CarStatus status;
 
     // Have to make all relationships mandatory
@@ -52,7 +53,6 @@ public class Car implements Serializable {
 
     @OneToMany(mappedBy="car")
     private List<Reservation> reservations;
-    
     
     public Car() {
     }
@@ -123,7 +123,7 @@ public class Car implements Serializable {
     public void setCarId(Long carId) {
         this.carId = carId;
     }
-
+    
     @Override
     public int hashCode() {
         int hash = 0;

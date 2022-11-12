@@ -6,13 +6,17 @@
 package ejb.session.stateless;
 
 import entity.Car;
+import entity.CarCategory;
+import entity.Model;
 import entity.Outlet;
 import entity.Reservation;
 import entity.TransitDriverDispatch;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -24,6 +28,7 @@ import javax.persistence.Query;
 import util.enumeration.CarStatus;
 import util.exception.CarNotFoundException;
 import util.exception.CarLicensePlateNumExistException;
+import util.exception.OutletNotFoundException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -33,12 +38,20 @@ import util.exception.UnknownPersistenceException;
 @Stateless
 public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal {
 
+    @EJB(name = "OutletSessionBeanLocal")
+    private OutletSessionBeanLocal outletSessionBeanLocal;
+
+    @EJB(name = "ModelSessionBeanLocal")
+    private ModelSessionBeanLocal modelSessionBeanLocal;
+
+    @EJB(name = "CarCategorySessionBeanLocal")
+    private CarCategorySessionBeanLocal carCategorySessionBeanLocal;
+
     @EJB(name = "TransitDriverDispatchSessionBeanLocal")
     private TransitDriverDispatchSessionBeanLocal transitDriverDispatchSessionBeanLocal;
 
     @EJB(name = "ReservationSessionBeanLocal")
     private ReservationSessionBeanLocal reservationSessionBeanLocal;
-    
     
 
     @PersistenceContext(unitName = "CaRMS-ejbPU")
@@ -50,6 +63,7 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
     public Long createNewCar(Car newCar) throws CarLicensePlateNumExistException, UnknownPersistenceException {
 
         try {
+            
             em.persist(newCar);
             em.flush();
 
@@ -116,12 +130,6 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
         return query.getResultList();
     }
     
-    public List<Car> retrieveInOutletCars() {
-        Query query = em.createQuery("SELECT c FROM Car c WHERE c.status = :inStatus");
-        query.setParameter("inStatus", CarStatus.InOutlet);
-        return query.getResultList();
-    }
-    
     public List<Car> retrieveInRepairCars() {
         Query query = em.createQuery("SELECT c FROM Car c WHERE c.status = :inStatus");
         query.setParameter("inStatus", CarStatus.Repair);
@@ -153,105 +161,89 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
         }
     }
      
-    public List<Car> searchCar(Date pickupDate, String pickupOutlet, Date returnDate, String returnOutlet)
+    public HashMap<CarCategory, Integer> searchCar(Date pickupDate, String pickupOutlet, Date returnDate, String returnOutlet) throws OutletNotFoundException
     {
-        List<Car> allCars = retrieveAllCars();
-        List<Car> inRepairCars = retrieveInRepairCars();
-        List<Reservation> reservations = reservationSessionBeanLocal.retrieveAllReservations();
-        List<Car> inTransitCars = retrieveInTransitCars();
-        List<TransitDriverDispatch> transitDriverDispatches = transitDriverDispatchSessionBeanLocal.retrieveAllDispatch();
-        List<Car> disabledCars = retrieveDisabledCars();
         
-        for (Car car : allCars)
+        HashMap<CarCategory, Integer> categoryQuantity = carCategorySessionBeanLocal.retrieveQuantityOfCarsForEachCategory();
+
+        List<Reservation> reservations = reservationSessionBeanLocal.retrieveAllReservations();
+        
+        Outlet searchPickupOutlet = outletSessionBeanLocal.retrieveOutletByOutletName(pickupOutlet);
+        
+        Outlet searchReturnOutlet = outletSessionBeanLocal.retrieveOutletByOutletName(returnOutlet);
+        
+        List<Car> availableCars = retrieveAvailableCars();
+        
+        for (Car car : availableCars)
         {
-            if (inRepairCars.contains(car)) //remove cars that are under repair
+            Model model = car.getModel();
+            CarCategory carCategory = model.getCarCategory();
+            if (!categoryQuantity.containsKey(carCategory))
             {
-                allCars.remove(car);
+                categoryQuantity.put(carCategory, 1);
+            } 
+            else 
+            {
+                int quantity = categoryQuantity.get(carCategory);
+                categoryQuantity.replace(carCategory, quantity + 1);
             }
         }
-
-        for (Reservation reservation : reservations)
+        
+        Calendar pickupDateCalendarMinusTwoHours = Calendar.getInstance();
+        pickupDateCalendarMinusTwoHours.setTime(pickupDate);
+        pickupDateCalendarMinusTwoHours.add(pickupDateCalendarMinusTwoHours.HOUR_OF_DAY, -2);
+        Date pickupDateMinusTwoHours = pickupDateCalendarMinusTwoHours.getTime();
+        
+        Calendar returnDateCalendarPlusTwoHours = Calendar.getInstance();
+        returnDateCalendarPlusTwoHours.setTime(returnDate);
+        returnDateCalendarPlusTwoHours.add(returnDateCalendarPlusTwoHours.HOUR_OF_DAY, 2);
+        Date returnDatePlusTwoHours = returnDateCalendarPlusTwoHours.getTime();
+        
+        for(Reservation reservation : reservations)
         {
             Date startDate = reservation.getStartDate();
             Date endDate = reservation.getEndDate();
-            Calendar startDateCalendar = Calendar.getInstance();
-            startDateCalendar.setTime(startDate);
-            Calendar endDateCalendar = Calendar.getInstance();
-            endDateCalendar.setTime(endDate);
-
-            Calendar pickupDateCalendar = Calendar.getInstance();
-            pickupDateCalendar.setTime(pickupDate);
-            Calendar returnDateCalendar = Calendar.getInstance();
-            returnDateCalendar.setTime(returnDate);
+            CarCategory carCategory = reservation.getCarCategory();
+            Outlet startOutlet = reservation.getPickUpLocation();
+            Outlet endOutlet = reservation.getReturnLocation();
             
-            Car car = reservation.getCar();
+            int quantity;
             
-            if ((startDate.before(pickupDate) && pickupDate.before(returnDate)) ||  //check if during that period got reservations
-                    ((startDate.before(returnDate)) && (returnDate.before(endDate))))
+            if ((startDate.before(pickupDateMinusTwoHours) && endDate.after(pickupDateMinusTwoHours) ||
+                    (startDate.before(returnDatePlusTwoHours) && endDate.after(returnDatePlusTwoHours))))
             {
-                if (allCars.contains(car))
+                if (categoryQuantity.containsKey(carCategory))
                 {
-                    allCars.remove(car);
+                    quantity = categoryQuantity.get(carCategory);
+                    if (quantity > 0)
+                    {
+                        categoryQuantity.replace(carCategory, quantity - 1);
+                    }
+                } 
+            } 
+            else if (searchReturnOutlet != startOutlet && (returnDatePlusTwoHours.after(startDate) || returnDatePlusTwoHours.equals(startDate))) 
+            {
+                if (categoryQuantity.containsKey(carCategory))
+                {
+                    quantity = categoryQuantity.get(carCategory);
+                    if (quantity > 0)
+                    {
+                        categoryQuantity.replace(carCategory, quantity - 1);
+                    }
                 }
-            }
-            if (startDate.equals(pickupDate) || startDate.equals(returnDate) || endDate.equals(pickupDate) || endDate.equals(returnDate))
-            {
-                if (allCars.contains(car))
+            } else if (searchPickupOutlet != endOutlet && (pickupDateMinusTwoHours.before(endDate) || pickupDateMinusTwoHours.equals(endDate))) {
+               
+                if (categoryQuantity.containsKey(carCategory))
                 {
-                    allCars.remove(car);
-                }
-            }
-        }
-        
-        for (TransitDriverDispatch transitDriverDispatch : transitDriverDispatches) //check if during that period got transiting cars
-        {
-            Date transitStartDate = transitDriverDispatch.getTransitStartDate();
-            Date transitEndDate = transitDriverDispatch.getTransitEndDate();
-            Calendar transitStartDateCalendar = Calendar.getInstance();
-            transitStartDateCalendar.setTime(transitStartDate);
-            Calendar transitEndDateCalendar = Calendar.getInstance();
-            transitEndDateCalendar.setTime(transitEndDate);
-            
-            Calendar pickupDateCalendar = Calendar.getInstance();
-            pickupDateCalendar.setTime(pickupDate);
-            Calendar returnDateCalendar = Calendar.getInstance();
-            returnDateCalendar.setTime(returnDate);
-            
-            Car carInTransit = transitDriverDispatch.getTransitCar();
-            
-            if (((transitStartDate.before(pickupDate) && pickupDate.before(transitEndDate)) ||
-                    (transitStartDate.before(returnDate) && returnDate.before(transitEndDate))))
-            {
-                if (allCars.contains(carInTransit))
-                {
-                    allCars.remove(carInTransit);
-                }
-            }
-            if (transitStartDate.equals(pickupDate) || transitStartDate.equals(returnDate) || transitEndDate.equals(pickupDate) || transitEndDate.equals(returnDate))
-            {
-                if (allCars.contains(carInTransit))
-                {
-                    allCars.remove(carInTransit);
+                    quantity = categoryQuantity.get(carCategory);
+                    if (quantity > 0)
+                    {
+                        categoryQuantity.replace(carCategory, quantity - 1);
+                    }
                 }
             }
         }
         
-        
-        for (Car car : disabledCars) //check for disabled cars
-        {
-            if (allCars.contains(car))
-            {
-                allCars.remove(car);
-            }
-        }
-        
-        for (Car car : allCars)
-        {
-            if (!car.getOutlet().equals(pickupOutlet))
-            {
-                
-            }
-        }
-        return allCars;
+        return categoryQuantity;
     }
 }

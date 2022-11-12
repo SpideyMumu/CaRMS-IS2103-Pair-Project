@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.Car;
 import entity.Model;
+import java.util.HashMap;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -47,6 +48,21 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
         Query query = em.createQuery("SELECT m FROM Model m");
 
         return query.getResultList();
+    }
+    
+    public HashMap<Model, Integer> retrieveQuantityOfCarsForEachModel() 
+    {
+        List<Model> models = retrieveAllModels();
+        HashMap<Model, Integer> hashmap = new HashMap<Model, Integer>();
+        
+        for (Model model : models)
+        {
+            List<Car> cars = model.getCars();
+            int size = cars.size();
+            hashmap.put(model, size);
+        }
+        
+        return hashmap;
     }
 
     @Override

@@ -24,5 +24,7 @@ public interface OutletSessionBeanLocal {
     public void updateOutlet(Outlet outlet);
 
     public void deleteOutlet(Long outletId) throws OutletNotFoundException;
+
+    public Outlet retrieveOutletByOutletName(String name) throws OutletNotFoundException;
     
 }

@@ -30,7 +30,7 @@ public class CarCategory implements Serializable {
     @Column (nullable = false, length = 22)
     private String categoryName;
     
-    @OneToMany (mappedBy = "carCategory")
+    @OneToMany(mappedBy = "carCategory")
     private List<Model> models;
     
     @OneToMany(mappedBy="carCategory")
@@ -60,8 +60,6 @@ public class CarCategory implements Serializable {
         this.categoryName = categoryName;
         this.models = new ArrayList<Model>();
     }
-    
-    
 
     public String getCategoryName() {
         return categoryName;
