@@ -20,6 +20,8 @@ import util.exception.CreateTransitDriverDispatchException;
 import util.exception.CustomerNotFoundException;
 import util.exception.EmployeeNotFoundException;
 import util.exception.OutletNotFoundException;
+import util.exception.TransitDriverDispatchNotFound;
+import util.exception.UpdateTransitDriverDispatchException;
 
 /**
  *
@@ -83,6 +85,26 @@ public class TransitDriverDispatchSessionBean implements TransitDriverDispatchSe
     {
         Query query = em.createQuery("SELECT d FROM TransitDriverDispatch d");
         return query.getResultList();
+    }
+    
+    @Override
+    public TransitDriverDispatch retrieveDispatchById(Long id) throws TransitDriverDispatchNotFound {
+        TransitDriverDispatch dispatch = em.find(TransitDriverDispatch.class, id);
+        
+        if (dispatch != null) return dispatch;
+        else throw new TransitDriverDispatchNotFound("Transit Driver Dispatch ID " + id + " does not exist!");
+    }
+    
+    @Override
+    public void updateTransitDriverDispatch(TransitDriverDispatch dispatch) throws UpdateTransitDriverDispatchException {
+         try
+            {   
+                TransitDriverDispatch dispatchToUpdate = retrieveDispatchById(dispatch.getTransitId());
+                dispatchToUpdate.setTransitCar(dispatch.getTransitCar());
+                dispatchToUpdate.setTransitEndDate(dispatch.getTransitEndDate());
+            } catch (TransitDriverDispatchNotFound ex) {
+                throw new UpdateTransitDriverDispatchException(ex.getMessage());
+            }
     }
    
 }

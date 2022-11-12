@@ -25,6 +25,7 @@ import entity.TransitDriverDispatch;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,18 +37,22 @@ import util.exception.CarNotFoundException;
 import util.exception.CreateNewCarException;
 import util.exception.CreateNewModelException;
 import util.exception.CreateNewRentalRateException;
+import util.exception.EmployeeNotFoundException;
 import util.exception.ModelNotFoundException;
 import util.exception.OutletNotFoundException;
 import util.exception.RentalRateNotFoundException;
+import util.exception.TransitDriverDispatchNotFound;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateCarException;
 import util.exception.UpdateModelException;
 import util.exception.UpdateRentalRateException;
+import util.exception.UpdateTransitDriverDispatchException;
 
 /**
  *
  * @author muhdm
- *//**
+ */
+/**
  *
  * @author muhdm
  */
@@ -70,7 +75,7 @@ public class SalesManagementModule {
 
     public SalesManagementModule() {
     }
-    
+
     public SalesManagementModule(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean, ModelSessionBeanRemote modelSessionBean, RentalRateSessionBeanRemote rentalRateSessionBean, TransitDriverDispatchSessionBeanRemote transitDriverDispatchSessionBean, Employee currEmployee) {
         this.carSessionBean = carSessionBean;
         this.carCategorySessionBean = carCategorySessionBean;
@@ -79,10 +84,10 @@ public class SalesManagementModule {
         this.modelSessionBean = modelSessionBean;
         this.rentalRateSessionBean = rentalRateSessionBean;
         this.transitDriverDispatchSessionBean = transitDriverDispatchSessionBean;
-        
+
         this.currEmployee = currEmployee;
     }
-    
+
     //This method serves to direct the logged in employee to the correct menu depending on their user role
     public void mainMenu() throws InvalidAccessRightException {
         if (currEmployee.getUserRole() == UserRole.OPERATIONS_MANAGER) {
@@ -153,14 +158,16 @@ public class SalesManagementModule {
                         doDeleteCar();
                         break;
                     case 10:
-                        System.out.println("Functionality Not Available right now.\n");
+                        //System.out.println("Functionality Not Available right now.\n");
                         doViewTransitDriverDispatchRecords();
                         break;
                     case 11:
-                        System.out.println("Functionality Not Available right now.\n");
+                        //System.out.println("Functionality Not Available right now.\n");
+                        doAssignTransitDriver();
                         break;
                     case 12:
-                        System.out.println("Functionality Not Available right now.\n");
+                        //System.out.println("Functionality Not Available right now.\n");
+                        doUpdateTransitAsCompleted();
                         break;
                     case 13:
                         return;
@@ -561,17 +568,124 @@ public class SalesManagementModule {
         }
 
     }
-    
+
     private void doViewTransitDriverDispatchRecords() {
-         System.out.println("*** View Transit Driver Dispatch Records For Today ***");
-//        //retrieve records here
-//        //List<TransitDriverDispatch> fulListOfRecords = transitDriveDispatchSessionBean.retrieveAllDispatch();
-//        
-//        List<TransitDriverDispatch> listOfRecordsToday = new LinkedList<>();
-//        
-//        for (TransitDriverDispatch record : fullListOfRecords) {
-//            if (record.getTransitStartDate())
-//        }
+        System.out.println("*** View Transit Driver Dispatch Records For Today ***");
+        //retrieve records here
+        List<TransitDriverDispatch> fullListOfRecords = transitDriverDispatchSessionBean.retrieveAllDispatch();
+
+        List<TransitDriverDispatch> listOfRecordsToday = new LinkedList<>();
+        Date date = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        // reset hour, minutes, seconds and millis
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        // next day
+        Calendar calendarTmr = Calendar.getInstance();
+        calendarTmr.setTime(date);
+        calendarTmr.set(Calendar.HOUR_OF_DAY, 0);
+        calendarTmr.set(Calendar.MINUTE, 0);
+        calendarTmr.set(Calendar.SECOND, 0);
+        calendarTmr.set(Calendar.MILLISECOND, 0);
+        calendarTmr.add(Calendar.DAY_OF_MONTH, 1);
+
+        for (TransitDriverDispatch record : fullListOfRecords) {
+            Date recordDate = record.getTransitStartDate();
+            Calendar recordCalendar = Calendar.getInstance();
+            recordCalendar.setTime(recordDate);
+
+            if ((recordCalendar.before(calendarTmr) && recordCalendar.after(calendar)) //in between midnight and tmr midnight
+                    || recordCalendar.equals(calendar)) { //transit on midnight
+                listOfRecordsToday.add(record);
+            }
+        }
+
+        for (TransitDriverDispatch record : listOfRecordsToday) {
+            System.out.println("ID : " + record.getTransitId());
+            System.out.println("Origin Outlet : " + record.getOriginOutlet().getOutletName());
+            System.out.println("Return Outlet : " + record.getReturnOutlet().getOutletName());
+            System.out.println("Driver name : " + record.getDriver().getName());
+            System.out.println("Start : " + record.getTransitStartDate());
+            System.out.println("End : " + record.getTransitEndDate());
+            System.out.println("Car license plate number: " + record.getTransitCar().getLicensePlateNum());
+            System.out.println("-----------------------");
+        }
+    }
+    
+    private void doAssignTransitDriver() {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("*** Assign driver to Transit ***\n");
+        System.out.println("Enter transit driver dispatch Id > ");
+        Long id = sc.nextLong();
+        sc.nextLine();
+        
+        try {
+            TransitDriverDispatch dispatch = transitDriverDispatchSessionBean.retrieveDispatchById(id);
+            System.out.println("Transit Driver Dispatch Details:");
+            System.out.println("ID : " + dispatch.getTransitId());
+            System.out.println("Origin Outlet : " + dispatch.getOriginOutlet().getOutletName());
+            System.out.println("Return Outlet : " + dispatch.getReturnOutlet().getOutletName());
+            System.out.println("Driver employee name : " + dispatch.getDriver().getName());
+            System.out.println("Start : " + dispatch.getTransitStartDate());
+            System.out.println("End : " + dispatch.getTransitEndDate());
+            System.out.println("Car license plate number: " + dispatch.getTransitCar().getLicensePlateNum());
+            System.out.println("-----------------------");
+            
+            System.out.println("Are you sure you want to assign a different driver to this transit? (y/n) >");
+            if (sc.nextLine().equalsIgnoreCase("y")) {
+                System.out.println("Do you want to assign yourself? (y/n) > ");
+                 if (sc.nextLine().equalsIgnoreCase("y")) {
+                    dispatch.setDriver(currEmployee);
+                 } else {
+                     Long employeeID = sc.nextLong();
+                     dispatch.setDriver(employeeSessionBean.retrieveEmployeeById(employeeID));
+                 }
+                 transitDriverDispatchSessionBean.updateTransitDriverDispatch(dispatch);
+                 System.out.println("Succesfully assigned new driver!");
+            } else {
+                System.out.println("Assign driver to Transit Aborted!");
+            }
+        } catch(TransitDriverDispatchNotFound | UpdateTransitDriverDispatchException | EmployeeNotFoundException ex) {
+            System.out.println("Invalid Input!" + ex.getMessage());
+        }
+    }
+
+    private void doUpdateTransitAsCompleted() {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("*** Update Transit as Complete ***\n");
+        System.out.println("Enter transit driver dispatch Id > ");
+        Long id = sc.nextLong();
+        sc.nextLine();
+        try {
+            TransitDriverDispatch dispatch = transitDriverDispatchSessionBean.retrieveDispatchById(id);
+            System.out.println("Transit Driver Dispatch Details:");
+            System.out.println("ID : " + dispatch.getTransitId());
+            System.out.println("Origin Outlet : " + dispatch.getOriginOutlet().getOutletName());
+            System.out.println("Return Outlet : " + dispatch.getReturnOutlet().getOutletName());
+            System.out.println("Driver employee name : " + dispatch.getDriver().getName());
+            System.out.println("Start : " + dispatch.getTransitStartDate());
+            System.out.println("End : " + dispatch.getTransitEndDate());
+            System.out.println("Car license plate number: " + dispatch.getTransitCar().getLicensePlateNum());
+            System.out.println("-----------------------");
+            System.out.println("Are you sure you want to update this transit as complete? (y/n) >");
+            if (sc.nextLine().equalsIgnoreCase("y")) {
+                dispatch.getTransitCar().setStatus(CarStatus.Available);
+                dispatch.setTransitEndDate(new Date());
+                carSessionBean.updateCar(dispatch.getTransitCar());
+                transitDriverDispatchSessionBean.updateTransitDriverDispatch(dispatch);
+                System.out.println("Successfully Update Transit!");
+            } else {
+                System.out.println("Update Transit Aborted!");
+            }
+        } catch (TransitDriverDispatchNotFound | UpdateCarException | UpdateTransitDriverDispatchException ex) {
+            System.out.println("Invalid Input!" + ex.getMessage());
+        }
     }
 
     // Sales Manager Use Cases below
@@ -787,7 +901,7 @@ public class SalesManagementModule {
                         case 2:
                             System.out.print("Enter new rate per day>");
                             BigDecimal ratePerDay = sc.nextBigDecimal();
-                            
+
                             try {
                                 rentalRate.setRatePerDay(ratePerDay);
                                 rentalRateSessionBean.updateRentalRate(rentalRate);

@@ -9,6 +9,8 @@ import entity.TransitDriverDispatch;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.CreateTransitDriverDispatchException;
+import util.exception.TransitDriverDispatchNotFound;
+import util.exception.UpdateTransitDriverDispatchException;
 
 /**
  *
@@ -20,5 +22,9 @@ public interface TransitDriverDispatchSessionBeanLocal {
     public TransitDriverDispatch createNewTransitDriverDispatch(Long carId, Long pickupOutletId, Long returnOutletId, Long employeeId, TransitDriverDispatch newTransitDriverDispatch) throws CreateTransitDriverDispatchException;
 
     public List<TransitDriverDispatch> retrieveAllDispatch();
-    
+
+    public TransitDriverDispatch retrieveDispatchById(Long id) throws TransitDriverDispatchNotFound;
+
+    public void updateTransitDriverDispatch(TransitDriverDispatch dispatch) throws UpdateTransitDriverDispatchException;
+
 }

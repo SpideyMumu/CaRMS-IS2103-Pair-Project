@@ -24,7 +24,8 @@ import ejb.session.stateless.TransitDriverDispatchSessionBeanRemote;
 /**
  *
  * @author muhdm
- *//**
+ */
+/**
  *
  * @author muhdm
  */
