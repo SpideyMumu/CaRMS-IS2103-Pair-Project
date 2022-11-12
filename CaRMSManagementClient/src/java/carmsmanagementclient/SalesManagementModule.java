@@ -15,7 +15,7 @@ import util.enumeration.UserRole;
 import util.exception.InvalidAccessRightException;
 import ejb.session.stateless.EmployeeCaRMSSessionBeanRemote;
 import ejb.session.stateless.RentalRateSessionBeanRemote;
-import ejb.session.stateless.TransitDriveDispatchSessionBeanRemote;
+import ejb.session.stateless.TransitDriverDispatchSessionBeanRemote;
 import entity.Car;
 import entity.CarCategory;
 import entity.Model;
@@ -47,6 +47,9 @@ import util.exception.UpdateRentalRateException;
 /**
  *
  * @author muhdm
+ *//**
+ *
+ * @author muhdm
  */
 public class SalesManagementModule {
 
@@ -60,22 +63,22 @@ public class SalesManagementModule {
     private OutletSessionBeanRemote outletSessionBean;
     private ModelSessionBeanRemote modelSessionBean;
     private RentalRateSessionBeanRemote rentalRateSessionBean;
-    private TransitDriveDispatchSessionBeanRemote transitDriveDispatchSessionBean;
+    private TransitDriverDispatchSessionBeanRemote transitDriverDispatchSessionBean;
 
     //Current logged-in user
     private Employee currEmployee;
 
     public SalesManagementModule() {
     }
-
-    public SalesManagementModule(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean, ModelSessionBeanRemote modelSessionBean, RentalRateSessionBeanRemote rentalRateSessionBean, TransitDriveDispatchSessionBeanRemote transitDriveDispatchSessionBean, Employee currEmployee) {
+    
+    public SalesManagementModule(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean, ModelSessionBeanRemote modelSessionBean, RentalRateSessionBeanRemote rentalRateSessionBean, TransitDriverDispatchSessionBeanRemote transitDriverDispatchSessionBean, Employee currEmployee) {
         this.carSessionBean = carSessionBean;
         this.carCategorySessionBean = carCategorySessionBean;
         this.employeeSessionBean = employeeSessionBean;
         this.outletSessionBean = outletSessionBean;
         this.modelSessionBean = modelSessionBean;
         this.rentalRateSessionBean = rentalRateSessionBean;
-        this.transitDriveDispatchSessionBean = transitDriveDispatchSessionBean;
+        this.transitDriverDispatchSessionBean = transitDriverDispatchSessionBean;
         
         this.currEmployee = currEmployee;
     }

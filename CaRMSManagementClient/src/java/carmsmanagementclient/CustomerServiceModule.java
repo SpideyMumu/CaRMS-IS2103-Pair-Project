@@ -14,6 +14,11 @@ import entity.Employee;
 import java.util.Scanner;
 import util.enumeration.UserRole;
 import util.exception.InvalidAccessRightException;
+import entity.Car;
+import entity.RentalRate;
+import util.enumeration.CarStatus;
+import util.exception.CarNotFoundException;
+import util.exception.UpdateCarException;
 import ejb.session.stateless.EmployeeCaRMSSessionBeanRemote;
 import ejb.session.stateless.RentalRateSessionBeanRemote;
 import entity.Car;
@@ -21,8 +26,10 @@ import entity.RentalRate;
 import util.enumeration.CarStatus;
 import util.exception.CarNotFoundException;
 import util.exception.UpdateCarException;
-
 /**
+ *
+ * @author muhdm
+ *//**
  *
  * @author muhdm
  */
@@ -39,7 +46,10 @@ public class CustomerServiceModule {
     private RentalRateSessionBeanRemote rentalRateSessionBean;
     //private CustomerSesionBeanRemote customerSesionBean;
     private CarSessionBeanRemote carSessionBean;
-
+    private EmployeeCaRMSSessionBeanRemote employeeSessionBean;
+    private OutletSessionBeanRemote outletSessionBean;
+    private ModelSessionBeanRemote modelSessionBean;
+    
     //Current logged-in user
     private Employee currEmployee;
 

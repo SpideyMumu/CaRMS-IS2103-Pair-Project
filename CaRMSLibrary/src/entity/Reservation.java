@@ -157,6 +157,15 @@ public class Reservation implements Serializable {
         this.startDate = startDate;
     }
 
+    public RentalRate getRentalRate() {
+        return rentalRate;
+    }
+
+    public void setRentalRate(RentalRate rentalRate) {
+        this.rentalRate = rentalRate;
+    }
+
+
     @Override
     public int hashCode() {
         int hash = 0;

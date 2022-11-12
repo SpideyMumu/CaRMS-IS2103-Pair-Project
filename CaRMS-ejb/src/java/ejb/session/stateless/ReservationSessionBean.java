@@ -10,10 +10,12 @@ import entity.CarRentalCustomer;
 import entity.Customer;
 import entity.Outlet;
 import entity.Reservation;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import util.exception.CarNotFoundException;
 import util.exception.CreateReservationException;
 import util.exception.CustomerNotFoundException;
@@ -98,6 +100,12 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         {
             throw new ReservationNotFoundException();
         }
+    }
+    
+    public List<Reservation> retrieveAllReservations()
+    {
+        Query query = em.createQuery("SELECT r FROM Reservation r");
+        return query.getResultList();
     }
     
     public void updateReservation(Reservation reservation)

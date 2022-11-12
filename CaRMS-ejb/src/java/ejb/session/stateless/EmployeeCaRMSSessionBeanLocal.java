@@ -10,7 +10,9 @@ import java.util.List;
 import javax.ejb.Local;
 import util.exception.CreateNewEmployeeException;
 import util.exception.EmployeeNotFoundException;
+import util.exception.EmployeeUsernameExistException;
 import util.exception.InvalidLoginCredentialException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -20,10 +22,10 @@ import util.exception.InvalidLoginCredentialException;
 public interface EmployeeCaRMSSessionBeanLocal {
 
     public Employee retrieveEmployeeById(Long employeeId) throws EmployeeNotFoundException;
-
-    public Long createNewEmployee(Employee newEmployee);
     
     public Long createNewEmployee(Long outletId, Employee employee) throws CreateNewEmployeeException;
+
+    public Long createNewEmployee(Employee newEmployee) throws EmployeeUsernameExistException, UnknownPersistenceException;
 
     public void updateEmployee(Employee employee);
 

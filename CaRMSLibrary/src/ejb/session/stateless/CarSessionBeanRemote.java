@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Car;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.CarNotFoundException;
@@ -34,5 +35,19 @@ public interface CarSessionBeanRemote {
     public Car retrieveCarByLicensePlateNum(String licensePlateNum) throws CarNotFoundException;
 
     public Long createNewCar(Long modelId, Long outletId, Car newCar) throws CarLicensePlateNumExistException, UnknownPersistenceException, CreateNewCarException;
+    
+    public List<Car> retrieveAvailableCars();
+
+    public List<Car> retrieveDisabledCars();
+
+    public List<Car> retrieveInTransitCars();
+
+    public List<Car> retrieveInOutletCars();
+
+    public List<Car> retrieveInRepairCars();
+
+    public List<Car> retrieveCarsByOutletName(String outletName);
+
+    public List<Car> searchCar(Date pickupDate, String pickupOutlet, Date returnDate, String returnOutlet);
     
 }

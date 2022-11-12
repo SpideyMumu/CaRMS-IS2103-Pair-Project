@@ -7,8 +7,6 @@ package ejb.session.stateless;
 
 import entity.CarCategory;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -54,5 +52,4 @@ public class CarCategorySessionBean implements CarCategorySessionBeanRemote, Car
         Query query = em.createQuery("SELECT c FROM CarCategory c");
         return query.getResultList();    
     }
-    
 }

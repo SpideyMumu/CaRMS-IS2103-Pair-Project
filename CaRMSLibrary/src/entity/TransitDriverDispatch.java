@@ -6,12 +6,16 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.Date;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  *
@@ -25,18 +29,29 @@ public class TransitDriverDispatch implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long transitId;
     
-    @ManyToOne
-    @JoinColumn (name = "originOutletId")
+    @ManyToOne(optional = false)
+    @JoinColumn (name = "originOutletId", nullable = false)
     private Outlet originOutlet;
     
-    @ManyToOne
-    @JoinColumn (name = "returnnOutletId")
+    @ManyToOne(optional = false)
+    @JoinColumn (name = "returnnOutletId", nullable = false)
     private Outlet returnOutlet;
     
-    @ManyToOne
-    @JoinColumn (name = "driverEmployeeId")
+    @ManyToOne(optional = false)
+    @JoinColumn (name = "driverEmployeeId", nullable = false)
     private Employee driver;
-
+    
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false)
+    private Date transitStartDate;
+    
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false)
+    private Date transitEndDate;
+    
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
+    private Car transitCar;
     
     
     
@@ -64,7 +79,29 @@ public class TransitDriverDispatch implements Serializable {
         this.driver = driver;
     }
     
-    
+    public Car getTransitCar() {
+        return transitCar;
+    }
+
+    public void setTransitCar(Car transitCar) {
+        this.transitCar = transitCar;
+    }
+
+    public Date getTransitEndDate() {
+        return transitEndDate;
+    }
+
+    public void setTransitEndDate(Date transitEndDate) {
+        this.transitEndDate = transitEndDate;
+    }
+
+    public Date getTransitStartDate() {
+        return transitStartDate;
+    }
+
+    public void setTransitStartDate(Date transitStartDate) {
+        this.transitStartDate = transitStartDate;
+    }    
     
     public Long getTransitId() {
         return transitId;

@@ -14,13 +14,19 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import util.exception.CreateNewEmployeeException;
 import util.exception.EmployeeNotFoundException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.OutletNotFoundException;
+import util.exception.EmployeeUsernameExistException;
+import util.exception.UnknownPersistenceException;
 
 /**
+ *
+ * @author muhdm
+ *//**
  *
  * @author muhdm
  */
@@ -32,14 +38,6 @@ public class EmployeeCaRMSSessionBean implements EmployeeCaRMSSessionBeanRemote,
 
     @PersistenceContext(unitName = "CaRMS-ejbPU")
     private EntityManager em;
-    
-
-    @Override
-    public Long createNewEmployee(Employee newEmployee) {
-        em.persist(newEmployee);
-        em.flush();
-        return newEmployee.getEmployeeId();
-    }
     
     @Override
     public Long createNewEmployee(Long outletId, Employee employee) throws CreateNewEmployeeException {
@@ -66,6 +64,34 @@ public class EmployeeCaRMSSessionBean implements EmployeeCaRMSSessionBeanRemote,
             return employee;
         } else {
             throw new EmployeeNotFoundException("Employee with ID " + employeeId + " does not exist!");
+        }
+    }
+        
+    @Override
+    public Long createNewEmployee(Employee newEmployee) throws EmployeeUsernameExistException, UnknownPersistenceException {
+        try
+        {
+            em.persist(newEmployee);
+            em.flush();
+            return newEmployee.getEmployeeId();
+        }
+        catch(PersistenceException ex)
+        {
+            if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
+            {
+                if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
+                {
+                    throw new EmployeeUsernameExistException();
+                }
+                else
+                {
+                    throw new UnknownPersistenceException(ex.getMessage());
+                }
+            }
+            else
+            {
+                throw new UnknownPersistenceException(ex.getMessage());
+            }
         }
     }
     

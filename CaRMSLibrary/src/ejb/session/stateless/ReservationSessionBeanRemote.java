@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.RentalRate;
 import entity.Reservation;
+import java.util.List;
 import javax.ejb.Remote;
 import util.exception.CarCategoryNotFoundException;
 import util.exception.CreateNewRentalRateException;
@@ -27,4 +28,6 @@ public interface ReservationSessionBeanRemote {
        public void updateReservation(Reservation reservation);
 
        public void deleteReservation(Long reservationId) throws ReservationNotFoundException;
+       
+       public List<Reservation> retrieveAllReservations();
 }

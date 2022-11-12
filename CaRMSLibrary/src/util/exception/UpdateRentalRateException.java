@@ -7,6 +7,7 @@ package util.exception;
 
 /**
  *
+<<<<<<< HEAD
  * @author muhdm
  */
 public class UpdateRentalRateException extends Exception {
@@ -24,6 +25,7 @@ public class UpdateRentalRateException extends Exception {
      *
      * @param msg the detail message.
      */
+
     public UpdateRentalRateException(String msg) {
         super(msg);
     }

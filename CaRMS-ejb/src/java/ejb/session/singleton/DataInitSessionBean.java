@@ -40,6 +40,9 @@ import util.exception.CreateNewModelException;
 import util.exception.EmployeeNotFoundException;
 import util.exception.ModelNotFoundException;
 import util.exception.OutletNotFoundException;
+import util.exception.EmployeeNotFoundException;
+import util.exception.EmployeeUsernameExistException;
+import ejb.session.stateless.EmployeeCaRMSSessionBeanLocal;
 
 /**
  *

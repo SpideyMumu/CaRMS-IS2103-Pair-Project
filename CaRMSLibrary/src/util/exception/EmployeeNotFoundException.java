@@ -7,6 +7,7 @@ package util.exception;
 
 /**
  *
+<<<<<<< HEAD
  * @author muhdm
  */
 public class EmployeeNotFoundException extends Exception {
@@ -24,6 +25,7 @@ public class EmployeeNotFoundException extends Exception {
      *
      * @param msg the detail message.
      */
+    
     public EmployeeNotFoundException(String msg) {
         super(msg);
     }

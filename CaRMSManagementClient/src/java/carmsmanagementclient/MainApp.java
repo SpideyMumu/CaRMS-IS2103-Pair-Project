@@ -16,9 +16,15 @@ import util.exception.InvalidAccessRightException;
 import util.exception.InvalidLoginCredentialException;
 import ejb.session.stateless.EmployeeCaRMSSessionBeanRemote;
 import ejb.session.stateless.RentalRateSessionBeanRemote;
-import ejb.session.stateless.TransitDriveDispatchSessionBeanRemote;
+import ejb.session.stateless.EmployeeCaRMSSessionBeanRemote;
+import ejb.session.stateless.EmployeeCaRMSSessionBeanRemote;
+import ejb.session.stateless.RentalRateSessionBeanRemote;
+import ejb.session.stateless.TransitDriverDispatchSessionBeanRemote;
 
 /**
+ *
+ * @author muhdm
+ *//**
  *
  * @author muhdm
  */
@@ -31,7 +37,7 @@ public class MainApp {
     private OutletSessionBeanRemote outletSessionBean;
     private ModelSessionBeanRemote modelSessionBean;
     private RentalRateSessionBeanRemote rentalRateSessionBean;
-    private TransitDriveDispatchSessionBeanRemote transitDriveDispatchSessionBean;
+    private TransitDriverDispatchSessionBeanRemote transitDriverDispatchSessionBean;
 
     //Current user
     private Employee currEmployee;
@@ -44,14 +50,14 @@ public class MainApp {
     }
 
     public MainApp(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean,
-            ModelSessionBeanRemote modelSessionBean, RentalRateSessionBeanRemote rentalRateSessionBean, TransitDriveDispatchSessionBeanRemote transitDriveDispatchSessionBean) {
+            ModelSessionBeanRemote modelSessionBean, RentalRateSessionBeanRemote rentalRateSessionBean, TransitDriverDispatchSessionBeanRemote transitDriverDispatchSessionBean) {
         this.carSessionBean = carSessionBean;
         this.carCategorySessionBean = carCategorySessionBean;
         this.employeeSessionBean = employeeSessionBean;
         this.outletSessionBean = outletSessionBean;
         this.modelSessionBean = modelSessionBean;
         this.rentalRateSessionBean = rentalRateSessionBean;
-        this.transitDriveDispatchSessionBean = transitDriveDispatchSessionBean;
+        this.transitDriverDispatchSessionBean = transitDriverDispatchSessionBean;
     }
 
     public void runApp() {
@@ -76,7 +82,7 @@ public class MainApp {
                         System.out.println("Login successful!\n");
 
                         //To update respective module with the currEmployee and all SBs
-                        salesManagementModule = new SalesManagementModule(carSessionBean, carCategorySessionBean, employeeSessionBean, outletSessionBean, modelSessionBean, rentalRateSessionBean, transitDriveDispatchSessionBean, currEmployee);
+                        salesManagementModule = new SalesManagementModule(carSessionBean, carCategorySessionBean, employeeSessionBean, outletSessionBean, modelSessionBean, rentalRateSessionBean, transitDriverDispatchSessionBean, currEmployee);
                         customerServiceModule = new CustomerServiceModule(carSessionBean, carCategorySessionBean, rentalRateSessionBean, currEmployee);
                         menuMain();
                     } catch (InvalidLoginCredentialException ex) {

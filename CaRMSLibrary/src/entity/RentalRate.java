@@ -36,7 +36,7 @@ public class RentalRate implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long rentalRateId;
-    @Column(nullable = false, length = 125)
+    @Column(nullable = false, length = 125, unique = true)
     private String name;
     
     @Enumerated (EnumType.STRING)
