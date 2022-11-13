@@ -9,6 +9,7 @@ import entity.TransitDriverDispatch;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.CreateTransitDriverDispatchException;
+import util.exception.InputDataValidationException;
 
 /**
  *
@@ -17,7 +18,7 @@ import util.exception.CreateTransitDriverDispatchException;
 @Remote
 public interface TransitDriverDispatchSessionBeanRemote {
     
-    public TransitDriverDispatch createNewTransitDriverDispatch(Long carId, Long pickupOutletId, Long returnOutletId, Long employeeId, TransitDriverDispatch newTransitDriverDispatch) throws CreateTransitDriverDispatchException;
+    public TransitDriverDispatch createNewTransitDriverDispatch(Long carId, Long pickupOutletId, Long returnOutletId, Long employeeId, TransitDriverDispatch newTransitDriverDispatch) throws CreateTransitDriverDispatchException, InputDataValidationException;
     
     public List<TransitDriverDispatch> retrieveAllDispatch();
     

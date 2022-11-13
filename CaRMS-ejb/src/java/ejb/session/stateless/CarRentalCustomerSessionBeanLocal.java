@@ -9,6 +9,7 @@ import entity.CarRentalCustomer;
 import javax.ejb.Local;
 import util.exception.CustomerMobilePhoneExistException;
 import util.exception.CustomerNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.UnknownPersistenceException;
 
@@ -19,7 +20,7 @@ import util.exception.UnknownPersistenceException;
 @Local
 public interface CarRentalCustomerSessionBeanLocal {
 
-    public Long createNewCarRentalCustomer(CarRentalCustomer carRentalCustomer) throws CustomerMobilePhoneExistException, UnknownPersistenceException;
+    public Long createNewCarRentalCustomer(CarRentalCustomer carRentalCustomer) throws CustomerMobilePhoneExistException, UnknownPersistenceException, InputDataValidationException;
 
     public CarRentalCustomer retrieveCarRentalCustomerById(Long carRentalCustomerId) throws CustomerNotFoundException;
 

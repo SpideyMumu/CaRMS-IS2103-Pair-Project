@@ -11,6 +11,7 @@ import javax.ejb.Local;
 import util.exception.EmployeeNotFoundException;
 import util.exception.EmployeeUsernameExistException;
 import util.exception.EntityNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.UnknownPersistenceException;
 
@@ -23,7 +24,7 @@ public interface EmployeeCaRMSSessionBeanLocal {
 
     public Employee retrieveEmployeeById(Long employeeId)  throws EmployeeNotFoundException;
 
-    public Long createNewEmployee(Employee newEmployee) throws EmployeeUsernameExistException, UnknownPersistenceException;
+    public Long createNewEmployee(Employee newEmployee) throws EmployeeUsernameExistException, UnknownPersistenceException, InputDataValidationException;
 
     public void updateEmployee(Employee employee);
 

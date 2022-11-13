@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.Employee;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -14,9 +15,14 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.exception.EmployeeNotFoundException;
 import util.exception.EmployeeUsernameExistException;
 import util.exception.EntityNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.UnknownPersistenceException;
 
@@ -29,32 +35,55 @@ public class EmployeeCaRMSSessionBean implements EmployeeCaRMSSessionBeanRemote,
 
     @PersistenceContext(unitName = "CaRMS-ejbPU")
     private EntityManager em;
+    
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
+    public EmployeeCaRMSSessionBean()
+    {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
+    
+    
 
     @Override
-    public Long createNewEmployee(Employee newEmployee) throws EmployeeUsernameExistException, UnknownPersistenceException{
-        try
+    public Long createNewEmployee(Employee newEmployee) throws EmployeeUsernameExistException, UnknownPersistenceException, InputDataValidationException
+    {
+        
+        Set<ConstraintViolation<Employee>>constraintViolations = validator.validate(newEmployee);
+        
+        
+        if(constraintViolations.isEmpty())
         {
-            em.persist(newEmployee);
-            em.flush();
-            return newEmployee.getEmployeeId();
-        }
-        catch(PersistenceException ex)
-        {
-            if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
+            try
             {
-                if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
+                em.persist(newEmployee);
+                em.flush();
+                return newEmployee.getEmployeeId();
+            }
+            catch(PersistenceException ex)
+            {
+                if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
                 {
-                    throw new EmployeeUsernameExistException();
+                    if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
+                    {
+                        throw new EmployeeUsernameExistException();
+                    }
+                    else
+                    {
+                        throw new UnknownPersistenceException(ex.getMessage());
+                    }
                 }
                 else
                 {
                     throw new UnknownPersistenceException(ex.getMessage());
                 }
             }
-            else
-            {
-                throw new UnknownPersistenceException(ex.getMessage());
-            }
+        }
+        else
+        {
+            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
     }
     
@@ -123,6 +152,18 @@ public class EmployeeCaRMSSessionBean implements EmployeeCaRMSSessionBeanRemote,
     {
         Employee e = retrieveEmployeeById(employeeId);
         em.remove(e);
+    }
+    
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Employee>>constraintViolations)
+    {
+        String msg = "Input data validation error!:";
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+        
+        return msg;
     }
 
 }

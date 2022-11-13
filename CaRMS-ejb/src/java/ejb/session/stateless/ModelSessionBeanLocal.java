@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.EntityNotFoundException;
+import util.exception.InputDataValidationException;
+import util.exception.ModelNameExistException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -18,7 +21,7 @@ import util.exception.EntityNotFoundException;
 @Local
 public interface ModelSessionBeanLocal {
 
-    public Long createNewModel(Model newModel);
+    public Long createNewModel(Model newModel) throws ModelNameExistException, UnknownPersistenceException, InputDataValidationException;
 
     public Model retrieveModelById(Long modelId)  throws EntityNotFoundException;
 

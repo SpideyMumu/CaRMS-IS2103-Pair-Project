@@ -29,13 +29,13 @@ public class Model implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long modelId;
     
-    @Column
+    @Column(nullable = false)
     private boolean enabled;
     
-    @Column (nullable = false)
+    @Column (nullable = false, length = 12)
     private String makeName;
     
-    @Column (nullable = false)
+    @Column (nullable = false, length = 12, unique = true)
     private String modelName;
     
     @ManyToOne (optional = false)

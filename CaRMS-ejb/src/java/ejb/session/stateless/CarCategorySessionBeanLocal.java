@@ -11,8 +11,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import javax.ejb.Local;
+import util.exception.CarCategoryNameExistException;
 import util.exception.CarCategoryNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.RentalRateNotAvailableException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -21,7 +24,7 @@ import util.exception.RentalRateNotAvailableException;
 @Local
 public interface CarCategorySessionBeanLocal {
     
-    public Long createNewCategory(CarCategory newCarCategory);
+    public Long createNewCategory(CarCategory newCarCategory) throws CarCategoryNameExistException, UnknownPersistenceException, InputDataValidationException;
 
     public CarCategory retrieveCategoryById(Long carCategoryId) throws CarCategoryNotFoundException;
 

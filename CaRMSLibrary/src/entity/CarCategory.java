@@ -27,7 +27,7 @@ public class CarCategory implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long categoryId;
     
-    @Column (nullable = false, length = 22)
+    @Column (nullable = false, unique = true, length = 22)
     private String categoryName;
     
     @OneToMany(mappedBy = "carCategory")

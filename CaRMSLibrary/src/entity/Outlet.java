@@ -32,10 +32,10 @@ public class Outlet implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long outletId;
     
-    @Column(nullable = false)
+    @Column(nullable = false, length = 8, unique = true)
     private String outletName;
     
-    @Column(nullable = false)
+    @Column(nullable = false, length = 10 )
     private String address;
     
     @Column(nullable = false)

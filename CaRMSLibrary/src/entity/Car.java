@@ -31,15 +31,14 @@ public class Car implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long carId;
-    
     @Column (unique = true, nullable = false, length = 22)
     private String licensePlateNum;
     
     @Column (nullable = false, length = 22)
     private String color;
 
-    @ManyToOne //(optional = false)
-    @JoinColumn(name = "modelId") //, nullable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "modelId", nullable = false)
     private Model model;
 
     @Enumerated(EnumType.STRING)
@@ -55,6 +54,7 @@ public class Car implements Serializable {
     private List<Reservation> reservations;
     
     public Car() {
+        this.reservations = new ArrayList<Reservation>();
     }
 
     public Car(String licensePlateNum, Model model, CarStatus status, Outlet outlet) {

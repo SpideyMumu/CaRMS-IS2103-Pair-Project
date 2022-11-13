@@ -12,15 +12,21 @@ import entity.Customer;
 import entity.Outlet;
 import entity.Reservation;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.exception.CarCategoryNotFoundException;
 import util.exception.CarNotFoundException;
 import util.exception.CreateReservationException;
 import util.exception.CustomerNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.OutletNotFoundException;
 import util.exception.ReservationNotFoundException;
 
@@ -38,7 +44,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     private CarRentalCustomerSessionBeanLocal carRentalCustomerSessionBean;
 
     @EJB
-    private CustomerSesionBeanLocal customerSessionBeanLocal;
+    private CustomerSessionBeanLocal customerSessionBeanLocal;
 
     @EJB(name = "OutletSessionBeanLocal")
     private OutletSessionBeanLocal outletSessionBeanLocal;
@@ -52,47 +58,68 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     private EntityManager em;
     
     
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
+    
+    
+    public ReservationSessionBean()
+    {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
+    
 
     @Override
-    public Long createNewReservation(Long carCategoryId, Long pickupOutletId, Long returnOutletId, Long customerId, Reservation newReservation) throws CreateReservationException, CarCategoryNotFoundException, OutletNotFoundException, CustomerNotFoundException
+    public Long createNewReservation(Long carCategoryId, Long pickupOutletId, Long returnOutletId, Long customerId, Reservation newReservation) throws CreateReservationException, CarCategoryNotFoundException, OutletNotFoundException, CustomerNotFoundException, InputDataValidationException
     {
-        if(newReservation != null)
-        {
-            try
-            {   
-                CarCategory carCategory = carCategorySessionBeanLocal.retrieveCategoryById(carCategoryId);
-                newReservation.setCarCategory(carCategory);
-                
-                Outlet pickupOutlet = outletSessionBeanLocal.retrieveOutletById(pickupOutletId);
-                newReservation.setPickUpLocation(pickupOutlet);
-                
-                Outlet returnOutlet = outletSessionBeanLocal.retrieveOutletById(returnOutletId);
-                newReservation.setReturnLocation(returnOutlet);
-                
-                CarRentalCustomer customer = carRentalCustomerSessionBean.retrieveCarRentalCustomerById(customerId);
-                newReservation.setCustomer(customer);
-                
-                em.persist(newReservation);
-                
-                if(customer instanceof CarRentalCustomer)
-                {
-                    CarRentalCustomer carRentalCustomer = (CarRentalCustomer)customer;
-                    carRentalCustomer.getReservations().add(newReservation);
-                }
 
-                em.flush();
-                
-                return newReservation.getReservationId();      
-          
+        Set<ConstraintViolation<Reservation>>constraintViolations = validator.validate(newReservation);
+        
+        if(constraintViolations.isEmpty())
+        {
+            if(newReservation != null)
+            {
+                try
+                {   
+                    CarCategory carCategory = carCategorySessionBeanLocal.retrieveCategoryById(carCategoryId);
+                    newReservation.setCarCategory(carCategory);
+
+                    Outlet pickupOutlet = outletSessionBeanLocal.retrieveOutletById(pickupOutletId);
+                    newReservation.setPickUpLocation(pickupOutlet);
+
+                    Outlet returnOutlet = outletSessionBeanLocal.retrieveOutletById(returnOutletId);
+                    newReservation.setReturnLocation(returnOutlet);
+
+                    CarRentalCustomer customer = carRentalCustomerSessionBean.retrieveCarRentalCustomerById(customerId);
+                    newReservation.setCustomer(customer);
+
+                    em.persist(newReservation);
+
+                    if(customer instanceof CarRentalCustomer)
+                    {
+                        CarRentalCustomer carRentalCustomer = (CarRentalCustomer)customer;
+                        carRentalCustomer.getReservations().add(newReservation);
+                    }
+
+                    em.flush();
+
+                    return newReservation.getReservationId();      
+
+                }
+                catch(CarCategoryNotFoundException | OutletNotFoundException | CustomerNotFoundException ex)
+                {   
+                    throw new CreateReservationException(ex.getMessage());
+                }
             }
-            catch(CarCategoryNotFoundException | OutletNotFoundException | CustomerNotFoundException ex)
-            {   
-                throw new CreateReservationException(ex.getMessage());
+            else
+            {
+                throw new CreateReservationException("Reservation information not provided");
             }
         }
         else
         {
-            throw new CreateReservationException("Reservation information not provided");
+            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
     }
     
@@ -124,6 +151,18 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     {
        Reservation reservation = retrieveReservationById(reservationId);
        em.remove(reservation);
+    }
+    
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Reservation>>constraintViolations)
+    {
+        String msg = "Input data validation error!:";
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+        
+        return msg;
     }
 
 }

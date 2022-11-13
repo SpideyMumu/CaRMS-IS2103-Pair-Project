@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -25,9 +26,14 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.enumeration.CarStatus;
 import util.exception.CarNotFoundException;
 import util.exception.CarLicensePlateNumExistException;
+import util.exception.InputDataValidationException;
 import util.exception.OutletNotFoundException;
 import util.exception.InvalidSearchCarConditionException;
 import util.exception.UnknownPersistenceException;
@@ -54,6 +60,17 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
     @EJB(name = "ReservationSessionBeanLocal")
     private ReservationSessionBeanLocal reservationSessionBeanLocal;
     
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+   
+    
+    public CarSessionBean()
+    {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
+    
+    
 
     @PersistenceContext(unitName = "CaRMS-ejbPU")
     private EntityManager em;
@@ -61,24 +78,34 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
     
 
     @Override
-    public Long createNewCar(Car newCar) throws CarLicensePlateNumExistException, UnknownPersistenceException {
+    public Long createNewCar(Car newCar) throws CarLicensePlateNumExistException, UnknownPersistenceException, InputDataValidationException
+    {
 
-        try {
-            
-            em.persist(newCar);
-            em.flush();
+        Set<ConstraintViolation<Car>>constraintViolations = validator.validate(newCar);
+        
+        if(constraintViolations.isEmpty())
+        {
+            try {
 
-            return newCar.getCarId();
-        } catch (PersistenceException ex) {
-            if (ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
-                if (ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
-                    throw new CarLicensePlateNumExistException(ex.getMessage());
+                em.persist(newCar);
+                em.flush();
+
+                return newCar.getCarId();
+            } catch (PersistenceException ex) {
+                if (ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
+                    if (ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
+                        throw new CarLicensePlateNumExistException(ex.getMessage());
+                    } else {
+                        throw new UnknownPersistenceException(ex.getMessage());
+                    }
                 } else {
                     throw new UnknownPersistenceException(ex.getMessage());
                 }
-            } else {
-                throw new UnknownPersistenceException(ex.getMessage());
             }
+        }
+        else
+        {
+             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
     }
 
@@ -203,10 +230,13 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
             }
         }
         
-        if (pickupDate.before(searchPickupOutlet.getOpeningHour()) || searchPickupOutlet.getClosingHour().before(pickupDate) ||
-                returnDate.before(searchReturnOutlet.getOpeningHour()) || searchReturnOutlet.getClosingHour().before(returnDate))
+        if (searchPickupOutlet.getOpeningHour() != null && searchPickupOutlet.getClosingHour() !=null && searchReturnOutlet.getClosingHour() != null && searchReturnOutlet.getOpeningHour() != null)
         {
-            throw new InvalidSearchCarConditionException("Pick up date or return date selected is out of outlet opening or closing hours!");
+            if (pickupDate.before(searchPickupOutlet.getOpeningHour()) || searchPickupOutlet.getClosingHour().before(pickupDate) ||
+                    returnDate.before(searchReturnOutlet.getOpeningHour()) || searchReturnOutlet.getClosingHour().before(returnDate))
+            {
+                throw new InvalidSearchCarConditionException("Pick up date or return date selected is out of outlet opening or closing hours!");
+            }
         }
         
         Calendar pickupDateCalendarMinusTwoHours = Calendar.getInstance();
@@ -303,5 +333,17 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
         }
         
         return modelQuantity;
+    }
+    
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Car>>constraintViolations)
+    {
+        String msg = "Input data validation error!:";
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+        
+        return msg;
     }
 }

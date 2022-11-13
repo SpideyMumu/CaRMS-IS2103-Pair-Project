@@ -14,6 +14,7 @@ import java.util.List;
 import javax.ejb.Local;
 import util.exception.CarNotFoundException;
 import util.exception.CarLicensePlateNumExistException;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidSearchCarConditionException;
 import util.exception.OutletNotFoundException;
 import util.exception.UnknownPersistenceException;
@@ -31,7 +32,7 @@ public interface CarSessionBeanLocal {
 
     public List<Car> retrieveAllCars();
 
-    public Long createNewCar(Car newCar)throws CarLicensePlateNumExistException, UnknownPersistenceException;
+    public Long createNewCar(Car newCar)throws CarLicensePlateNumExistException, UnknownPersistenceException, InputDataValidationException;
 
     public Car retrieveCarById(Long carId) throws CarNotFoundException;
 
