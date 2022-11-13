@@ -140,6 +140,14 @@ public class EmployeeCaRMSSessionBean implements EmployeeCaRMSSessionBeanRemote,
     }
     
     @Override
+    public List<Employee> retrieveEmployeesFromOutlet(Outlet outlet) {
+        Query query = em.createQuery("SELECT e FROM Employee e WHERE e.outlet = :outlet");
+        query.setParameter("outlet", outlet);
+        
+        return query.getResultList();
+    }
+    
+    @Override
     public void updateEmployee(Employee employee)
     {
         em.merge(employee);

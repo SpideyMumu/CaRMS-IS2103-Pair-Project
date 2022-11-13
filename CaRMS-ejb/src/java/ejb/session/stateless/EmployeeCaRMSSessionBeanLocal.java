@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Employee;
+import entity.Outlet;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.CreateNewEmployeeException;
@@ -36,5 +37,7 @@ public interface EmployeeCaRMSSessionBeanLocal {
     public List<Employee> retrieveAllEmployees();
     
     public Employee employeeLogin(String username, String password) throws InvalidLoginCredentialException;
+
+    public List<Employee> retrieveEmployeesFromOutlet(Outlet outlet);
 
 }

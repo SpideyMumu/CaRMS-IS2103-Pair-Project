@@ -7,6 +7,7 @@ package carmsmanagementclient;
 
 import ejb.session.stateless.CarCategorySessionBeanRemote;
 import ejb.session.stateless.CarSessionBeanRemote;
+import ejb.session.stateless.EJBtimerSessionBeanRemote;
 import ejb.session.stateless.ModelSessionBeanRemote;
 import ejb.session.stateless.OutletSessionBeanRemote;
 import entity.Employee;
@@ -41,6 +42,7 @@ import util.exception.EmployeeNotFoundException;
 import util.exception.ModelNotFoundException;
 import util.exception.OutletNotFoundException;
 import util.exception.RentalRateNotFoundException;
+import util.exception.ReservationNotFoundException;
 import util.exception.TransitDriverDispatchNotFound;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateCarException;
@@ -69,14 +71,17 @@ public class SalesManagementModule {
     private ModelSessionBeanRemote modelSessionBean;
     private RentalRateSessionBeanRemote rentalRateSessionBean;
     private TransitDriverDispatchSessionBeanRemote transitDriverDispatchSessionBean;
-
+    private EJBtimerSessionBeanRemote eJBtimerSessionBean;
+    
     //Current logged-in user
     private Employee currEmployee;
 
     public SalesManagementModule() {
     }
 
-    public SalesManagementModule(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean, ModelSessionBeanRemote modelSessionBean, RentalRateSessionBeanRemote rentalRateSessionBean, TransitDriverDispatchSessionBeanRemote transitDriverDispatchSessionBean, Employee currEmployee) {
+    public SalesManagementModule(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean, 
+            ModelSessionBeanRemote modelSessionBean, RentalRateSessionBeanRemote rentalRateSessionBean, TransitDriverDispatchSessionBeanRemote transitDriverDispatchSessionBean, EJBtimerSessionBeanRemote eJBtimerSessionBean, 
+            Employee currEmployee) {
         this.carSessionBean = carSessionBean;
         this.carCategorySessionBean = carCategorySessionBean;
         this.employeeSessionBean = employeeSessionBean;
@@ -84,6 +89,7 @@ public class SalesManagementModule {
         this.modelSessionBean = modelSessionBean;
         this.rentalRateSessionBean = rentalRateSessionBean;
         this.transitDriverDispatchSessionBean = transitDriverDispatchSessionBean;
+        this.eJBtimerSessionBean = eJBtimerSessionBean;
 
         this.currEmployee = currEmployee;
     }
@@ -121,8 +127,9 @@ public class SalesManagementModule {
             System.out.println("10: View Transit Driver Dispatch Records for Current Day Reservations");
             System.out.println("11: Assign Transit Driver");
             System.out.println("12: Update Transit As Completed");
+            System.out.println("13: Allocate Cars to Reservations");
             System.out.println("-----------------------");
-            System.out.println("13: Back\n");
+            System.out.println("14: Back\n");
             response = 0;
 
             //OUTER:
@@ -170,6 +177,9 @@ public class SalesManagementModule {
                         doUpdateTransitAsCompleted();
                         break;
                     case 13:
+                        doAllocateCars();
+                        break;
+                    case 14:
                         return;
                     default:
                         System.out.println("Invalid option, please try again!\n");
@@ -414,8 +424,9 @@ public class SalesManagementModule {
                 System.out.println("Status: " + car.getStatus().toString());
                 System.out.println("-----------------------");
                 System.out.println("What would you like to update?");
+                System.out.println("0: License Plate Number");
                 System.out.println("1: Color");
-                System.out.println("2: Model"); //assume that a car can keep the same license plate but change model
+                System.out.println("2: Model");
                 System.out.println("3: Original Outlet");
                 System.out.println("4: Status");
                 System.out.println("5: Back \n");
@@ -428,6 +439,17 @@ public class SalesManagementModule {
                     sc.nextLine();
 
                     switch (response) {
+                        case 0:
+                            System.out.print("Enter new license plate number> ");
+                            String newLicensePlateNum = sc.nextLine();
+                            //car.setColor(color);
+                            car.setLicensePlateNum(newLicensePlateNum);
+                            try {
+                                carSessionBean.updateCar(car);
+                                System.out.println("Successfully Updated License Plate Number!");
+                            } catch (UpdateCarException ex) {
+                                System.out.println("Update Failed! " + ex.getMessage());
+                            }
                         case 1: // change color
                             System.out.print("Enter new color> ");
                             String color = sc.nextLine();
@@ -615,7 +637,7 @@ public class SalesManagementModule {
             System.out.println("-----------------------");
         }
     }
-    
+
     private void doAssignTransitDriver() {
         Scanner sc = new Scanner(System.in);
 
@@ -623,7 +645,7 @@ public class SalesManagementModule {
         System.out.println("Enter transit driver dispatch Id > ");
         Long id = sc.nextLong();
         sc.nextLine();
-        
+
         try {
             TransitDriverDispatch dispatch = transitDriverDispatchSessionBean.retrieveDispatchById(id);
             System.out.println("Transit Driver Dispatch Details:");
@@ -635,22 +657,22 @@ public class SalesManagementModule {
             System.out.println("End : " + dispatch.getTransitEndDate());
             System.out.println("Car license plate number: " + dispatch.getTransitCar().getLicensePlateNum());
             System.out.println("-----------------------");
-            
+
             System.out.println("Are you sure you want to assign a different driver to this transit? (y/n) >");
             if (sc.nextLine().equalsIgnoreCase("y")) {
                 System.out.println("Do you want to assign yourself? (y/n) > ");
-                 if (sc.nextLine().equalsIgnoreCase("y")) {
+                if (sc.nextLine().equalsIgnoreCase("y")) {
                     dispatch.setDriver(currEmployee);
-                 } else {
-                     Long employeeID = sc.nextLong();
-                     dispatch.setDriver(employeeSessionBean.retrieveEmployeeById(employeeID));
-                 }
-                 transitDriverDispatchSessionBean.updateTransitDriverDispatch(dispatch);
-                 System.out.println("Succesfully assigned new driver!");
+                } else {
+                    Long employeeID = sc.nextLong();
+                    dispatch.setDriver(employeeSessionBean.retrieveEmployeeById(employeeID));
+                }
+                transitDriverDispatchSessionBean.updateTransitDriverDispatch(dispatch);
+                System.out.println("Succesfully assigned new driver!");
             } else {
                 System.out.println("Assign driver to Transit Aborted!");
             }
-        } catch(TransitDriverDispatchNotFound | UpdateTransitDriverDispatchException | EmployeeNotFoundException ex) {
+        } catch (TransitDriverDispatchNotFound | UpdateTransitDriverDispatchException | EmployeeNotFoundException ex) {
             System.out.println("Invalid Input!" + ex.getMessage());
         }
     }
@@ -687,7 +709,24 @@ public class SalesManagementModule {
             System.out.println("Invalid Input!" + ex.getMessage());
         }
     }
+    
+    private void doAllocateCars() {
+        Scanner sc = new Scanner(System.in);
 
+        System.out.println("*** Car allocation for date ***\n");
+        System.out.println("Enter Date for car allocation (Format: dd/MM/yyyy HH:mm) > ");
+        String dateString = sc.nextLine();
+        SimpleDateFormat rentalDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        
+        try {
+            Date date = rentalDateFormat.parse(dateString);
+            eJBtimerSessionBean.allocateCarsByDate(date);
+        } catch (ParseException | CarNotFoundException | ReservationNotFoundException ex) {
+            System.out.println("Invalid Input!" + ex.getMessage());
+        }
+        
+    }
+   
     // Sales Manager Use Cases below
     private void salesManagerMenu() {
 

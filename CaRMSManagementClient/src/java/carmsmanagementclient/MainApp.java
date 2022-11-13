@@ -7,6 +7,7 @@ package carmsmanagementclient;
 
 import ejb.session.stateless.CarCategorySessionBeanRemote;
 import ejb.session.stateless.CarSessionBeanRemote;
+import ejb.session.stateless.EJBtimerSessionBeanRemote;
 import ejb.session.stateless.ModelSessionBeanRemote;
 import ejb.session.stateless.OutletSessionBeanRemote;
 import entity.Employee;
@@ -39,6 +40,7 @@ public class MainApp {
     private ModelSessionBeanRemote modelSessionBean;
     private RentalRateSessionBeanRemote rentalRateSessionBean;
     private TransitDriverDispatchSessionBeanRemote transitDriverDispatchSessionBean;
+    private EJBtimerSessionBeanRemote eJBtimerSessionBean;
 
     //Current user
     private Employee currEmployee;
@@ -51,7 +53,7 @@ public class MainApp {
     }
 
     public MainApp(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean,
-            ModelSessionBeanRemote modelSessionBean, RentalRateSessionBeanRemote rentalRateSessionBean, TransitDriverDispatchSessionBeanRemote transitDriverDispatchSessionBean) {
+            ModelSessionBeanRemote modelSessionBean, RentalRateSessionBeanRemote rentalRateSessionBean, TransitDriverDispatchSessionBeanRemote transitDriverDispatchSessionBean,EJBtimerSessionBeanRemote eJBtimerSessionBean) {
         this.carSessionBean = carSessionBean;
         this.carCategorySessionBean = carCategorySessionBean;
         this.employeeSessionBean = employeeSessionBean;
@@ -59,6 +61,7 @@ public class MainApp {
         this.modelSessionBean = modelSessionBean;
         this.rentalRateSessionBean = rentalRateSessionBean;
         this.transitDriverDispatchSessionBean = transitDriverDispatchSessionBean;
+        this.eJBtimerSessionBean = eJBtimerSessionBean;
     }
 
     public void runApp() {
@@ -83,7 +86,7 @@ public class MainApp {
                         System.out.println("Login successful!\n");
 
                         //To update respective module with the currEmployee and all SBs
-                        salesManagementModule = new SalesManagementModule(carSessionBean, carCategorySessionBean, employeeSessionBean, outletSessionBean, modelSessionBean, rentalRateSessionBean, transitDriverDispatchSessionBean, currEmployee);
+                        salesManagementModule = new SalesManagementModule(carSessionBean, carCategorySessionBean, employeeSessionBean, outletSessionBean, modelSessionBean, rentalRateSessionBean, transitDriverDispatchSessionBean, eJBtimerSessionBean, currEmployee);
                         customerServiceModule = new CustomerServiceModule(carSessionBean, carCategorySessionBean, rentalRateSessionBean, currEmployee);
                         menuMain();
                     } catch (InvalidLoginCredentialException ex) {

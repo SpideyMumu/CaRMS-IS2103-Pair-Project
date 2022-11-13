@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Car;
+import entity.CarCategory;
 import entity.Model;
 import entity.Outlet;
 import entity.Reservation;
@@ -13,6 +14,7 @@ import entity.TransitDriverDispatch;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -43,19 +45,15 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
 
     @EJB
     private ModelSessionBeanLocal modelSessionBean;
-    
+
     @EJB(name = "TransitDriverDispatchSessionBeanLocal")
     private TransitDriverDispatchSessionBeanLocal transitDriverDispatchSessionBeanLocal;
 
     @EJB(name = "ReservationSessionBeanLocal")
     private ReservationSessionBeanLocal reservationSessionBeanLocal;
-    
-    
 
     @PersistenceContext(unitName = "CaRMS-ejbPU")
     private EntityManager em;
-    
-    
 
     @Override
     public Long createNewCar(Car newCar) throws CarLicensePlateNumExistException, UnknownPersistenceException {
@@ -155,41 +153,72 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
 
         return cars;
     }
-    
+
+    @Override
     public List<Car> retrieveAvailableCars() {
         Query query = em.createQuery("SELECT c FROM Car c WHERE c.status = :inStatus");
         query.setParameter("inStatus", CarStatus.Available);
         return query.getResultList();
     }
-    
+
+    @Override
     public List<Car> retrieveDisabledCars() {
         Query query = em.createQuery("SELECT c FROM Car c WHERE c.status = :inStatus");
         query.setParameter("inStatus", CarStatus.Disabled);
         return query.getResultList();
     }
-    
+
+    @Override
     public List<Car> retrieveInTransitCars() {
         Query query = em.createQuery("SELECT c FROM Car c WHERE c.status = :inStatus");
         query.setParameter("inStatus", CarStatus.InTransit);
         return query.getResultList();
     }
-    
+
+    @Override
     public List<Car> retrieveInOutletCars() {
         Query query = em.createQuery("SELECT c FROM Car c WHERE c.status = :inStatus");
         query.setParameter("inStatus", CarStatus.InOutlet);
         return query.getResultList();
     }
-    
+
+    @Override
     public List<Car> retrieveInRepairCars() {
         Query query = em.createQuery("SELECT c FROM Car c WHERE c.status = :inStatus");
         query.setParameter("inStatus", CarStatus.Repair);
         return query.getResultList();
     }
-    
+
+    @Override
     public List<Car> retrieveCarsByOutletName(String outletName) {
         Query query = em.createQuery("SELECT c FROM Car c WHERE c.outlet.outletName = :inOutletName");
         query.setParameter("inOutletName", outletName);
         return query.getResultList();
+    }
+
+    @Override
+    public List<Car> retrieveAvailableCarsByModelAndOutlet(Model model, Outlet outlet) {
+        Query query = em.createQuery("SELECT c FROM Car c WHERE c.status = :status AND c.model = :model AND c.outlet = :outlet");
+        query.setParameter("status", CarStatus.Available);
+        query.setParameter("model", model);
+        query.setParameter("outlet", outlet);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<Car> retrieveAvailableCarsByCategoryAndOutlet(CarCategory category, Outlet outlet) {
+        Query query = em.createQuery("SELECT m FROM model m WHERE m.carCategory = :category");
+        query.setParameter("category", category);
+        List<Model> models = query.getResultList();
+        List<Car> cars = new LinkedList<>();
+
+        for (Model model : models) {
+            List<Car> availCarsByModel = retrieveAvailableCarsByModelAndOutlet(model, outlet);
+            cars.addAll(availCarsByModel);
+        }
+
+        return cars;
     }
 
     @Override
@@ -198,29 +227,25 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
 
         try {
             Car carToUpdate = retrieveCarById(newCar.getCarId());
-            if (carToUpdate.getLicensePlateNum().equals(newCar.getLicensePlateNum())) {
-                carToUpdate.setColor(newCar.getColor());
-                carToUpdate.setStatus(newCar.getStatus());
-                
-                //Disassociate Model and Outlet
-                carToUpdate.getModel().getCars().size();
-                carToUpdate.getModel().getCars().remove(carToUpdate);
-                carToUpdate.getOutlet().getCars().size();
-                carToUpdate.getOutlet().getCars().remove(carToUpdate);
-                
-                //Associate model and outlet
-                Model newModel = modelSessionBean.retrieveModelById(newCar.getModel().getModelId());
-                Outlet newOutlet = outletSessionBean.retrieveOutletById(newCar.getOutlet().getOutletId());
-                carToUpdate.setModel(newModel);
-                carToUpdate.setOutlet(newOutlet);
-                newModel.getCars().add(carToUpdate);
-                newOutlet.getCars().add(carToUpdate);
-                
-                
-                
-            } else {
-                throw new UpdateCarException("Editing License Plate is not allowed! Update Car Operation aborted");
-            }
+
+            carToUpdate.setColor(newCar.getColor());
+            carToUpdate.setStatus(newCar.getStatus());
+            carToUpdate.setLicensePlateNum(newCar.getLicensePlateNum());
+
+            //Disassociate Model and Outlet
+            carToUpdate.getModel().getCars().size();
+            carToUpdate.getModel().getCars().remove(carToUpdate);
+            carToUpdate.getOutlet().getCars().size();
+            carToUpdate.getOutlet().getCars().remove(carToUpdate);
+
+            //Associate model and outlet
+            Model newModel = modelSessionBean.retrieveModelById(newCar.getModel().getModelId());
+            Outlet newOutlet = outletSessionBean.retrieveOutletById(newCar.getOutlet().getOutletId());
+            carToUpdate.setModel(newModel);
+            carToUpdate.setOutlet(newOutlet);
+            newModel.getCars().add(carToUpdate);
+            newOutlet.getCars().add(carToUpdate);
+
         } catch (CarNotFoundException | ModelNotFoundException | OutletNotFoundException ex) {
             throw new UpdateCarException(ex.getMessage());
         }
@@ -238,26 +263,23 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
             carToRemove.setStatus(CarStatus.Disabled);
         }
     }
-     
-    public List<Car> searchCar(Date pickupDate, String pickupOutlet, Date returnDate, String returnOutlet)
-    {
+
+    public List<Car> searchCar(Date pickupDate, String pickupOutlet, Date returnDate, String returnOutlet) {
         List<Car> allCars = retrieveAllCars();
         List<Car> inRepairCars = retrieveInRepairCars();
         List<Reservation> reservations = reservationSessionBeanLocal.retrieveAllReservations();
         List<Car> inTransitCars = retrieveInTransitCars();
         List<TransitDriverDispatch> transitDriverDispatches = transitDriverDispatchSessionBeanLocal.retrieveAllDispatch();
         List<Car> disabledCars = retrieveDisabledCars();
-        
-        for (Car car : allCars)
-        {
+
+        for (Car car : allCars) {
             if (inRepairCars.contains(car)) //remove cars that are under repair
             {
                 allCars.remove(car);
             }
         }
 
-        for (Reservation reservation : reservations)
-        {
+        for (Reservation reservation : reservations) {
             Date startDate = reservation.getStartDate();
             Date endDate = reservation.getEndDate();
             Calendar startDateCalendar = Calendar.getInstance();
@@ -269,26 +291,23 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
             pickupDateCalendar.setTime(pickupDate);
             Calendar returnDateCalendar = Calendar.getInstance();
             returnDateCalendar.setTime(returnDate);
-            
+
             Car car = reservation.getCar();
-            
-            if ((startDate.before(pickupDate) && pickupDate.before(returnDate)) ||  //check if during that period got reservations
-                    ((startDate.before(returnDate)) && (returnDate.before(endDate))))
-            {
-                if (allCars.contains(car))
-                {
+
+            if ((startDate.before(pickupDate) && pickupDate.before(returnDate))
+                    || //check if during that period got reservations
+                    ((startDate.before(returnDate)) && (returnDate.before(endDate)))) {
+                if (allCars.contains(car)) {
                     allCars.remove(car);
                 }
             }
-            if (startDate.equals(pickupDate) || startDate.equals(returnDate) || endDate.equals(pickupDate) || endDate.equals(returnDate))
-            {
-                if (allCars.contains(car))
-                {
+            if (startDate.equals(pickupDate) || startDate.equals(returnDate) || endDate.equals(pickupDate) || endDate.equals(returnDate)) {
+                if (allCars.contains(car)) {
                     allCars.remove(car);
                 }
             }
         }
-        
+
         for (TransitDriverDispatch transitDriverDispatch : transitDriverDispatches) //check if during that period got transiting cars
         {
             Date transitStartDate = transitDriverDispatch.getTransitStartDate();
@@ -297,47 +316,76 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
             transitStartDateCalendar.setTime(transitStartDate);
             Calendar transitEndDateCalendar = Calendar.getInstance();
             transitEndDateCalendar.setTime(transitEndDate);
-            
+
             Calendar pickupDateCalendar = Calendar.getInstance();
             pickupDateCalendar.setTime(pickupDate);
             Calendar returnDateCalendar = Calendar.getInstance();
             returnDateCalendar.setTime(returnDate);
-            
+
             Car carInTransit = transitDriverDispatch.getTransitCar();
-            
-            if (((transitStartDate.before(pickupDate) && pickupDate.before(transitEndDate)) ||
-                    (transitStartDate.before(returnDate) && returnDate.before(transitEndDate))))
-            {
-                if (allCars.contains(carInTransit))
-                {
+
+            if (((transitStartDate.before(pickupDate) && pickupDate.before(transitEndDate))
+                    || (transitStartDate.before(returnDate) && returnDate.before(transitEndDate)))) {
+                if (allCars.contains(carInTransit)) {
                     allCars.remove(carInTransit);
                 }
             }
-            if (transitStartDate.equals(pickupDate) || transitStartDate.equals(returnDate) || transitEndDate.equals(pickupDate) || transitEndDate.equals(returnDate))
-            {
-                if (allCars.contains(carInTransit))
-                {
+            if (transitStartDate.equals(pickupDate) || transitStartDate.equals(returnDate) || transitEndDate.equals(pickupDate) || transitEndDate.equals(returnDate)) {
+                if (allCars.contains(carInTransit)) {
                     allCars.remove(carInTransit);
                 }
             }
         }
-        
-        
+
         for (Car car : disabledCars) //check for disabled cars
         {
-            if (allCars.contains(car))
-            {
+            if (allCars.contains(car)) {
                 allCars.remove(car);
             }
         }
-        
-        for (Car car : allCars)
-        {
-            if (!car.getOutlet().equals(pickupOutlet))
-            {
-                
+
+        for (Car car : allCars) {
+            if (!car.getOutlet().equals(pickupOutlet)) {
+
             }
         }
         return allCars;
+    }
+
+    @Override
+    public List<Car> getCarsForReservationForPickupOutlet(Reservation reservation) {
+        CarCategory reservationCarCategory = reservation.getCarCategory();
+        Model reservationModel = reservation.getModel();
+        Outlet pickupOutlet = reservation.getPickUpLocation();
+
+        List<Car> carsForReservation = new LinkedList<>();
+
+        if (reservationModel != null) {
+            List<Car> availableCarsByModel = this.retrieveAvailableCarsByModelAndOutlet(reservationModel, pickupOutlet);
+            carsForReservation.addAll(availableCarsByModel);
+        } else if (reservationCarCategory != null) {
+            List<Car> availableCarsByCatgory = this.retrieveAvailableCarsByCategoryAndOutlet(reservationCarCategory, pickupOutlet);
+            carsForReservation.addAll(availableCarsByCatgory);
+        }
+
+        return carsForReservation;
+    }
+
+    public List<Car> getCarsForReservationFromOtherOutlets(Reservation reservation) {
+        CarCategory reservationCarCategory = reservation.getCarCategory();
+        Model reservationModel = reservation.getModel();
+        List<Outlet> allOutlets = outletSessionBean.retrieveAllOutlets();
+        allOutlets.remove(reservation.getPickUpLocation());
+        List<Car> cars = new LinkedList<>();
+
+        for (Outlet outlet : allOutlets) {
+            if (reservationModel != null) {
+                cars.addAll(retrieveAvailableCarsByModelAndOutlet(reservationModel, outlet));
+            } else {
+                cars.addAll(retrieveAvailableCarsByCategoryAndOutlet(reservationCarCategory, outlet));
+            }
+        }
+
+        return cars;
     }
 }

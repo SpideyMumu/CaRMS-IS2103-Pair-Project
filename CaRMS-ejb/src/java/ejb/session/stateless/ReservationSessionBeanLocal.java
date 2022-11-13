@@ -7,11 +7,14 @@ package ejb.session.stateless;
 
 import entity.RentalRate;
 import entity.Reservation;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.CarCategoryNotFoundException;
+import util.exception.CarNotFoundException;
 import util.exception.CreateNewRentalRateException;
 import util.exception.CreateReservationException;
+import util.exception.CreateTransitDriverDispatchException;
 import util.exception.ReservationNotFoundException;
 
 /**
@@ -30,5 +33,9 @@ public interface ReservationSessionBeanLocal {
     public void deleteReservation(Long reservationId) throws ReservationNotFoundException;
 
     public List<Reservation> retrieveAllReservations();
+
+    public List<Reservation> retrieveReservationsByDates(Date startDate, Date endDate);
+
+    public void allocateCarToReservation(Reservation reservation, Date date) throws CarNotFoundException, CreateTransitDriverDispatchException;
 
 }

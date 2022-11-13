@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Outlet;
+import java.util.List;
 import javax.ejb.Local;
 import util.exception.OutletNotFoundException;
 
@@ -24,5 +25,7 @@ public interface OutletSessionBeanLocal {
     public void updateOutlet(Outlet outlet);
 
     public void deleteOutlet(Long outletId) throws OutletNotFoundException;
+
+    public List<Outlet> retrieveAllOutlets();
     
 }
