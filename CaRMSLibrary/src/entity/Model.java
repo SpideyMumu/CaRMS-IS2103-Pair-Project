@@ -75,6 +75,7 @@ public class Model implements Serializable {
     }
 
     public CarCategory getCarCategory() {
+        this.carCategory.getRentalRates().size();
         return carCategory;
     }
 

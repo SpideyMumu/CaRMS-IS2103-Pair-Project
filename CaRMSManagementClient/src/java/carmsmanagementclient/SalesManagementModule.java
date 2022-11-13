@@ -242,7 +242,7 @@ public class SalesManagementModule {
             } else {
                 showInputDataValidationErrorsForModel(constraintViolations);
             }
-        } catch (CreateNewModelException | CarCategoryNotFoundException | ModelNameExistException | UnknownPersistenceException  ex) {
+        } catch (CreateNewModelException | CarCategoryNotFoundException | ModelNameExistException | UnknownPersistenceException | InputDataValidationException  ex) {
             System.out.println("Invalid input! " + ex.getMessage());
         }
     }

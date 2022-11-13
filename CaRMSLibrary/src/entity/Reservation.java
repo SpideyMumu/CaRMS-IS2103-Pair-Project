@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -85,12 +86,10 @@ public class Reservation implements Serializable {
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
     @NotNull
-    private RentalRate rentalRate;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(nullable = false)
-    @NotNull
     private CarCategory carCategory;
+    
+    @ManyToMany
+    private List<RentalRate> rentalRates;
     
     @ManyToOne(optional = true)
     @JoinColumn(nullable = true)

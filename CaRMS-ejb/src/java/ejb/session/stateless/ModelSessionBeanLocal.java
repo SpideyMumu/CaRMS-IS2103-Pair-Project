@@ -25,7 +25,7 @@ public interface ModelSessionBeanLocal {
 
     public Long createNewModel(Model newModel) throws ModelNameExistException, UnknownPersistenceException, InputDataValidationException;
 
-    public Long createNewModel(Long carCategoryId, Model model) throws ModelNameExistException, CreateNewModelException, UnknownPersistenceException;
+    public Long createNewModel(Long carCategoryId, Model model) throws ModelNameExistException, CreateNewModelException, UnknownPersistenceException, InputDataValidationException;
 
     public Model retrieveModelById(Long modelId) throws ModelNotFoundException;
 

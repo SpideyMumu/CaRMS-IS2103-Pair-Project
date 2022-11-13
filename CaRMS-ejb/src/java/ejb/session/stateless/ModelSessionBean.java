@@ -78,16 +78,17 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
     }
 
     @Override
-    public Long createNewModel(Long carCategoryId, Model model) throws ModelNameExistException, CreateNewModelException, UnknownPersistenceException {
-        try {
-            CarCategory carCategory = carCategorySessionBean.retrieveCategoryById(carCategoryId);
-            model.setCarCategory(carCategory);
-            carCategory.getModels().add(model);
-
+    public Long createNewModel(Long carCategoryId, Model model) throws ModelNameExistException, CreateNewModelException, UnknownPersistenceException, InputDataValidationException {
+        Set<ConstraintViolation<Model>> constraintViolations = validator.validate(model);
+        if (constraintViolations.isEmpty()) {
             try {
+                CarCategory carCategory = carCategorySessionBean.retrieveCategoryById(carCategoryId);
+                model.setCarCategory(carCategory);
+                carCategory.getModels().add(model);
                 em.persist(model);
                 em.flush();
                 return model.getModelId();
+
             } catch (PersistenceException ex) {
                 if (ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
                     if (ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
@@ -98,10 +99,11 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
                 } else {
                     throw new UnknownPersistenceException(ex.getMessage());
                 }
+            } catch (CarCategoryNotFoundException ex) {
+                throw new CreateNewModelException(ex.getMessage());
             }
-
-        } catch (CarCategoryNotFoundException ex) {
-            throw new CreateNewModelException(ex.getMessage());
+        } else {
+            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
     }
 

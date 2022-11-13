@@ -38,7 +38,7 @@ public class CarCategory implements Serializable {
     @OneToMany(mappedBy = "carCategory")
     private List<Model> models;
 
-    @OneToMany(mappedBy = "carCategory", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "carCategory")
     private List<RentalRate> rentalRates;
 
     public CarCategory() {

@@ -74,7 +74,7 @@ public class RentalRate implements Serializable {
     @NotNull
     private CarCategory carCategory;
     
-    @OneToMany (mappedBy = "rentalRate")
+    @ManyToMany (mappedBy = "rentalRates")
     private List<Reservation> reservations;
     
     public RentalRate() {
