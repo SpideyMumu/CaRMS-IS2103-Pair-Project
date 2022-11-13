@@ -52,7 +52,9 @@ public class TransitDriverDispatch implements Serializable {
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
     private Car transitCar;
-    
+
+    public TransitDriverDispatch() {
+    }
     
     
     public Outlet getOriginOutlet() {
