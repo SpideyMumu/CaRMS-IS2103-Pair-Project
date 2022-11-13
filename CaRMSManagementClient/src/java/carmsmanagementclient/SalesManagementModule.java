@@ -515,6 +515,7 @@ public class SalesManagementModule {
                             } else {
                                 showInputDataValidationErrorsForCar(constraintViolationsForLicensePlate);
                             }
+                            break;
                         case 1: // change color
                             System.out.print("Enter new color> ");
                             String color = sc.nextLine();

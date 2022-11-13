@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -37,7 +38,7 @@ public class CarCategory implements Serializable {
     @OneToMany(mappedBy = "carCategory")
     private List<Model> models;
 
-    @OneToMany(mappedBy = "carCategory")
+    @OneToMany(mappedBy = "carCategory", fetch = FetchType.EAGER)
     private List<RentalRate> rentalRates;
 
     public CarCategory() {

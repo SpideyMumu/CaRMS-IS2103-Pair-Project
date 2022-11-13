@@ -37,7 +37,7 @@ public class Outlet implements Serializable {
     @NotNull
     private String outletName;
 
-    @Column
+    @Column (length = 64)
     private String address;
 
     @Column

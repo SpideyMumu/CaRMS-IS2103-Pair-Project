@@ -102,7 +102,8 @@ public class MainApp {
                 System.out.print("> ");
 
                 response = scanner.nextInt();
-
+                scanner.nextLine();
+                
                 if (response == 1) {
                     try {
                         doLogin();
@@ -119,6 +120,7 @@ public class MainApp {
                     if (scanner.nextLine().trim().equals("y")) {
                         try {
                             doLogin();
+                            menuMain();
                         } catch (InvalidLoginCredentialException ex ) {
                             System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
                         }
@@ -163,11 +165,11 @@ public class MainApp {
 
         System.out.println("*** CaRMS Reservation System :: Register as customer *** \n");
 
-        System.out.println("Enter mobile number>");
+        System.out.print("Enter mobile number>");
         customer.setMobileNumber(scanner.nextLine().trim());
-        System.out.println("Enter full name>");
+        System.out.print("Enter full name>");
         customer.setFullName(scanner.nextLine().trim());
-        System.out.println("Enter password for account> ");
+        System.out.print("Enter password for account> ");
         customer.setPassword(scanner.nextLine().trim());
         Set<ConstraintViolation<CarRentalCustomer>> constraintViolations = validator.validate(customer);
         if (constraintViolations.isEmpty()) {
@@ -300,6 +302,7 @@ public class MainApp {
     private void doReserveCar() throws ParseException {
         Scanner scanner = new Scanner(System.in);
         Reservation reservation = new Reservation();
+        reservation.setCustomer(carRentalCustomer);
 
         try {
             System.out.println("*** CaRMS Reservation System :: Reserve Car ***\n");
@@ -329,12 +332,14 @@ public class MainApp {
             String pickupOutletName = scanner.nextLine().trim();
 
             Outlet pickupOutlet = outletSessionBeanRemote.retrieveOutletByOutletName(pickupOutletName);
+            reservation.setPickUpLocation(pickupOutlet);
             Long pickupOutletId = pickupOutlet.getOutletId();
 
             System.out.println("Enter your preferred return outlet name>");
             String returnOutletName = scanner.nextLine().trim();
 
             Outlet returnOutlet = outletSessionBeanRemote.retrieveOutletByOutletName(returnOutletName);
+            reservation.setReturnLocation(returnOutlet);
             Long returnOutletId = returnOutlet.getOutletId();
 
             HashMap<Model, Integer> searchResult = carSessionBeanRemote.searchCar(searchStartDate, pickupOutletName, searchEndDate, returnOutletName);
@@ -363,6 +368,7 @@ public class MainApp {
                     System.out.println("Enter your preferred car category>");
                     carCategory = scanner.nextLine().trim();
                     category = carCategorySessionBeanRemote.retrieveCarCategoryByName(carCategory);
+                    reservation.setCarCategory(category);
                     categoryId = category.getCategoryId();
                     if (!listOfCategoriesAvailable.contains(category)) {
                         System.out.println("Car Category " + carCategory + " is not available for reservation!");
@@ -426,18 +432,18 @@ public class MainApp {
 
         System.out.println("*** CaRMS Reservation System :: Search Car ***\n");
         System.out.println();
-        System.out.println("Enter your preferred start date in the format dd/MM/yyyy, e.g. 25/12/2021>");
+        System.out.print("Enter your preferred start date in the format dd/MM/yyyy, e.g. 25/12/2021>");
         String startDate = scanner.nextLine().trim();
-        System.out.println("Enter your preferred start time in the format HH:mm, e.g. 12:05>");
+        System.out.print("Enter your preferred start time in the format HH:mm, e.g. 12:05>");
         String startTime = scanner.nextLine().trim();
         String startDateTime = startDate + " " + startTime;
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         Date searchStartDate = formatter.parse(startDateTime);
 
-        System.out.println("Enter your preferred end date in the format dd/MM/yyyy, e.g. 25/12/2021>");
+        System.out.print("Enter your preferred end date in the format dd/MM/yyyy, e.g. 25/12/2021>");
         String endDate = scanner.nextLine().trim();
-        System.out.println("Enter your preferred end time in the format HH:mm, e.g. 12:05>");
+        System.out.print("Enter your preferred end time in the format HH:mm, e.g. 12:05>");
         String endTime = scanner.nextLine().trim();
         String endDateTime = endDate + " " + endTime;
 
@@ -478,7 +484,7 @@ public class MainApp {
                     Model model = map.getKey();
                     int num = map.getValue();
                     if (model.getCarCategory().equals(carCategory) && num > 0) {
-                        System.out.println(model.getModelName());
+                        System.out.println(model.getMakeName() + " "+ model.getModelName());
                     }
                 }
             }

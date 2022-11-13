@@ -113,7 +113,7 @@ public class DataInitSessionBean {
 
         Outlet outletC = new Outlet();
         outletC.setOutletName("Outlet C");
-        outletC.setOpeningHour(formatter.parse("10:00"));
+        outletC.setOpeningHour(formatter.parse("08:00"));
         outletC.setClosingHour(formatter.parse("22:00"));
 
         Long outletAId = outletSessionBean.createNewOutlet(outletA);

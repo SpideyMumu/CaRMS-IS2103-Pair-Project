@@ -64,8 +64,7 @@ public class Reservation implements Serializable {
     private BigDecimal totalAmountChargeable;
 
     @ManyToOne(optional = false)
-    @JoinColumn(nullable = false)
-    @NotNull
+    @JoinColumn(nullable = true)
     private Car car;
 
     @ManyToOne(optional = false)
