@@ -11,11 +11,15 @@ import entity.Model;
 import entity.Outlet;
 import entity.Reservation;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.CarNotFoundException;
 import util.exception.CarLicensePlateNumExistException;
 import util.exception.CreateNewCarException;
+import util.exception.InputDataValidationException;
+import util.exception.InvalidSearchCarConditionException;
+import util.exception.OutletNotFoundException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateCarException;
 
@@ -32,7 +36,7 @@ public interface CarSessionBeanRemote {
 
     public List<Car> retrieveAllCars();
 
-    public Long createNewCar(Car newCar) throws CarLicensePlateNumExistException, UnknownPersistenceException;
+    public Long createNewCar(Car newCar)throws CarLicensePlateNumExistException, UnknownPersistenceException, InputDataValidationException;
 
     public Car retrieveCarById(Long carId) throws CarNotFoundException;
 
@@ -41,18 +45,14 @@ public interface CarSessionBeanRemote {
     public Long createNewCar(Long modelId, Long outletId, Car newCar) throws CarLicensePlateNumExistException, UnknownPersistenceException, CreateNewCarException;
 
     public List<Car> retrieveAvailableCars();
-
+    
     public List<Car> retrieveDisabledCars();
 
     public List<Car> retrieveInTransitCars();
 
-    public List<Car> retrieveInOutletCars();
-
     public List<Car> retrieveInRepairCars();
 
     public List<Car> retrieveCarsByOutletName(String outletName);
-
-    public List<Car> searchCar(Date pickupDate, String pickupOutlet, Date returnDate, String returnOutlet);
 
     public List<Car> retrieveAvailableCarsByModelAndOutlet(Model model, Outlet outlet);
 
@@ -62,4 +62,6 @@ public interface CarSessionBeanRemote {
 
     public List<Car> getCarsForReservationFromOtherOutlets(Reservation reservation);
 
+    public HashMap<Model, Integer> searchCar(Date pickupDate, String pickupOutlet, Date returnDate, String returnOutlet) throws OutletNotFoundException, InvalidSearchCarConditionException;
+    
 }

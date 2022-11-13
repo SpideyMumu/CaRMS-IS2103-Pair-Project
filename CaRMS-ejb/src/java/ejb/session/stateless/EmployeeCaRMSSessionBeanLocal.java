@@ -12,6 +12,7 @@ import javax.ejb.Local;
 import util.exception.CreateNewEmployeeException;
 import util.exception.EmployeeNotFoundException;
 import util.exception.EmployeeUsernameExistException;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.UnknownPersistenceException;
 
@@ -23,10 +24,10 @@ import util.exception.UnknownPersistenceException;
 public interface EmployeeCaRMSSessionBeanLocal {
 
     public Employee retrieveEmployeeById(Long employeeId) throws EmployeeNotFoundException;
-    
-    public Long createNewEmployee(Long outletId, Employee employee) throws CreateNewEmployeeException;
 
-    public Long createNewEmployee(Employee newEmployee) throws EmployeeUsernameExistException, UnknownPersistenceException;
+    public Long createNewEmployee(Long outletId, Employee employee) throws CreateNewEmployeeException, EmployeeUsernameExistException, UnknownPersistenceException;
+
+    public Long createNewEmployee(Employee newEmployee) throws EmployeeUsernameExistException, UnknownPersistenceException, InputDataValidationException;
 
     public void updateEmployee(Employee employee);
 
@@ -35,7 +36,7 @@ public interface EmployeeCaRMSSessionBeanLocal {
     public Employee retrieveEmployeeByUserName(String username) throws EmployeeNotFoundException;
 
     public List<Employee> retrieveAllEmployees();
-    
+
     public Employee employeeLogin(String username, String password) throws InvalidLoginCredentialException;
 
     public List<Employee> retrieveEmployeesFromOutlet(Outlet outlet);

@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Car;
+import entity.CarCategory;
 import entity.CarRentalCustomer;
 import entity.Employee;
 import entity.Outlet;
@@ -13,6 +14,7 @@ import entity.Reservation;
 import entity.TransitDriverDispatch;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -20,10 +22,16 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import util.enumeration.CarStatus;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import util.exception.CarCategoryNotFoundException;
 import util.exception.CarNotFoundException;
 import util.exception.CreateReservationException;
 import util.exception.CreateTransitDriverDispatchException;
 import util.exception.CustomerNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.OutletNotFoundException;
 import util.exception.ReservationNotFoundException;
 
@@ -33,6 +41,9 @@ import util.exception.ReservationNotFoundException;
  */
 @Stateless
 public class ReservationSessionBean implements ReservationSessionBeanRemote, ReservationSessionBeanLocal {
+
+    @EJB(name = "CarCategorySessionBeanLocal")
+    private CarCategorySessionBeanLocal carCategorySessionBeanLocal;
 
     @EJB
     private EmployeeCaRMSSessionBeanLocal employeeCaRMSSessionBean;
@@ -44,7 +55,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     private CarRentalCustomerSessionBeanLocal carRentalCustomerSessionBean;
 
     @EJB
-    private CustomerSesionBeanLocal customerSessionBeanLocal;
+    private CustomerSessionBeanLocal customerSessionBeanLocal;
 
     @EJB(name = "OutletSessionBeanLocal")
     private OutletSessionBeanLocal outletSessionBeanLocal;
@@ -55,39 +66,53 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     @PersistenceContext(unitName = "CaRMS-ejbPU")
     private EntityManager em;
 
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+
+    public ReservationSessionBean() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
+
     @Override
-    public Reservation createNewReservation(Long carId, Long pickupOutletId, Long returnOutletId, Long customerId, Reservation newReservation) throws CreateReservationException {
-        if (newReservation != null) {
-            try {
-                Car car = carSessionBeanLocal.retrieveCarById(carId);
-                newReservation.setCar(car);
-                car.getReservations().add(newReservation);
+    public Long createNewReservation(Long carCategoryId, Long pickupOutletId, Long returnOutletId, Long customerId, Reservation newReservation) throws CreateReservationException, CarCategoryNotFoundException, OutletNotFoundException, CustomerNotFoundException, InputDataValidationException {
 
-                Outlet pickupOutlet = outletSessionBeanLocal.retrieveOutletById(pickupOutletId);
-                newReservation.setPickUpLocation(pickupOutlet);
+        Set<ConstraintViolation<Reservation>> constraintViolations = validator.validate(newReservation);
 
-                Outlet returnOutlet = outletSessionBeanLocal.retrieveOutletById(returnOutletId);
-                newReservation.setReturnLocation(returnOutlet);
+        if (constraintViolations.isEmpty()) {
+            if (newReservation != null) {
+                try {
+                    CarCategory carCategory = carCategorySessionBeanLocal.retrieveCategoryById(carCategoryId);
+                    newReservation.setCarCategory(carCategory);
 
-                CarRentalCustomer customer = carRentalCustomerSessionBean.retrieveCarRentalCustomerById(customerId);
-                newReservation.setCustomer(customer);
+                    Outlet pickupOutlet = outletSessionBeanLocal.retrieveOutletById(pickupOutletId);
+                    newReservation.setPickUpLocation(pickupOutlet);
 
-                em.persist(newReservation);
+                    Outlet returnOutlet = outletSessionBeanLocal.retrieveOutletById(returnOutletId);
+                    newReservation.setReturnLocation(returnOutlet);
 
-                if (customer instanceof CarRentalCustomer) {
-                    CarRentalCustomer carRentalCustomer = (CarRentalCustomer) customer;
-                    carRentalCustomer.getReservations().add(newReservation);
+                    CarRentalCustomer customer = carRentalCustomerSessionBean.retrieveCarRentalCustomerById(customerId);
+                    newReservation.setCustomer(customer);
+
+                    em.persist(newReservation);
+
+                    if (customer instanceof CarRentalCustomer) {
+                        CarRentalCustomer carRentalCustomer = (CarRentalCustomer) customer;
+                        carRentalCustomer.getReservations().add(newReservation);
+                    }
+
+                    em.flush();
+
+                    return newReservation.getReservationId();
+
+                } catch (CarCategoryNotFoundException | OutletNotFoundException | CustomerNotFoundException ex) {
+                    throw new CreateReservationException(ex.getMessage());
                 }
-
-                em.flush();
-
-                return newReservation;
-
-            } catch (CarNotFoundException | OutletNotFoundException | CustomerNotFoundException ex) {
-                throw new CreateReservationException(ex.getMessage());
+            } else {
+                throw new CreateReservationException("Reservation information not provided");
             }
         } else {
-            throw new CreateReservationException("Reservation information not provided");
+            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
     }
 
@@ -105,28 +130,8 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         return query.getResultList();
     }
 
+    @Override
     public void updateReservation(Reservation reservation) {
-        /*if(productEntity != null && productEntity.getProductId()!= null)
-        {
-            ProductEntity productEntityToUpdate = retrieveProductByProductId(productEntity.getProductId());
-            
-            if(productEntityToUpdate.getSkuCode().equals(productEntity.getSkuCode()))
-            {
-                productEntityToUpdate.setName(productEntity.getName());
-                productEntityToUpdate.setDescription(productEntity.getDescription());
-                productEntityToUpdate.setQuantityOnHand(productEntity.getQuantityOnHand());
-                productEntityToUpdate.setUnitPrice(productEntity.getUnitPrice());
-                productEntityToUpdate.setCategory(productEntity.getCategory());
-            }
-            else
-            {
-                throw new UpdateProductException("SKU Code of product record to be updated does not match the existing record");
-            }
-        }
-        else
-        {
-            throw new ProductNotFoundException("Product ID not provided for product to be updated");
-        }*/
         em.merge(reservation);
     }
 
@@ -134,6 +139,16 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     public void deleteReservation(Long reservationId) throws ReservationNotFoundException {
         Reservation reservation = retrieveReservationById(reservationId);
         em.remove(reservation);
+    }
+
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Reservation>> constraintViolations) {
+        String msg = "Input data validation error!:";
+
+        for (ConstraintViolation constraintViolation : constraintViolations) {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+
+        return msg;
     }
 
     @Override
@@ -145,7 +160,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     }
 
     @Override
-    public void allocateCarToReservation(Reservation reservation, Date date) throws CarNotFoundException, CreateTransitDriverDispatchException {
+    public void allocateCarToReservation(Reservation reservation, Date date) throws CarNotFoundException, CreateTransitDriverDispatchException, InputDataValidationException {
         List<Car> availCarsForReservation = carSessionBeanLocal.getCarsForReservationForPickupOutlet(reservation);
         List<Car> availCarsForReservationFromOtherOutlets = carSessionBeanLocal.getCarsForReservationFromOtherOutlets(reservation);
         if (!availCarsForReservation.isEmpty()) {//there are available cars in the outlet fo this reservation
@@ -163,10 +178,16 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             //add to 2hrs to date
             Date endDate = new Date(date.getYear(), date.getMonth(), date.getDate(), date.getHours() + 2, date.getMinutes(), date.getSeconds());
             dispatch.setTransitEndDate(endDate);
-            
+
+            //associate
+            dispatch.setTransitCar(car);
+            dispatch.setOriginOutlet(car.getOutlet());
+            dispatch.setReturnOutlet(reservation.getPickUpLocation());
+
             //get employee
-            List<Employee> possibleDrivers =employeeCaRMSSessionBean.retrieveEmployeesFromOutlet(car.getOutlet());
-            transitDriverDispatchSessionBean.createNewTransitDriverDispatch(car.getCarId(), car.getOutlet().getOutletId(), reservation.getPickUpLocation().getOutletId(),possibleDrivers.get(0).getEmployeeId() , dispatch);
+            List<Employee> possibleDrivers = employeeCaRMSSessionBean.retrieveEmployeesFromOutlet(car.getOutlet());
+            dispatch.setDriver(possibleDrivers.get(0));
+            transitDriverDispatchSessionBean.createNewTransitDriverDispatch(car.getCarId(), car.getOutlet().getOutletId(), reservation.getPickUpLocation().getOutletId(), possibleDrivers.get(0).getEmployeeId(), dispatch);
         } else {
             throw new CarNotFoundException("No cars available for this reservation!");
         }

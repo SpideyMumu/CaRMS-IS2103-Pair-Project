@@ -30,7 +30,7 @@ public class Model implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long modelId;
-
+    
     @Column
     @NotNull
     private boolean enabled;

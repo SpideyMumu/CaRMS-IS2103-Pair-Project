@@ -6,9 +6,16 @@
 package ejb.session.stateless;
 
 import entity.CarCategory;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.CarCategoryNameExistException;
 import util.exception.CarCategoryNotFoundException;
+import util.exception.InputDataValidationException;
+import util.exception.RentalRateNotAvailableException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -17,10 +24,15 @@ import util.exception.CarCategoryNotFoundException;
 @Remote
 public interface CarCategorySessionBeanRemote {
 
-    public Long createNewCategory(CarCategory newCarCategory);
+    public Long createNewCategory(CarCategory newCarCategory) throws CarCategoryNameExistException, UnknownPersistenceException, InputDataValidationException;
 
     public CarCategory retrieveCategoryById(Long carCategoryId) throws CarCategoryNotFoundException;
-
-    public List<CarCategory> retrieveAllCarCategories();
     
+    public HashMap<CarCategory, Integer> retrieveQuantityOfCarsForEachCategory();
+    
+    public HashMap<CarCategory, BigDecimal> calculatePrevailingRentalFeeForEachCategories(List<CarCategory> list, Date pickupDate, Date returnDate) throws RentalRateNotAvailableException;
+    
+    public List<CarCategory> retrieveAllCategories();
+
+    public CarCategory retrieveCarCategoryByName(String name);
 }

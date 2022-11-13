@@ -55,6 +55,8 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.exception.InputDataValidationException;
+import util.exception.ModelNameExistException;
 
 /**
  *
@@ -217,7 +219,7 @@ public class SalesManagementModule {
         newModel.setModelName(modelName);
 
         //Ask which car category it would be in
-        List<CarCategory> carCategories = carCategorySessionBean.retrieveAllCarCategories();
+        List<CarCategory> carCategories = carCategorySessionBean.retrieveAllCategories();
         System.out.println("All Car Cateogries: \n");
         for (CarCategory carCategory : carCategories) {
             System.out.println("Name: " + carCategory.getCategoryName());
@@ -237,11 +239,10 @@ public class SalesManagementModule {
             if (constraintViolations.isEmpty()) {
                 Long modelId = modelSessionBean.createNewModel(selection, newModel);
                 System.out.println("Succesully created new Model! ModelID is " + modelId + ". Model " + makeName + " " + modelName + ".");
-
             } else {
                 showInputDataValidationErrorsForModel(constraintViolations);
             }
-        } catch (CreateNewModelException | CarCategoryNotFoundException ex) {
+        } catch (CreateNewModelException | CarCategoryNotFoundException | ModelNameExistException | UnknownPersistenceException  ex) {
             System.out.println("Invalid input! " + ex.getMessage());
         }
     }
@@ -929,7 +930,7 @@ public class SalesManagementModule {
             try {
                 rentalRateSessionBean.createNewRentalRate(selection, newRentalRate);
                 System.out.println("Successfully created new rental rate!");
-            } catch (CreateNewRentalRateException | CarCategoryNotFoundException ex) {
+            } catch (CreateNewRentalRateException | CarCategoryNotFoundException | InputDataValidationException ex) {
                 System.out.println("Creating operation failed! " + ex.getMessage());
             }
         } else {

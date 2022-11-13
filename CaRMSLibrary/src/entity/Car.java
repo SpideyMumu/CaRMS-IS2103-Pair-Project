@@ -33,7 +33,6 @@ public class Car implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long carId;
-    
     @Column (unique = true, nullable = false, length = 22)
     @NotNull
     @Size (min = 8, max = 8)
@@ -49,6 +48,7 @@ public class Car implements Serializable {
     private Model model;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     @NotNull
     private CarStatus status;
 
@@ -60,7 +60,6 @@ public class Car implements Serializable {
 
     @OneToMany(mappedBy="car")
     private List<Reservation> reservations;
-    
     
     public Car() {
         this.reservations = new ArrayList<>();
@@ -132,7 +131,7 @@ public class Car implements Serializable {
     public void setCarId(Long carId) {
         this.carId = carId;
     }
-
+    
     @Override
     public int hashCode() {
         int hash = 0;

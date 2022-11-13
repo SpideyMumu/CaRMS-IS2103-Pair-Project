@@ -6,11 +6,15 @@
 package ejb.session.stateless;
 
 import entity.Model;
+import java.util.HashMap;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.CreateNewModelException;
 import util.exception.ModelNotFoundException;
 import util.exception.UpdateModelException;
+import util.exception.InputDataValidationException;
+import util.exception.ModelNameExistException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -18,11 +22,11 @@ import util.exception.UpdateModelException;
  */
 @Local
 public interface ModelSessionBeanLocal {
-   
-    public Long createNewModel(Model newModel);
 
-    public Long createNewModel(Long carCategoryId, Model model) throws CreateNewModelException;
-    
+    public Long createNewModel(Model newModel) throws ModelNameExistException, UnknownPersistenceException, InputDataValidationException;
+
+    public Long createNewModel(Long carCategoryId, Model model) throws ModelNameExistException, CreateNewModelException, UnknownPersistenceException;
+
     public Model retrieveModelById(Long modelId) throws ModelNotFoundException;
 
     public List<Model> retrieveAllModels();
@@ -30,5 +34,9 @@ public interface ModelSessionBeanLocal {
     public void updateModel(Model model) throws UpdateModelException;
 
     public void deleteModel(Long modelId) throws ModelNotFoundException;
+
+    public HashMap<Model, Integer> retrieveQuantityOfCarsForEachModel();
+
+    public Model retrieveModelByName(String name);
 
 }

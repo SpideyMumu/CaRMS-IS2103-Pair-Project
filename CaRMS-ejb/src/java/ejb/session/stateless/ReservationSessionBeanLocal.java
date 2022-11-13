@@ -15,6 +15,9 @@ import util.exception.CarNotFoundException;
 import util.exception.CreateNewRentalRateException;
 import util.exception.CreateReservationException;
 import util.exception.CreateTransitDriverDispatchException;
+import util.exception.CustomerNotFoundException;
+import util.exception.InputDataValidationException;
+import util.exception.OutletNotFoundException;
 import util.exception.ReservationNotFoundException;
 
 /**
@@ -24,7 +27,7 @@ import util.exception.ReservationNotFoundException;
 @Local
 public interface ReservationSessionBeanLocal {
 
-    public Reservation createNewReservation(Long carId, Long pickupOutletId, Long returnOutletId, Long customerId, Reservation newReservation) throws CreateReservationException;
+    public Long createNewReservation(Long carCategoryId, Long pickupOutletId, Long returnOutletId, Long customerId, Reservation newReservation) throws CreateReservationException, CarCategoryNotFoundException, OutletNotFoundException, CustomerNotFoundException, InputDataValidationException;
 
     public Reservation retrieveReservationById(Long reservationId) throws ReservationNotFoundException;
 
@@ -36,6 +39,6 @@ public interface ReservationSessionBeanLocal {
 
     public List<Reservation> retrieveReservationsByDates(Date startDate, Date endDate);
 
-    public void allocateCarToReservation(Reservation reservation, Date date) throws CarNotFoundException, CreateTransitDriverDispatchException;
+    public void allocateCarToReservation(Reservation reservation, Date date) throws CarNotFoundException, CreateTransitDriverDispatchException, InputDataValidationException;
 
 }

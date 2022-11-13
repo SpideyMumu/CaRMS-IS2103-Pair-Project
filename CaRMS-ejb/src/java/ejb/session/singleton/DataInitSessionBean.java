@@ -43,6 +43,10 @@ import util.exception.OutletNotFoundException;
 import util.exception.EmployeeNotFoundException;
 import util.exception.EmployeeUsernameExistException;
 import ejb.session.stateless.EmployeeCaRMSSessionBeanLocal;
+import util.exception.CarCategoryNameExistException;
+import util.exception.InputDataValidationException;
+import util.exception.ModelNameExistException;
+import util.exception.OutletNameExistException;
 
 /**
  *
@@ -84,7 +88,9 @@ public class DataInitSessionBean {
                 initializeData();
             } catch (OutletNotFoundException | ParseException | CarCategoryNotFoundException | EmployeeNotFoundException | ModelNotFoundException
                     | CarNotFoundException | CarLicensePlateNumExistException | UnknownPersistenceException
-                    | CreateNewRentalRateException | CreateNewEmployeeException | CreateNewModelException | CreateNewCarException ex2) {
+                    | CreateNewRentalRateException | CreateNewEmployeeException | CreateNewModelException | CreateNewCarException
+                    | OutletNameExistException | InputDataValidationException | EmployeeUsernameExistException | CarCategoryNameExistException
+                    | ModelNameExistException ex2) {
                 ex.printStackTrace();
             }
         }
@@ -92,8 +98,9 @@ public class DataInitSessionBean {
 
     private void initializeData()
             throws OutletNotFoundException, ParseException, CarCategoryNotFoundException, EmployeeNotFoundException, ModelNotFoundException,
-            CarNotFoundException, CarLicensePlateNumExistException, UnknownPersistenceException, CreateNewRentalRateException,
-            CreateNewEmployeeException, CreateNewModelException, CreateNewCarException {
+            CarNotFoundException, CarLicensePlateNumExistException, UnknownPersistenceException, CreateNewRentalRateException, CreateNewEmployeeException,
+            CreateNewModelException, CreateNewCarException, OutletNameExistException, InputDataValidationException, EmployeeUsernameExistException, CarCategoryNameExistException,
+            ModelNameExistException {
 
         //Outlets:
         SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");

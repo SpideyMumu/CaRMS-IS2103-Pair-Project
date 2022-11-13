@@ -88,6 +88,27 @@ public class Reservation implements Serializable {
     @NotNull
     private RentalRate rentalRate;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
+    @NotNull
+    private CarCategory carCategory;
+    
+    @ManyToOne(optional = true)
+    @JoinColumn(nullable = true)
+    private Model carModel;
+    
+    @Column(nullable = false)
+    @NotNull
+    private Boolean isCancelled;
+    
+    @Column(nullable = false)
+    private Boolean payOnPickup;
+
+    public Reservation() {
+        this.isCancelled = false;
+        this.payOnPickup = false;
+    }
+    
     public Long getReservationId() {
         return reservationId;
     }
@@ -119,6 +140,15 @@ public class Reservation implements Serializable {
     public void setPickUpLocation(Outlet pickUpLocation) {
         this.pickUpLocation = pickUpLocation;
     }
+
+    public Boolean getPayOnPickup() {
+        return payOnPickup;
+    }
+
+    public void setPayOnPickup(Boolean payOnPickup) {
+        this.payOnPickup = payOnPickup;
+    }
+
 
     public Car getCar() {
         return car;
@@ -178,12 +208,28 @@ public class Reservation implements Serializable {
         this.startDate = startDate;
     }
 
-    public RentalRate getRentalRate() {
-        return rentalRate;
+    public Model getCarModel() {
+        return carModel;
     }
 
-    public void setRentalRate(RentalRate rentalRate) {
-        this.rentalRate = rentalRate;
+    public void setCarModel(Model carModel) {
+        this.carModel = carModel;
+    }
+
+    public CarCategory getCarCategory() {
+        return carCategory;
+    }
+    
+    public void setCarCategory(CarCategory carCategory) {
+        this.carCategory = carCategory;
+    }
+
+    public Boolean isCancelled() {
+        return isCancelled;
+    }
+
+    public void setIsCancelled(Boolean isCancelled) {
+        this.isCancelled = isCancelled;
     }
 
     @Override

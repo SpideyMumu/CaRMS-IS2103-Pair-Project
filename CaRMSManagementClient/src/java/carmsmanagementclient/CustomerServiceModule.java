@@ -7,7 +7,7 @@ package carmsmanagementclient;
 
 import ejb.session.stateless.CarCategorySessionBeanRemote;
 import ejb.session.stateless.CarSessionBeanRemote;
-import ejb.session.stateless.CustomerSesionBeanRemote;
+import ejb.session.stateless.CustomerSessionBeanRemote;
 import ejb.session.stateless.ModelSessionBeanRemote;
 import ejb.session.stateless.OutletSessionBeanRemote;
 import entity.Employee;
@@ -26,6 +26,7 @@ import entity.RentalRate;
 import util.enumeration.CarStatus;
 import util.exception.CarNotFoundException;
 import util.exception.UpdateCarException;
+
 /**
  *
  * @author muhdm
@@ -44,7 +45,6 @@ public class CustomerServiceModule {
     //Session Beans
     private CarCategorySessionBeanRemote carCategorySessionBean;
     private RentalRateSessionBeanRemote rentalRateSessionBean;
-    //private CustomerSesionBeanRemote customerSesionBean;
     private CarSessionBeanRemote carSessionBean;
     private EmployeeCaRMSSessionBeanRemote employeeSessionBean;
     private OutletSessionBeanRemote outletSessionBean;

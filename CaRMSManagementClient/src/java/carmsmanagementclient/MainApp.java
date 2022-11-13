@@ -17,9 +17,6 @@ import util.exception.InvalidAccessRightException;
 import util.exception.InvalidLoginCredentialException;
 import ejb.session.stateless.EmployeeCaRMSSessionBeanRemote;
 import ejb.session.stateless.RentalRateSessionBeanRemote;
-import ejb.session.stateless.EmployeeCaRMSSessionBeanRemote;
-import ejb.session.stateless.EmployeeCaRMSSessionBeanRemote;
-import ejb.session.stateless.RentalRateSessionBeanRemote;
 import ejb.session.stateless.TransitDriverDispatchSessionBeanRemote;
 
 /**
@@ -51,7 +48,7 @@ public class MainApp {
 
     public MainApp() {
     }
-
+    
     public MainApp(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean,
             ModelSessionBeanRemote modelSessionBean, RentalRateSessionBeanRemote rentalRateSessionBean, TransitDriverDispatchSessionBeanRemote transitDriverDispatchSessionBean,EJBtimerSessionBeanRemote eJBtimerSessionBean) {
         this.carSessionBean = carSessionBean;

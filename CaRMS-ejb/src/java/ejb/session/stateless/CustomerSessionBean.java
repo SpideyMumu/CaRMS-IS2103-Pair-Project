@@ -6,7 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Customer;
-import entity.Partner;
+import entity.Reservation;
 import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -17,9 +17,8 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.CustomerMobilePhoneExistException;
+import util.exception.CustomerNotFoundException;
 import util.exception.InputDataValidationException;
-import util.exception.PartnerNotFoundException;
-import util.exception.PartnerUsernameExistException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -27,39 +26,35 @@ import util.exception.UnknownPersistenceException;
  * @author kathleen
  */
 @Stateless
-public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSessionBeanLocal {
+public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerSessionBeanLocal {
 
     @PersistenceContext(unitName = "CaRMS-ejbPU")
     private EntityManager em;
     
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
-    
-    
-    
-    public PartnerSessionBean()
+
+    public CustomerSessionBean()
     {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
     
-
     
     @Override
-    public Long createNewPartner(Partner newPartner) throws UnknownPersistenceException, PartnerUsernameExistException, InputDataValidationException
+    public Long createNewCustomer(Customer newCustomer) throws CustomerMobilePhoneExistException, UnknownPersistenceException, InputDataValidationException
     {
         
-        Set<ConstraintViolation<Partner>>constraintViolations = validator.validate(newPartner);
-        
+        Set<ConstraintViolation<Customer>>constraintViolations = validator.validate(newCustomer);
         
         if(constraintViolations.isEmpty())
         {
             try
             {
-                em.persist(newPartner);
+                em.persist(newCustomer);
                 em.flush();
 
-                return newPartner.getPartnerId();
+                return newCustomer.getCustomerId();
             }
             catch(PersistenceException ex)
             {
@@ -67,7 +62,7 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
                 {
                     if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
                     {
-                        throw new PartnerUsernameExistException();
+                        throw new CustomerMobilePhoneExistException();
                     }
                     else
                     {
@@ -87,32 +82,32 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
     }
     
     @Override
-    public Partner retrievePartnerById(Long partnerId) throws PartnerNotFoundException
+    public Customer retrieveCustomerById(Long customerId) throws CustomerNotFoundException
     {
-        
-        Partner partner = em.find(Partner.class, partnerId);
-        if (partner != null)
+        Customer customer = em.find(Customer.class, customerId);
+        if (customer != null)
         {
-            return partner;
-        } else {
-            throw new PartnerNotFoundException();
+            return customer;
+        } else
+        {
+            throw new CustomerNotFoundException();
         }
     }
     
     @Override
-    public void updatePartner(Partner partner)
+    public void updateCustomer(Customer customer)
     {
-        em.merge(partner);
+        em.merge(customer);
     }
     
     @Override
-    public void deletePartner(Long partnerId) throws PartnerNotFoundException
+    public void deleteCustomer(Long customerId) throws CustomerNotFoundException//throws StaffNotFoundException
     {
-        Partner partner = retrievePartnerById(partnerId);
-        em.remove(partner);
+       Customer customer = retrieveCustomerById(customerId);
+        em.remove(customer);
     }
-    
-    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Partner>>constraintViolations)
+
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Customer>>constraintViolations)
     {
         String msg = "Input data validation error!:";
             
@@ -124,3 +119,4 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
         return msg;
     }
 }
+

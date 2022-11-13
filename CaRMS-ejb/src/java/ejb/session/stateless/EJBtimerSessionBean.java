@@ -14,6 +14,7 @@ import javax.ejb.Schedule;
 import javax.ejb.Stateless;
 import util.exception.CarNotFoundException;
 import util.exception.CreateTransitDriverDispatchException;
+import util.exception.InputDataValidationException;
 import util.exception.ReservationNotFoundException;
 
 /**
@@ -60,7 +61,7 @@ public class EJBtimerSessionBean implements EJBtimerSessionBeanRemote, EJBtimerS
                         reservationSessionBean.allocateCarToReservation(reservation,date);
                     } catch (CarNotFoundException ex) {
                         throw new CarNotFoundException(ex.getMessage() + "for Reservation ID: " + reservation.getReservationId());
-                    } catch (CreateTransitDriverDispatchException ex) {
+                    } catch (CreateTransitDriverDispatchException | InputDataValidationException ex) {
                         throw new CreateTransitDriverDispatchException(ex.getMessage());
                     }
                 }
@@ -98,7 +99,7 @@ public class EJBtimerSessionBean implements EJBtimerSessionBeanRemote, EJBtimerS
                         reservationSessionBean.allocateCarToReservation(reservation, date);
                     } catch (CarNotFoundException ex) {
                         throw new CarNotFoundException(ex.getMessage() + "for Reservation ID: " + reservation.getReservationId());
-                    } catch (CreateTransitDriverDispatchException ex) {
+                    } catch (CreateTransitDriverDispatchException | InputDataValidationException ex) {
                         throw new CreateTransitDriverDispatchException(ex.getMessage());
                     }
                 }

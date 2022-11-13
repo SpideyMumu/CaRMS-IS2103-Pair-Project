@@ -35,7 +35,6 @@ public class CarRentalCustomer extends Customer implements Serializable {
     private List<Reservation> reservations;
 
     public CarRentalCustomer() {
-        
         super();
         this.reservations = new ArrayList<Reservation>();
     }
