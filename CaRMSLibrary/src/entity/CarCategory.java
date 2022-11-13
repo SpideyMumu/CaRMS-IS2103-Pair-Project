@@ -14,6 +14,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -26,14 +28,16 @@ public class CarCategory implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long categoryId;
-    
-    @Column (nullable = false, length = 22)
+
+    @Column(nullable = false, length = 22)
+    @Size(min = 1)
+    @NotNull
     private String categoryName;
-    
-    @OneToMany (mappedBy = "carCategory")
+
+    @OneToMany(mappedBy = "carCategory")
     private List<Model> models;
-    
-    @OneToMany(mappedBy="carCategory")
+
+    @OneToMany(mappedBy = "carCategory")
     private List<RentalRate> rentalRates;
 
     public CarCategory() {
@@ -46,7 +50,7 @@ public class CarCategory implements Serializable {
         this.models = models;
         this.rentalRates = rentalRates;
     }
-    
+
     public List<RentalRate> getRentalRates() {
         return rentalRates;
     }
@@ -55,13 +59,10 @@ public class CarCategory implements Serializable {
         this.rentalRates = rentalRates;
     }
 
-
     public CarCategory(String categoryName) {
         this.categoryName = categoryName;
         this.models = new ArrayList<Model>();
     }
-    
-    
 
     public String getCategoryName() {
         return categoryName;
@@ -111,5 +112,5 @@ public class CarCategory implements Serializable {
     public String toString() {
         return "entity.CarCategory[ id=" + categoryId + " ]";
     }
-    
+
 }

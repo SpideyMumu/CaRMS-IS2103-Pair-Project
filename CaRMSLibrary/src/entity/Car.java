@@ -18,6 +18,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import util.enumeration.CarStatus;
 
 /**
@@ -33,21 +35,27 @@ public class Car implements Serializable {
     private Long carId;
     
     @Column (unique = true, nullable = false, length = 22)
+    @NotNull
+    @Size (min = 8, max = 8)
     private String licensePlateNum;
     
     @Column (nullable = false, length = 22)
+    @NotNull
     private String color;
 
-    @ManyToOne //(optional = false)
-    @JoinColumn(name = "modelId") //, nullable = false)
+    @ManyToOne (optional = false)
+    @JoinColumn(name = "modelId" , nullable = false)
+    @NotNull
     private Model model;
 
     @Enumerated(EnumType.STRING)
+    @NotNull
     private CarStatus status;
 
     // Have to make all relationships mandatory
     @ManyToOne (optional = false)
     @JoinColumn(name = "outletId", nullable = false)
+    @NotNull
     private Outlet outlet;    
 
     @OneToMany(mappedBy="car")

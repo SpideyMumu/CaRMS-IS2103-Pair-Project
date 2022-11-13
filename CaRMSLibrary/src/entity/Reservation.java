@@ -19,6 +19,10 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.Future;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -31,39 +35,59 @@ public class Reservation implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservationId;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
+    @NotNull
+    @Future
     private Date startDate;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
+    @NotNull
+    @Future
     private Date endDate;
+
     @Column(nullable = false, unique = true, length = 22)
+    @NotNull
+    @Size(min = 22)
     private String creditCardNumber;
+
     @Column(nullable = false, unique = true, length = 4)
+    @NotNull
+    @Size(min = 3, max = 4)
     private String cvv;
+
     @Column(nullable = false, precision = 11, scale = 2)
+    @NotNull
+    @Digits(integer = 4, fraction = 2)
     private BigDecimal totalAmountChargeable;
-    
+
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
+    @NotNull
     private Car car;
-    
+
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
+    @NotNull
     private Outlet pickUpLocation;
-    
+
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
+    @NotNull
     private Outlet returnLocation;
-    
+
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
+    @NotNull
     private CarRentalCustomer carRentalCustomer;
-    
+
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
+    @NotNull
     private RentalRate rentalRate;
-    
+
     public Long getReservationId() {
         return reservationId;
     }
@@ -71,7 +95,7 @@ public class Reservation implements Serializable {
     public void setReservationId(Long reservationId) {
         this.reservationId = reservationId;
     }
-    
+
     public CarRentalCustomer getCustomer() {
         return carRentalCustomer;
     }
@@ -101,17 +125,14 @@ public class Reservation implements Serializable {
     }
 
     public void setCar(Car car) {
-        if(this.car != null)
-        {
+        if (this.car != null) {
             this.car.getReservations().remove(this);
         }
-        
+
         this.car = car;
-        
-        if(this.car != null)
-        {
-            if(!this.car.getReservations().contains(this))
-            {
+
+        if (this.car != null) {
+            if (!this.car.getReservations().contains(this)) {
                 this.car.getReservations().add(this);
             }
         }
@@ -165,7 +186,6 @@ public class Reservation implements Serializable {
         this.rentalRate = rentalRate;
     }
 
-
     @Override
     public int hashCode() {
         int hash = 0;
@@ -190,5 +210,5 @@ public class Reservation implements Serializable {
     public String toString() {
         return "entity.Reservation[ id=" + reservationId + " ]";
     }
-    
+
 }

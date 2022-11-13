@@ -15,26 +15,32 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
  * @author kathleen
  */
 @Entity
-@Inheritance(strategy= InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Customer implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long customerId;
-    
+
     @Column(nullable = false, unique = true, length = 8)
+    @NotNull
+    @Size(min = 8, max = 8)
     protected String mobileNumber;
-    
+
     @Column(nullable = false, length = 125)
+    @NotNull
+    @Size(min = 1, max = 125)
     private String fullName;
-    
+
     @ManyToOne(optional = false)
     private Partner partner;
 
@@ -45,7 +51,7 @@ public class Customer implements Serializable {
         this.mobileNumber = mobileNumber;
         this.partner = partner;
     }
- 
+
     public Partner getPartner() {
         return partner;
     }
@@ -69,7 +75,7 @@ public class Customer implements Serializable {
     public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
- 
+
     public String getFullName() {
         return fullName;
     }
@@ -102,5 +108,5 @@ public class Customer implements Serializable {
     public String toString() {
         return "entity.Customer[ id=" + customerId + " ]";
     }
-    
+
 }

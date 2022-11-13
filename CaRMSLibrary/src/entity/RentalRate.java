@@ -23,6 +23,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.Future;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import util.enumeration.RentalRateType;
 
 /**
@@ -36,28 +40,38 @@ public class RentalRate implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long rentalRateId;
+    
     @Column(nullable = false, length = 125, unique = true)
+    @NotNull
+    @Size(min = 1)
     private String name;
     
     @Enumerated (EnumType.STRING)
+    @NotNull
     private RentalRateType type;
     
     @Column(nullable = false, precision = 11, scale = 2)
+    @NotNull
+    @Digits(integer = 4, fraction = 2)
     private BigDecimal ratePerDay;
     
     @Column(nullable = false)
+    @NotNull
     private boolean enabled;
     
     @Temporal(TemporalType.TIMESTAMP)
     @Column
+    @Future
     private Date startDate;
     
     @Temporal(TemporalType.TIMESTAMP)
     @Column
+    @Future
     private Date endDate;
     
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
+    @NotNull
     private CarCategory carCategory;
     
     @OneToMany (mappedBy = "rentalRate")

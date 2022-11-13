@@ -16,6 +16,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -28,35 +29,40 @@ public class TransitDriverDispatch implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long transitId;
-    
+
     @ManyToOne(optional = false)
-    @JoinColumn (name = "originOutletId", nullable = false)
+    @JoinColumn(name = "originOutletId", nullable = false)
+    @NotNull
     private Outlet originOutlet;
-    
+
     @ManyToOne(optional = false)
-    @JoinColumn (name = "returnnOutletId", nullable = false)
+    @JoinColumn(name = "returnOutletId", nullable = false)
+    @NotNull
     private Outlet returnOutlet;
-    
+
     @ManyToOne(optional = false)
-    @JoinColumn (name = "driverEmployeeId", nullable = false)
+    @JoinColumn(name = "driverEmployeeId", nullable = false)
+    @NotNull
     private Employee driver;
-    
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
+    @NotNull
     private Date transitStartDate;
-    
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
+    @NotNull
     private Date transitEndDate;
-    
+
     @ManyToOne(optional = false)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "transitCarId", nullable = false)
+    @NotNull
     private Car transitCar;
 
     public TransitDriverDispatch() {
     }
-    
-    
+
     public Outlet getOriginOutlet() {
         return originOutlet;
     }
@@ -80,7 +86,7 @@ public class TransitDriverDispatch implements Serializable {
     public void setDriver(Employee driver) {
         this.driver = driver;
     }
-    
+
     public Car getTransitCar() {
         return transitCar;
     }
@@ -103,8 +109,8 @@ public class TransitDriverDispatch implements Serializable {
 
     public void setTransitStartDate(Date transitStartDate) {
         this.transitStartDate = transitStartDate;
-    }    
-    
+    }
+
     public Long getTransitId() {
         return transitId;
     }
@@ -137,5 +143,5 @@ public class TransitDriverDispatch implements Serializable {
     public String toString() {
         return "entity.TransitDriverDispatch[ id=" + transitId + " ]";
     }
-    
+
 }

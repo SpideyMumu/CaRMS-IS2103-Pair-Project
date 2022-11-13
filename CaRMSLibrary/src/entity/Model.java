@@ -16,6 +16,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -28,21 +30,27 @@ public class Model implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long modelId;
-    
+
     @Column
+    @NotNull
     private boolean enabled;
-    
-    @Column (nullable = false)
+
+    @Column(nullable = false)
+    @NotNull
+    @Size(min = 1)
     private String makeName;
-    
-    @Column (nullable = false)
+
+    @Column(nullable = false, unique = true)
+    @NotNull
+    @Size(min = 1)
     private String modelName;
-    
-    @ManyToOne (optional = false)
-    @JoinColumn (nullable = false)
+
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
+    @NotNull
     private CarCategory carCategory;
-    
-    @OneToMany (mappedBy = "model")
+
+    @OneToMany(mappedBy = "model")
     private List<Car> cars;
 
     public Model() {
@@ -73,7 +81,7 @@ public class Model implements Serializable {
     public void setCarCategory(CarCategory carCategory) {
         this.carCategory = carCategory;
     }
-    
+
     public String getModelName() {
         return modelName;
     }
@@ -130,5 +138,5 @@ public class Model implements Serializable {
     public String toString() {
         return "entity.Model[ id=" + modelId + " ]";
     }
-    
+
 }

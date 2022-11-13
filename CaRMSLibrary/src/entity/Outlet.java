@@ -19,6 +19,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -31,25 +32,26 @@ public class Outlet implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long outletId;
-    
-    @Column
+
+    @Column (unique = true)
+    @NotNull
     private String outletName;
-    
+
     @Column
     private String address;
-    
+
     @Column
     @Temporal(TemporalType.TIME)
     private Date openingHour;
-    
+
     @Column
     @Temporal(TemporalType.TIME)
     private Date closingHour;
-    
-    @OneToMany (mappedBy = "outlet")
+
+    @OneToMany(mappedBy = "outlet")
     private List<Employee> employees;
-    
-    @OneToMany (mappedBy = "outlet")
+
+    @OneToMany(mappedBy = "outlet")
     private List<Car> cars;
 
     public Outlet() {
@@ -88,7 +90,7 @@ public class Outlet implements Serializable {
     public void setClosingHour(Date closingHour) {
         this.closingHour = closingHour;
     }
-    
+
     public List<Car> getCars() {
         return cars;
     }
@@ -104,8 +106,7 @@ public class Outlet implements Serializable {
     public void setOutletName(String outletName) {
         this.outletName = outletName;
     }
-    
-    
+
     public Long getOutletId() {
         return outletId;
     }
@@ -138,5 +139,5 @@ public class Outlet implements Serializable {
     public String toString() {
         return "entity.Outlet[ id=" + outletId + " ]";
     }
-    
+
 }

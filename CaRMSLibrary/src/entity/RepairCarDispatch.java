@@ -16,6 +16,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Future;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -28,17 +30,22 @@ public class RepairCarDispatch implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long repairCarDispatchId;
-    
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
+    @NotNull
+    @Future
     private Date startDate;
-    
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
+    @NotNull
+    @Future
     private Date endDate;
-    
+
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
+    @NotNull
     private Car repairCar;
 
     public Long getRepairCarDispatchId() {
@@ -48,7 +55,7 @@ public class RepairCarDispatch implements Serializable {
     public void setRepairCarDispatchId(Long repairCarDispatchId) {
         this.repairCarDispatchId = repairCarDispatchId;
     }
- 
+
     public Car getRepairCar() {
         return repairCar;
     }
@@ -97,5 +104,5 @@ public class RepairCarDispatch implements Serializable {
     public String toString() {
         return "entity.RepairCarDispatch[ id=" + repairCarDispatchId + " ]";
     }
-    
+
 }

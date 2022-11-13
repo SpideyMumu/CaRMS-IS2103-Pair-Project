@@ -14,6 +14,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -25,6 +27,8 @@ public class CarRentalCustomer extends Customer implements Serializable {
     private static final long serialVersionUID = 1L;    
     
     @Column(nullable = false, length = 10)
+    @NotNull
+    @Size(min = 8, max = 10)
     private String password;
     
     @OneToMany(mappedBy="carRentalCustomer")

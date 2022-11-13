@@ -15,6 +15,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import util.enumeration.UserRole;
 
 /**
@@ -28,21 +30,29 @@ public class Employee implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long employeeId;
-    
+
     @Column(length = 20, nullable = false)
+    @NotNull
+    @Size(min = 1)
     private String name;
-    
+
     @Column(length = 20, nullable = false, unique = true)
+    @NotNull
+    @Size(min = 8)
     private String username;
-    
+
     @Column(length = 20, nullable = false)
+    @NotNull
+    @Size(min = 8)
     private String password;
-    
+
     @Enumerated(EnumType.STRING)
+    @NotNull
     private UserRole userRole;
-    
+
     @ManyToOne
     @JoinColumn(name = "outletId")
+    @NotNull
     private Outlet outlet;
 
     public Employee() {
@@ -56,7 +66,7 @@ public class Employee implements Serializable {
         this.outlet = outlet;
         this.password = "password";
     }
-    
+
     public String getName() {
         return name;
     }
@@ -96,9 +106,7 @@ public class Employee implements Serializable {
     public void setOutlet(Outlet outlet) {
         this.outlet = outlet;
     }
-    
 
-    
     public Long getEmployeeId() {
         return employeeId;
     }
@@ -131,5 +139,5 @@ public class Employee implements Serializable {
     public String toString() {
         return "entity.Employee[ id=" + employeeId + " ]";
     }
-    
+
 }
