@@ -38,6 +38,7 @@ import util.exception.CarNotFoundException;
 import util.exception.CreateNewCarException;
 import util.exception.CreateNewModelException;
 import util.exception.CreateNewRentalRateException;
+import util.exception.CreateTransitDriverDispatchException;
 import util.exception.EmployeeNotFoundException;
 import util.exception.ModelNotFoundException;
 import util.exception.OutletNotFoundException;
@@ -49,6 +50,11 @@ import util.exception.UpdateCarException;
 import util.exception.UpdateModelException;
 import util.exception.UpdateRentalRateException;
 import util.exception.UpdateTransitDriverDispatchException;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 /**
  *
@@ -63,6 +69,10 @@ public class SalesManagementModule {
     /* 
     This module is only accessible to Sales Manager and Operations Manager
      */
+    //Bean Validation
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+
     //Remote Session Beans
     private CarSessionBeanRemote carSessionBean;
     private CarCategorySessionBeanRemote carCategorySessionBean;
@@ -72,16 +82,19 @@ public class SalesManagementModule {
     private RentalRateSessionBeanRemote rentalRateSessionBean;
     private TransitDriverDispatchSessionBeanRemote transitDriverDispatchSessionBean;
     private EJBtimerSessionBeanRemote eJBtimerSessionBean;
-    
+
     //Current logged-in user
     private Employee currEmployee;
 
     public SalesManagementModule() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
 
-    public SalesManagementModule(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean, 
-            ModelSessionBeanRemote modelSessionBean, RentalRateSessionBeanRemote rentalRateSessionBean, TransitDriverDispatchSessionBeanRemote transitDriverDispatchSessionBean, EJBtimerSessionBeanRemote eJBtimerSessionBean, 
+    public SalesManagementModule(CarSessionBeanRemote carSessionBean, CarCategorySessionBeanRemote carCategorySessionBean, EmployeeCaRMSSessionBeanRemote employeeSessionBean, OutletSessionBeanRemote outletSessionBean,
+            ModelSessionBeanRemote modelSessionBean, RentalRateSessionBeanRemote rentalRateSessionBean, TransitDriverDispatchSessionBeanRemote transitDriverDispatchSessionBean, EJBtimerSessionBeanRemote eJBtimerSessionBean,
             Employee currEmployee) {
+        this();
         this.carSessionBean = carSessionBean;
         this.carCategorySessionBean = carCategorySessionBean;
         this.employeeSessionBean = employeeSessionBean;
@@ -215,11 +228,20 @@ public class SalesManagementModule {
         System.out.print("Type the Car Category ID that this model is>");
         Long selection = sc.nextLong();
 
-        //Persist to DB
         try {
-            Long modelId = modelSessionBean.createNewModel(selection, newModel);
-            System.out.println("Succesully created new Model! ModelID is " + modelId + ". Model " + makeName + " " + modelName + ".");
-        } catch (CreateNewModelException ex) {
+            CarCategory category = carCategorySessionBean.retrieveCategoryById(selection);
+            newModel.setCarCategory(category);
+
+            //Persist to DB
+            Set<ConstraintViolation<Model>> constraintViolations = validator.validate(newModel);
+            if (constraintViolations.isEmpty()) {
+                Long modelId = modelSessionBean.createNewModel(selection, newModel);
+                System.out.println("Succesully created new Model! ModelID is " + modelId + ". Model " + makeName + " " + modelName + ".");
+
+            } else {
+                showInputDataValidationErrorsForModel(constraintViolations);
+            }
+        } catch (CreateNewModelException | CarCategoryNotFoundException ex) {
             System.out.println("Invalid input! " + ex.getMessage());
         }
     }
@@ -272,37 +294,52 @@ public class SalesManagementModule {
                             System.out.print("Enter new Make name> ");
                             String makeName = sc.nextLine();
                             model.setMakeName(makeName);
-                            try {
-                                modelSessionBean.updateModel(model);
-                                System.out.println("Successfully Updated Make name!");
-                            } catch (UpdateModelException ex) {
-                                System.out.println("Update Failed! " + ex.getMessage());
+                            Set<ConstraintViolation<Model>> constraintViolationsForMakeName = validator.validate(model);
+                            if (constraintViolationsForMakeName.isEmpty()) {
+                                try {
+                                    modelSessionBean.updateModel(model);
+                                    System.out.println("Successfully Updated Make name!");
+                                } catch (UpdateModelException ex) {
+                                    System.out.println("Update Failed! " + ex.getMessage());
+                                }
+                            } else {
+                                showInputDataValidationErrorsForModel(constraintViolationsForMakeName);
                             }
                             break;
                         case 2: //change Model name
                             System.out.print("Enter new Model name> ");
                             String modelName = sc.nextLine();
                             model.setModelName(modelName);
-                            try {
-                                modelSessionBean.updateModel(model);
-                                System.out.println("Successfully Updated Model name!");
-                            } catch (UpdateModelException ex) {
-                                System.out.println("Update Failed! " + ex.getMessage());
+                            Set<ConstraintViolation<Model>> constraintViolationsForModelName = validator.validate(model);
+                            if (constraintViolationsForModelName.isEmpty()) {
+                                try {
+                                    modelSessionBean.updateModel(model);
+                                    System.out.println("Successfully Updated Model name!");
+                                } catch (UpdateModelException ex) {
+                                    System.out.println("Update Failed! " + ex.getMessage());
+                                }
+                            } else {
+                                showInputDataValidationErrorsForModel(constraintViolationsForModelName);
                             }
                             break;
                         case 3: //change Car Category
                             System.out.print("Enter new Car Category ID> ");
                             Long carCategoryID = sc.nextLong();
-                            try {
-                                CarCategory newCarCategory = carCategorySessionBean.retrieveCategoryById(carCategoryID);
-                                model.setCarCategory(newCarCategory);
-                                modelSessionBean.updateModel(model);
-                                System.out.println("Successfully Updated Car Category!");
-                            } catch (UpdateModelException | CarCategoryNotFoundException ex) {
-                                System.out.println("Update Failed! " + ex.getMessage());
+                            Set<ConstraintViolation<Model>> constraintViolationsForCategory = validator.validate(model);
+                            if (constraintViolationsForCategory.isEmpty()) {
+                                try {
+                                    CarCategory newCarCategory = carCategorySessionBean.retrieveCategoryById(carCategoryID);
+                                    model.setCarCategory(newCarCategory);
+                                    modelSessionBean.updateModel(model);
+                                    System.out.println("Successfully Updated Car Category!");
+                                } catch (UpdateModelException | CarCategoryNotFoundException ex) {
+                                    System.out.println("Update Failed! " + ex.getMessage());
+                                }
+                            } else {
+                                showInputDataValidationErrorsForModel(constraintViolationsForCategory);
                             }
                             break;
-                        case 4: //Disable/Enable
+                        case 4: //Disable/Enable - no need for bean validation since attribute changed is boolean
                             if (model.isEnabled()) {
                                 System.out.print("Model is currently Enabled. ");
                                 System.out.print("Would you like to disable it? (y/n) >");
@@ -360,6 +397,16 @@ public class SalesManagementModule {
         }
     }
 
+    private void showInputDataValidationErrorsForModel(Set<ConstraintViolation<Model>> constraintViolations) {
+        System.out.println("\nInput data validation error!:");
+
+        for (ConstraintViolation constraintViolation : constraintViolations) {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
+    }
+
     private void doCreateNewCar() {
         Scanner sc = new Scanner(System.in);
         System.out.println("*** Create Car ***\n");
@@ -381,10 +428,22 @@ public class SalesManagementModule {
         this.doViewAllModels();
         System.out.print("Type the Model ID that this car is>");
         Long selection = sc.nextLong();
-        try { //assume new car belongs to the outlet of the current employee
-            Long carId = carSessionBean.createNewCar(selection, currEmployee.getOutlet().getOutletId(), newCar);
-            System.out.println("Car Succesfully created! CarID is " + carId + ".");
-        } catch (CarLicensePlateNumExistException | UnknownPersistenceException | CreateNewCarException ex) {
+
+        try {
+            Model model = modelSessionBean.retrieveModelById(selection);
+            newCar.setModel(model);
+
+            Outlet outlet = outletSessionBean.retrieveOutletById(currEmployee.getOutlet().getOutletId());
+            newCar.setOutlet(outlet);
+            Set<ConstraintViolation<Car>> constraintViolations = validator.validate(newCar);
+            if (constraintViolations.isEmpty()) {
+                //assume new car belongs to the outlet of the current employee
+                Long carId = carSessionBean.createNewCar(selection, currEmployee.getOutlet().getOutletId(), newCar);
+                System.out.println("Car Succesfully created! CarID is " + carId + ".");
+            } else {
+                showInputDataValidationErrorsForCar(constraintViolations);
+            }
+        } catch (ModelNotFoundException | CarLicensePlateNumExistException | UnknownPersistenceException | CreateNewCarException | OutletNotFoundException ex) {
             System.out.println("Invalid input! " + ex.getMessage());
         }
     }
@@ -444,49 +503,68 @@ public class SalesManagementModule {
                             String newLicensePlateNum = sc.nextLine();
                             //car.setColor(color);
                             car.setLicensePlateNum(newLicensePlateNum);
-                            try {
-                                carSessionBean.updateCar(car);
-                                System.out.println("Successfully Updated License Plate Number!");
-                            } catch (UpdateCarException ex) {
-                                System.out.println("Update Failed! " + ex.getMessage());
+                            Set<ConstraintViolation<Car>> constraintViolationsForLicensePlate = validator.validate(car);
+                            if (constraintViolationsForLicensePlate.isEmpty()) {
+                                try {
+                                    carSessionBean.updateCar(car);
+                                    System.out.println("Successfully Updated License Plate Number!");
+                                } catch (UpdateCarException ex) {
+                                    System.out.println("Update Failed! " + ex.getMessage());
+                                }
+                            } else {
+                                showInputDataValidationErrorsForCar(constraintViolationsForLicensePlate);
                             }
                         case 1: // change color
                             System.out.print("Enter new color> ");
                             String color = sc.nextLine();
                             car.setColor(color);
-                            try {
-                                carSessionBean.updateCar(car);
-                                System.out.println("Successfully Updated Color!");
-                            } catch (UpdateCarException ex) {
-                                System.out.println("Update Failed! " + ex.getMessage());
+                            Set<ConstraintViolation<Car>> constraintViolationsForColor = validator.validate(car);
+                            if (constraintViolationsForColor.isEmpty()) {
+                                try {
+                                    carSessionBean.updateCar(car);
+                                    System.out.println("Successfully Updated Color!");
+                                } catch (UpdateCarException ex) {
+                                    System.out.println("Update Failed! " + ex.getMessage());
+                                }
+                            } else {
+                                showInputDataValidationErrorsForCar(constraintViolationsForColor);
                             }
                             break;
                         case 2: //change model
                             System.out.print("Enter new Model ID> ");
                             Long modelId = sc.nextLong();
-
-                            try {
-                                Model model = modelSessionBean.retrieveModelById(modelId);
-                                car.setModel(model);
-                                carSessionBean.updateCar(car);
-                                System.out.println("Successfully Updated Car Model!");
-                            } catch (UpdateCarException | ModelNotFoundException ex) {
-                                System.out.println("Update Failed! " + ex.getMessage());
+                            Set<ConstraintViolation<Car>> constraintViolationsForModel = validator.validate(car);
+                            if (constraintViolationsForModel.isEmpty()) {
+                                try {
+                                    Model model = modelSessionBean.retrieveModelById(modelId);
+                                    car.setModel(model);
+                                    carSessionBean.updateCar(car);
+                                    System.out.println("Successfully Updated Car Model!");
+                                } catch (UpdateCarException | ModelNotFoundException ex) {
+                                    System.out.println("Update Failed! " + ex.getMessage());
+                                }
+                            } else {
+                                showInputDataValidationErrorsForCar(constraintViolationsForModel);
                             }
                             break;
                         case 3: //change outlet
                             System.out.print("Enter new Outlet ID> ");
                             Long outletID = sc.nextLong();
-                            try {
-                                Outlet newOutlet = outletSessionBean.retrieveOutletById(outletID);
-                                car.setOutlet(newOutlet);
-                                carSessionBean.updateCar(car);
-                                System.out.println("Successfully Updated Car Outlet!");
-                            } catch (UpdateCarException | OutletNotFoundException ex) {
-                                System.out.println("Update Failed! " + ex.getMessage());
+                            Set<ConstraintViolation<Car>> constraintViolationsForOutlet = validator.validate(car);
+                            if (constraintViolationsForOutlet.isEmpty()) {
+                                try {
+                                    Outlet newOutlet = outletSessionBean.retrieveOutletById(outletID);
+                                    car.setOutlet(newOutlet);
+                                    carSessionBean.updateCar(car);
+                                    System.out.println("Successfully Updated Car Outlet!");
+                                } catch (UpdateCarException | OutletNotFoundException ex) {
+                                    System.out.println("Update Failed! " + ex.getMessage());
+                                }
+                            } else {
+                                showInputDataValidationErrorsForCar(constraintViolationsForOutlet);
                             }
                             break;
-                        case 4: //change status
+                        case 4: //change status - default status is always available - no need for bean validation
                             System.out.println("Status is currently: " + car.getStatus().toString());
                             System.out.println("Select new status: ");
                             System.out.print(
@@ -589,6 +667,16 @@ public class SalesManagementModule {
             System.out.println("Please type the correct license plate number! " + ex.getMessage());
         }
 
+    }
+
+    private void showInputDataValidationErrorsForCar(Set<ConstraintViolation<Car>> constraintViolations) {
+        System.out.println("\nInput data validation error!:");
+
+        for (ConstraintViolation constraintViolation : constraintViolations) {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
     }
 
     private void doViewTransitDriverDispatchRecords() {
@@ -709,7 +797,7 @@ public class SalesManagementModule {
             System.out.println("Invalid Input!" + ex.getMessage());
         }
     }
-    
+
     private void doAllocateCars() {
         Scanner sc = new Scanner(System.in);
 
@@ -717,16 +805,16 @@ public class SalesManagementModule {
         System.out.println("Enter Date for car allocation (Format: dd/MM/yyyy HH:mm) > ");
         String dateString = sc.nextLine();
         SimpleDateFormat rentalDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-        
+
         try {
             Date date = rentalDateFormat.parse(dateString);
             eJBtimerSessionBean.allocateCarsByDate(date);
-        } catch (ParseException | CarNotFoundException | ReservationNotFoundException ex) {
+        } catch (ParseException | CarNotFoundException | ReservationNotFoundException | CreateTransitDriverDispatchException ex) {
             System.out.println("Invalid Input!" + ex.getMessage());
         }
-        
+
     }
-   
+
     // Sales Manager Use Cases below
     private void salesManagerMenu() {
 
@@ -810,6 +898,12 @@ public class SalesManagementModule {
                 + "4: SUV and Minivan\n"
                 + ">");
         Long selection = sc.nextLong();
+        try {
+            CarCategory category = carCategorySessionBean.retrieveCategoryById(selection);
+            newRentalRate.setCarCategory(category);
+        } catch (CarCategoryNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        }
         sc.nextLine();
 
         SimpleDateFormat rentalDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
@@ -829,12 +923,17 @@ public class SalesManagementModule {
             System.out.println("Please input the dates in the correct format! Creating operation failed. Please try again");
             return;
         }
+        Set<ConstraintViolation<RentalRate>> constraintViolations = validator.validate(newRentalRate);
 
-        try {
-            rentalRateSessionBean.createNewRentalRate(selection, newRentalRate);
-            System.out.println("Successfully created new rental rate!");
-        } catch (CreateNewRentalRateException | CarCategoryNotFoundException ex) {
-            System.out.println("Creating operation failed! " + ex.getMessage());
+        if (constraintViolations.isEmpty()) {
+            try {
+                rentalRateSessionBean.createNewRentalRate(selection, newRentalRate);
+                System.out.println("Successfully created new rental rate!");
+            } catch (CreateNewRentalRateException | CarCategoryNotFoundException ex) {
+                System.out.println("Creating operation failed! " + ex.getMessage());
+            }
+        } else {
+            showInputDataValidationErrorsForRentalRate(constraintViolations);
         }
     }
 
@@ -929,24 +1028,35 @@ public class SalesManagementModule {
                         case 1:
                             System.out.print("Enter new name>");
                             String name = sc.nextLine();
-                            try {
-                                rentalRate.setName(name);
-                                rentalRateSessionBean.updateRentalRate(rentalRate);
-                                System.out.println("Successfully Updated Rate per day!");
-                            } catch (UpdateRentalRateException ex) {
-                                System.out.println("Update Failed! " + ex.getMessage());
+                            rentalRate.setName(name);
+                            Set<ConstraintViolation<RentalRate>> constraintViolationsForName = validator.validate(rentalRate);
+
+                            if (constraintViolationsForName.isEmpty()) {
+                                try {
+
+                                    rentalRateSessionBean.updateRentalRate(rentalRate);
+                                    System.out.println("Successfully Updated Rate per day!");
+                                } catch (UpdateRentalRateException ex) {
+                                    System.out.println("Update Failed! " + ex.getMessage());
+                                }
+                            } else {
+                                showInputDataValidationErrorsForRentalRate(constraintViolationsForName);
                             }
                             break;
                         case 2:
                             System.out.print("Enter new rate per day>");
                             BigDecimal ratePerDay = sc.nextBigDecimal();
-
-                            try {
-                                rentalRate.setRatePerDay(ratePerDay);
-                                rentalRateSessionBean.updateRentalRate(rentalRate);
-                                System.out.println("Successfully Updated Rate per day!");
-                            } catch (UpdateRentalRateException ex) {
-                                System.out.println("Update Failed! " + ex.getMessage());
+                            rentalRate.setRatePerDay(ratePerDay);
+                            Set<ConstraintViolation<RentalRate>> constraintViolationsForRate = validator.validate(rentalRate);
+                            if (constraintViolationsForRate.isEmpty()) {
+                                try {
+                                    rentalRateSessionBean.updateRentalRate(rentalRate);
+                                    System.out.println("Successfully Updated Rate per day!");
+                                } catch (UpdateRentalRateException ex) {
+                                    System.out.println("Update Failed! " + ex.getMessage());
+                                }
+                            } else {
+                                showInputDataValidationErrorsForRentalRate(constraintViolationsForRate);
                             }
                             break;
                         case 3:
@@ -966,8 +1076,13 @@ public class SalesManagementModule {
                             String newStartDateString = sc.nextLine();
                             try {
                                 rentalRate.setStartDate(rentalDateFormat.parse(newStartDateString));
-                                rentalRateSessionBean.updateRentalRate(rentalRate);
-                                System.out.println("Successfully Start Date!");
+                                Set<ConstraintViolation<RentalRate>> constraintViolationsForStartDate = validator.validate(rentalRate);
+                                if (constraintViolationsForStartDate.isEmpty()) {
+                                    rentalRateSessionBean.updateRentalRate(rentalRate);
+                                    System.out.println("Successfully Start Date!");
+                                } else {
+                                    showInputDataValidationErrorsForRentalRate(constraintViolationsForStartDate);
+                                }
                             } catch (UpdateRentalRateException | ParseException ex) {
                                 System.out.println("Update Failed! " + ex.getMessage());
                             }
@@ -977,8 +1092,13 @@ public class SalesManagementModule {
                             String newEndDateString = sc.nextLine();
                             try {
                                 rentalRate.setEndDate(rentalDateFormat.parse(newEndDateString));
-                                rentalRateSessionBean.updateRentalRate(rentalRate);
-                                System.out.println("Successfully Updated End Date!");
+                                Set<ConstraintViolation<RentalRate>> constraintViolationsForEndDate = validator.validate(rentalRate);
+                                if (constraintViolationsForEndDate.isEmpty()) {
+                                    rentalRateSessionBean.updateRentalRate(rentalRate);
+                                    System.out.println("Successfully Updated End Date!");
+                                } else {
+                                    showInputDataValidationErrorsForRentalRate(constraintViolationsForEndDate);
+                                }
                             } catch (UpdateRentalRateException | ParseException ex) {
                                 System.out.println("Update Failed! " + ex.getMessage());
                             }
@@ -1048,4 +1168,13 @@ public class SalesManagementModule {
         }
     }
 
+    private void showInputDataValidationErrorsForRentalRate(Set<ConstraintViolation<RentalRate>> constraintViolations) {
+        System.out.println("\nInput data validation error!:");
+
+        for (ConstraintViolation constraintViolation : constraintViolations) {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
+    }
 }
