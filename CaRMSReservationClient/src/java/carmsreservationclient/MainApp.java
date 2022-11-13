@@ -86,7 +86,7 @@ public class MainApp {
         this.outletSessionBeanRemote = outletSessionBeanRemote;
     }
 
-    public void runApp() throws ParseException, InvalidLoginCredentialException {
+    public void runApp() throws ParseException {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
 
@@ -117,7 +117,11 @@ public class MainApp {
                     System.out.println("Register successful!\n");
                     System.out.println("Log in to the system? y/n");
                     if (scanner.nextLine().trim().equals("y")) {
-                        doLogin();
+                        try {
+                            doLogin();
+                        } catch (InvalidLoginCredentialException ex ) {
+                            System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
+                        }
                     }
                 } else if (response == 3) {
                     doSearchCar();
