@@ -32,17 +32,17 @@ public class Outlet implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long outletId;
     
-    @Column
+    @Column(nullable = false)
     private String outletName;
     
-    @Column
+    @Column(nullable = false)
     private String address;
     
-    @Column
+    @Column(nullable = false)
     @Temporal(TemporalType.TIME)
     private Date openingHour;
     
-    @Column
+    @Column(nullable = false)
     @Temporal(TemporalType.TIME)
     private Date closingHour;
     

@@ -7,12 +7,14 @@ package ejb.session.stateless;
 
 import entity.Car;
 import entity.CarCategory;
+import entity.Model;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.CarNotFoundException;
 import util.exception.CarLicensePlateNumExistException;
+import util.exception.InvalidSearchCarConditionException;
 import util.exception.OutletNotFoundException;
 import util.exception.UnknownPersistenceException;
 
@@ -45,6 +47,6 @@ public interface CarSessionBeanLocal {
 
     public List<Car> retrieveCarsByOutletName(String outletName);
 
-    public HashMap<CarCategory, Integer> searchCar(Date pickupDate, String pickupOutlet, Date returnDate, String returnOutlet) throws OutletNotFoundException;
+    public HashMap<Model, Integer> searchCar(Date pickupDate, String pickupOutlet, Date returnDate, String returnOutlet) throws OutletNotFoundException, InvalidSearchCarConditionException;
     
 }

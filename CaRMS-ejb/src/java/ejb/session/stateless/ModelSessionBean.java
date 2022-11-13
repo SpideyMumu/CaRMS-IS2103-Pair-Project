@@ -50,6 +50,13 @@ public class ModelSessionBean implements ModelSessionBeanRemote, ModelSessionBea
         return query.getResultList();
     }
     
+    public Model retrieveModelByName(String name)
+    {
+        Query query = em.createQuery("SELECT m FROM Model m WHERE m.modelName = :inName");
+        query.setParameter("inName", name);
+        return (Model)query.getSingleResult();
+    }
+    
     public HashMap<Model, Integer> retrieveQuantityOfCarsForEachModel() 
     {
         List<Model> models = retrieveAllModels();

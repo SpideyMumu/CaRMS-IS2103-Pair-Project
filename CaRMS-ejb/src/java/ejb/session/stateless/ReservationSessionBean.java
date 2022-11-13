@@ -54,7 +54,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     
 
     @Override
-    public Reservation createNewReservation(Long carCategoryId, Long pickupOutletId, Long returnOutletId, Long customerId, Reservation newReservation) throws CreateReservationException, CarCategoryNotFoundException
+    public Long createNewReservation(Long carCategoryId, Long pickupOutletId, Long returnOutletId, Long customerId, Reservation newReservation) throws CreateReservationException, CarCategoryNotFoundException, OutletNotFoundException, CustomerNotFoundException
     {
         if(newReservation != null)
         {
@@ -82,7 +82,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
 
                 em.flush();
                 
-                return newReservation;      
+                return newReservation.getReservationId();      
           
             }
             catch(CarCategoryNotFoundException | OutletNotFoundException | CustomerNotFoundException ex)

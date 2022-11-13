@@ -21,6 +21,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import util.enumeration.RentalRateType;
 import util.exception.CarCategoryNotFoundException;
+import util.exception.RentalRateNotAvailableException;
 
 /**
  *
@@ -63,6 +64,13 @@ public class CarCategorySessionBean implements CarCategorySessionBeanRemote, Car
         return query.getResultList();
     }
     
+    public CarCategory retrieveCarCategoryByName(String name)
+    {
+        Query query = em.createQuery("SELECT c FROM CarCategory c WHERE c.categoryName = :inName");
+        query.setParameter("inName", name);
+        return (CarCategory)query.getSingleResult();
+    }
+    
     public HashMap<CarCategory, Integer> retrieveQuantityOfCarsForEachCategory()
     {
         List<CarCategory> carCategories = retrieveAllCategories();
@@ -85,7 +93,7 @@ public class CarCategorySessionBean implements CarCategorySessionBeanRemote, Car
         return hashmap;
     }
     
-    public HashMap<CarCategory, BigDecimal> calculatePrevailingRentalFeeForEachCategories(List<CarCategory> list, Date pickupDate, Date returnDate)
+    public HashMap<CarCategory, BigDecimal> calculatePrevailingRentalFeeForEachCategories(List<CarCategory> list, Date pickupDate, Date returnDate) throws RentalRateNotAvailableException
     {
         Calendar pickupCalendar = Calendar.getInstance();
         pickupCalendar.setTime(pickupDate);
@@ -207,7 +215,14 @@ public class CarCategorySessionBean implements CarCategorySessionBeanRemote, Car
                         }
                     }
                 }
-                prevailingRentalFee = prevailingRentalFee.add(rentalRate.getRatePerDay());
+                if (rentalRate == null)
+                {
+                    throw new RentalRateNotAvailableException("No rental rate available for the date " + j);
+                }
+                else
+                {
+                    prevailingRentalFee = prevailingRentalFee.add(rentalRate.getRatePerDay());
+                }
             }
             if (rates.containsKey(carCategory))
             {

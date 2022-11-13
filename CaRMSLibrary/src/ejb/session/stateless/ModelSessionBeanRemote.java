@@ -30,4 +30,6 @@ public interface ModelSessionBeanRemote {
     
     public HashMap<Model, Integer> retrieveQuantityOfCarsForEachModel();
     
+    public Model retrieveModelByName(String name);
+ 
 }

@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.CarCategoryNotFoundException;
+import util.exception.RentalRateNotAvailableException;
 
 /**
  *
@@ -26,6 +27,10 @@ public interface CarCategorySessionBeanLocal {
 
     public HashMap<CarCategory, Integer> retrieveQuantityOfCarsForEachCategory();
 
-    public HashMap<CarCategory, BigDecimal> calculatePrevailingRentalFeeForEachCategories(List<CarCategory> list, Date pickupDate, Date returnDate);
+    public HashMap<CarCategory, BigDecimal> calculatePrevailingRentalFeeForEachCategories(List<CarCategory> list, Date pickupDate, Date returnDate) throws RentalRateNotAvailableException;
+
+    public List<CarCategory> retrieveAllCategories();
+
+    public CarCategory retrieveCarCategoryByName(String name);
     
 }

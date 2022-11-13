@@ -29,6 +29,7 @@ import util.enumeration.CarStatus;
 import util.exception.CarNotFoundException;
 import util.exception.CarLicensePlateNumExistException;
 import util.exception.OutletNotFoundException;
+import util.exception.InvalidSearchCarConditionException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -161,10 +162,10 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
         }
     }
      
-    public HashMap<CarCategory, Integer> searchCar(Date pickupDate, String pickupOutlet, Date returnDate, String returnOutlet) throws OutletNotFoundException
+    public HashMap<Model, Integer> searchCar(Date pickupDate, String pickupOutlet, Date returnDate, String returnOutlet) throws OutletNotFoundException, InvalidSearchCarConditionException
     {
         
-        HashMap<CarCategory, Integer> categoryQuantity = carCategorySessionBeanLocal.retrieveQuantityOfCarsForEachCategory();
+        //HashMap<CarCategory, Integer> categoryQuantity = carCategorySessionBeanLocal.retrieveQuantityOfCarsForEachCategory();
 
         List<Reservation> reservations = reservationSessionBeanLocal.retrieveAllReservations();
         
@@ -174,19 +175,38 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
         
         List<Car> availableCars = retrieveAvailableCars();
         
+        HashMap<CarCategory, Integer> availableQuantity = new HashMap<CarCategory, Integer>();
+        
+        HashMap<Model, Integer> modelQuantity = new HashMap<Model, Integer>();
+        
         for (Car car : availableCars)
         {
             Model model = car.getModel();
             CarCategory carCategory = model.getCarCategory();
-            if (!categoryQuantity.containsKey(carCategory))
+            if (!availableQuantity.containsKey(carCategory))
             {
-                categoryQuantity.put(carCategory, 1);
+                availableQuantity.put(carCategory, 1);
             } 
             else 
             {
-                int quantity = categoryQuantity.get(carCategory);
-                categoryQuantity.replace(carCategory, quantity + 1);
+                int quantity = availableQuantity.get(carCategory);
+                availableQuantity.replace(carCategory, quantity + 1);
             }
+            if (!modelQuantity.containsKey(model))
+            {
+                modelQuantity.put(model, 1);
+            }
+            else
+            {
+                int numOfCars = modelQuantity.get(model);
+                modelQuantity.replace(model, numOfCars + 1);
+            }
+        }
+        
+        if (pickupDate.before(searchPickupOutlet.getOpeningHour()) || searchPickupOutlet.getClosingHour().before(pickupDate) ||
+                returnDate.before(searchReturnOutlet.getOpeningHour()) || searchReturnOutlet.getClosingHour().before(returnDate))
+        {
+            throw new InvalidSearchCarConditionException("Pick up date or return date selected is out of outlet opening or closing hours!");
         }
         
         Calendar pickupDateCalendarMinusTwoHours = Calendar.getInstance();
@@ -201,49 +221,87 @@ public class CarSessionBean implements CarSessionBeanRemote, CarSessionBeanLocal
         
         for(Reservation reservation : reservations)
         {
-            Date startDate = reservation.getStartDate();
-            Date endDate = reservation.getEndDate();
-            CarCategory carCategory = reservation.getCarCategory();
-            Outlet startOutlet = reservation.getPickUpLocation();
-            Outlet endOutlet = reservation.getReturnLocation();
-            
-            int quantity;
-            
-            if ((startDate.before(pickupDateMinusTwoHours) && endDate.after(pickupDateMinusTwoHours) ||
-                    (startDate.before(returnDatePlusTwoHours) && endDate.after(returnDatePlusTwoHours))))
+            if (!reservation.getIsCancelled())
             {
-                if (categoryQuantity.containsKey(carCategory))
+                Date startDate = reservation.getStartDate();
+                Date endDate = reservation.getEndDate();
+                CarCategory carCategory = reservation.getCarCategory();
+                Outlet startOutlet = reservation.getPickUpLocation();
+                Outlet endOutlet = reservation.getReturnLocation();
+                Model carModel = reservation.getCarModel();
+
+                int quantityOfCategory;
+                int quantityOfModel;
+
+                if ((startDate.before(pickupDateMinusTwoHours) && endDate.after(pickupDateMinusTwoHours) ||
+                        (startDate.before(returnDatePlusTwoHours) && endDate.after(returnDatePlusTwoHours))))
                 {
-                    quantity = categoryQuantity.get(carCategory);
-                    if (quantity > 0)
+                    if (availableQuantity.containsKey(carCategory))
                     {
-                        categoryQuantity.replace(carCategory, quantity - 1);
+                        quantityOfCategory = availableQuantity.get(carCategory);
+                        if (quantityOfCategory > 0)
+                        {
+                            availableQuantity.replace(carCategory, quantityOfCategory - 1);
+                        }
+                    }
+                    if (carModel != null)
+                    {
+                        if (modelQuantity.containsKey(carModel))
+                        {
+                            quantityOfModel = modelQuantity.get(carModel);
+                            if (quantityOfModel > 0)
+                            {
+                                modelQuantity.replace(carModel, quantityOfModel - 1);
+                            }
+                        }
                     }
                 } 
-            } 
-            else if (searchReturnOutlet != startOutlet && (returnDatePlusTwoHours.after(startDate) || returnDatePlusTwoHours.equals(startDate))) 
-            {
-                if (categoryQuantity.containsKey(carCategory))
+                else if (searchReturnOutlet != startOutlet && (returnDatePlusTwoHours.after(startDate) || returnDatePlusTwoHours.equals(startDate))) 
                 {
-                    quantity = categoryQuantity.get(carCategory);
-                    if (quantity > 0)
+                    if (availableQuantity.containsKey(carCategory))
                     {
-                        categoryQuantity.replace(carCategory, quantity - 1);
+                        quantityOfCategory = availableQuantity.get(carCategory);
+                        if (quantityOfCategory > 0)
+                        {
+                            availableQuantity.replace(carCategory, quantityOfCategory - 1);
+                        }
+                    }
+                    if (carModel != null)
+                    {
+                        if (modelQuantity.containsKey(carModel))
+                        {
+                            quantityOfModel = modelQuantity.get(carModel);
+                            if (quantityOfModel > 0)
+                            {
+                                modelQuantity.replace(carModel, quantityOfModel - 1);
+                            }
+                        }
+                    }
+                } else if (searchPickupOutlet != endOutlet && (pickupDateMinusTwoHours.before(endDate) || pickupDateMinusTwoHours.equals(endDate))) {
+
+                    if (availableQuantity.containsKey(carCategory))
+                    {
+                        quantityOfCategory = availableQuantity.get(carCategory);
+                        if (quantityOfCategory > 0)
+                        {
+                            availableQuantity.replace(carCategory, quantityOfCategory - 1);
+                        }
+                    }
+                    if (carModel != null)
+                    {
+                        if (modelQuantity.containsKey(carModel))
+                        {
+                            quantityOfModel = modelQuantity.get(carModel);
+                            if (quantityOfModel > 0)
+                            {
+                                modelQuantity.replace(carModel, quantityOfModel - 1);
+                            }
+                        }
                     }
                 }
-            } else if (searchPickupOutlet != endOutlet && (pickupDateMinusTwoHours.before(endDate) || pickupDateMinusTwoHours.equals(endDate))) {
-               
-                if (categoryQuantity.containsKey(carCategory))
-                {
-                    quantity = categoryQuantity.get(carCategory);
-                    if (quantity > 0)
-                    {
-                        categoryQuantity.replace(carCategory, quantity - 1);
-                    }
-                }
-            }
+            }  
         }
         
-        return categoryQuantity;
+        return modelQuantity;
     }
 }

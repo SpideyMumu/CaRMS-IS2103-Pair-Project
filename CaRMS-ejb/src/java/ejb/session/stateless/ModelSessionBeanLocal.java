@@ -29,5 +29,7 @@ public interface ModelSessionBeanLocal {
     public void deleteModel(Long modelId) throws EntityNotFoundException;
 
     public HashMap<Model, Integer> retrieveQuantityOfCarsForEachModel();
+
+    public Model retrieveModelByName(String name);
     
 }

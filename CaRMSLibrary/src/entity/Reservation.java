@@ -68,6 +68,17 @@ public class Reservation implements Serializable {
     @JoinColumn(nullable = true)
     private Model carModel;
     
+    @Column(nullable = false)
+    private Boolean isCancelled;
+    
+    @Column(nullable = false)
+    private Boolean payOnPickup;
+
+    public Reservation() {
+        this.isCancelled = false;
+        this.payOnPickup = false;
+    }
+    
     public Long getReservationId() {
         return reservationId;
     }
@@ -99,6 +110,15 @@ public class Reservation implements Serializable {
     public void setPickUpLocation(Outlet pickUpLocation) {
         this.pickUpLocation = pickUpLocation;
     }
+
+    public Boolean getPayOnPickup() {
+        return payOnPickup;
+    }
+
+    public void setPayOnPickup(Boolean payOnPickup) {
+        this.payOnPickup = payOnPickup;
+    }
+
 
     public Car getCar() {
         return car;
@@ -175,6 +195,14 @@ public class Reservation implements Serializable {
     
     public void setCarCategory(CarCategory carCategory) {
         this.carCategory = carCategory;
+    }
+
+    public Boolean getIsCancelled() {
+        return isCancelled;
+    }
+
+    public void setIsCancelled(Boolean isCancelled) {
+        this.isCancelled = isCancelled;
     }
 
 
